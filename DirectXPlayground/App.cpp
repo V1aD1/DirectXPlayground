@@ -13,11 +13,16 @@ using namespace Platform;
 // the class definition for the core "framework" of our app
 ref class App sealed: public IFrameworkView
 {
+	bool m_windowClosed;
 public:
 	// some functions called by Windows
 	virtual void Initialize(CoreApplicationView^ appView) {
 		// set the OnActivated function to handle to Acivated "event"
 		appView->Activated += ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &App::OnActivated);
+		CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs^>(this, &App::Suspending);
+		CoreApplication::Resuming += ref new EventHandler<Object^>(this, &App::Resuming);
+
+		m_windowClosed = false;
 	}
 
 	virtual void SetWindow(CoreWindow^ window){
@@ -25,13 +30,22 @@ public:
 		window->PointerWheelChanged += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerWheelChanged);
 		window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyDown);
 		window->KeyUp += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyUp);
+
+		window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::Closed);
 	}
 	virtual void Load(String^ entryPoint) {}
 	virtual void Run() {
 		CoreWindow^ Window = CoreWindow::GetForCurrentThread();
 
-		// Run processEvents() to dispatch events
-		Window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
+		// repeat until window closes
+		while (!m_windowClosed) {
+			// run processEvents() to dispatch events
+			// ProcessAllIfPresent makes ProcessEvents return once all events have been processed
+			Window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
+			// run the rest of the game code here
+		}
+
 	}
 	virtual void Uninitialize() {}
 
@@ -68,6 +82,10 @@ public:
 			dialog.ShowAsync();
 		}
 	}
+
+	void Suspending(Object^ sender, SuspendingEventArgs^ args) {}
+	void Resuming(Object^ sender, Object^ args) {}
+	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { m_windowClosed = true; }
 };
 
 // the class definition that creates an instance of our core framework class
