@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Game.h"
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -14,6 +15,7 @@ using namespace Platform;
 ref class App sealed: public IFrameworkView
 {
 	bool m_windowClosed;
+	CGame m_game;
 public:
 	// some functions called by Windows
 	virtual void Initialize(CoreApplicationView^ appView) {
@@ -44,6 +46,8 @@ public:
 			Window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 			// run the rest of the game code here
+			m_game.Update();
+			m_game.Render();
 		}
 
 	}
