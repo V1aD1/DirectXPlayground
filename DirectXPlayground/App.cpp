@@ -37,6 +37,9 @@ public:
 	}
 	virtual void Load(String^ entryPoint) {}
 	virtual void Run() {
+		
+		m_game.Initialize();
+		
 		CoreWindow^ Window = CoreWindow::GetForCurrentThread();
 
 		// repeat until window closes

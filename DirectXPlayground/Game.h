@@ -10,7 +10,10 @@ public:
 	ComPtr<ID3D11Device1> m_dev;
 
 	//device context interface
-	ComPtr<ID3D11DeviceContext1> m_devcon;
+	ComPtr<ID3D11DeviceContext1> m_devCon;
+
+	// swap chain interface
+	ComPtr<IDXGISwapChain1> m_swapChain;
 
 	void Initialize();
 	void Update();
