@@ -57,6 +57,13 @@ void CGame::Initialize(){
 		&scd, // address of the swap chain description
 		nullptr, // advanced stuff don't even WORRY about it! Pertains to which monitor will display the graphics
 		&m_swapChain); // address of the new swap chain ptr
+
+	// get a pointer directly to the back buffer
+	ComPtr<ID3D11Texture2D> backBuffer;
+	m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer);
+
+	// create a render target pointing to the back buffer
+	m_dev->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_renderTarget);
 }
 
 // performs updates to the state of the game
@@ -65,6 +72,13 @@ void CGame::Update(){}
 // renders a single frame of 3D graphics
 void CGame::Render(){
 
+	// set our render target object as the active render target
+	m_devCon->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
+
+	// clear the back buffer to a single color
+	float color[4] = { 0.0f, 0.0f, 0.4f, 1.0f }; // R G B A
+	m_devCon->ClearRenderTargetView(m_renderTarget.Get(), color);
+	
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
 }

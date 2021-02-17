@@ -15,6 +15,9 @@ public:
 	// swap chain interface
 	ComPtr<IDXGISwapChain1> m_swapChain;
 
+	// COM object that maintains location in video memory to render to (usually back buffer)
+	ComPtr<ID3D11RenderTargetView> m_renderTarget;
+
 	void Initialize();
 	void Update();
 	void Render();
