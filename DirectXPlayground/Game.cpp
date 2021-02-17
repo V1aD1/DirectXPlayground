@@ -82,3 +82,27 @@ void CGame::Render(){
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
 }
+
+void CGame::InitGraphics()
+{
+	VERTEX ourVertices[] = 
+	{
+		{0.0f, 0.5f, 0.0f},
+		{0.45f, -0.5f, 0.0f},
+		{-0.45f, -0.5f, 0.0f}
+	};
+
+	// struct specifying properties of the buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+
+	// size of the buffer that we'll create
+	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
+	
+	// what kind of buffer we're making (vertex buffer)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	// description of the data we're going to store in the vertex buffer
+	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
+
+	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+}

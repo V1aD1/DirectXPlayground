@@ -4,6 +4,10 @@ using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace DirectX;
 
+struct VERTEX {
+	float X, Y, Z;
+};
+
 class CGame {
 public:
 	// device interface
@@ -18,7 +22,13 @@ public:
 	// COM object that maintains location in video memory to render to (usually back buffer)
 	ComPtr<ID3D11RenderTargetView> m_renderTarget;
 
+	// used to access video memory by maintaining both system and video memory
+	// this object automatically copies data from system to video memory when necessary
+	ComPtr<ID3D11Buffer> m_vertexBuffer;
+
 	void Initialize();
 	void Update();
 	void Render();
+
+	void InitGraphics();
 };
