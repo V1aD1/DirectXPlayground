@@ -26,9 +26,14 @@ public:
 	// this object automatically copies data from system to video memory when necessary
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
 
+	ComPtr<ID3D11VertexShader> m_vertexShader; // ran once for each vertex that gets rendered
+	ComPtr<ID3D11PixelShader> m_pixelShader; // ran once for each pixel that gets drawn
+	ComPtr<ID3D11InputLayout> m_inputLayout; // the input layout tells the GPU how our vertex struct is laid out
+
 	void Initialize();
 	void Update();
 	void Render();
 
 	void InitGraphics();
+	void InitPipeline(); // initializes GPU settings and prepares it for rendering
 };

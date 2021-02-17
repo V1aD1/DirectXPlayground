@@ -1,5 +1,28 @@
+#include <fstream>
+
 #include "pch.h"
 #include "Game.h"
+
+// this function loads a file into an Array^
+Array<byte>^ LoadShaderFile(std::string file) {
+	Array<byte>^ fileData = nullptr;
+
+	//open the file
+	std::ifstream vertexFile(file, std::ios::in | std::ios::binary | std::ios::ate);
+
+	if (vertexFile.is_open()) {
+		// get length of file
+		int length = (int)vertexFile.tellg();
+
+		// collect file data
+		fileData = ref new Array<byte>(length);
+		vertexFile.seekg(0, std::ios::beg);
+		vertexFile.read(reinterpret_cast<char*>(fileData->Data), length);
+		vertexFile.close();
+	}
+
+	return fileData;
+}
 
 // initializes and prepares Direct3D for use
 void CGame::Initialize(){
@@ -95,7 +118,7 @@ void CGame::InitGraphics()
 	// struct specifying properties of the buffer
 	D3D11_BUFFER_DESC bd = { 0 };
 
-	// size of the buffer that we'll create
+	// size of the buffer that we'll create, in bytes
 	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
 	
 	// what kind of buffer we're making (vertex buffer)
@@ -105,4 +128,30 @@ void CGame::InitGraphics()
 	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
 
 	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+}
+
+void CGame::InitPipeline()
+{
+	// load shader files (.hlsl files become .cso files after compilation)
+	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
+	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
+
+	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, &m_vertexShader);
+	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, &m_pixelShader);
+
+	// set the shader objects as the active shaders
+	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
+	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
+	// initialize input layout
+	D3D11_INPUT_ELEMENT_DESC ied[] = {
+		// 5th param specifies on which byte the new piece of info starts
+		// so position starts on byte 0, color on the 12th byte
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		//{"COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+
+	// create the input layout
+	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
+	m_devCon->IASetInputLayout(m_inputLayout.Get());
 }
