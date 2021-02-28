@@ -1,7 +1,8 @@
-#include <fstream>
-
 #include "pch.h"
 #include "Game.h"
+
+#include <string>
+#include <fstream>
 
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file) {
@@ -74,7 +75,7 @@ void CGame::Initialize(){
 
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
 
-	auto result = dxgiFactory->CreateSwapChainForCoreWindow(
+	dxgiFactory->CreateSwapChainForCoreWindow(
 		m_dev.Get(), // address of the device
 		reinterpret_cast<IUnknown*>(window), // address of the window
 		&scd, // address of the swap chain description
@@ -87,6 +88,19 @@ void CGame::Initialize(){
 
 	// create a render target pointing to the back buffer
 	m_dev->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_renderTarget);
+
+	// set the viewport (an object that describes what part of the back buffer to draw on)
+	D3D11_VIEWPORT viewport = { 0 };
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = window->Bounds.Width;
+	viewport.Height = window->Bounds.Height;
+
+	m_devCon->RSSetViewports(1, &viewport);
+
+	// initialize graphics and pipeline
+	InitGraphics();
+	InitPipeline();
 }
 
 // performs updates to the state of the game
@@ -102,6 +116,17 @@ void CGame::Render(){
 	float color[4] = { 0.0f, 0.0f, 0.4f, 1.0f }; // R G B A
 	m_devCon->ClearRenderTargetView(m_renderTarget.Get(), color);
 	
+	// set the vertex buffer
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+
+	// set the primitive topology (remember that we're drawing a triangle)
+	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// draw 3 vertices onto the buffer, starting from vertex 0
+	m_devCon->Draw(3, 0);
+
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
 }
@@ -124,7 +149,7 @@ void CGame::InitGraphics()
 	// what kind of buffer we're making (vertex buffer)
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-	// description of the data we're going to store in the vertex buffer
+	// data we're going to store in the vertex buffer
 	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
 
 	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
@@ -146,7 +171,7 @@ void CGame::InitPipeline()
 	// initialize input layout
 	D3D11_INPUT_ELEMENT_DESC ied[] = {
 		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, color on the 12th byte
+		// so position starts on byte 0, color on byte 12
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		//{"COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};

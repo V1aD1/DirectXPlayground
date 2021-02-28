@@ -3,6 +3,7 @@
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace DirectX;
+using namespace Platform;
 
 struct VERTEX {
 	float X, Y, Z;
