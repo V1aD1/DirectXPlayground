@@ -127,6 +127,13 @@ void CGame::Render(){
 	// draw 3 vertices onto the buffer, starting from vertex 0
 	m_devCon->Draw(3, 0);
 
+	COLORMOD colors;
+	colors.REDLEVEL = 0.5f;
+	colors.BLUELEVEL = 0.5f;
+
+	// setup the new values for the constant buffer
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &colors, 0, 0);
+
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
 }
@@ -179,4 +186,12 @@ void CGame::InitPipeline()
 	// create the input layout
 	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
 	m_devCon->IASetInputLayout(m_inputLayout.Get());
+
+	// create the constant buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = 16; // constant buffers MUST be multiples of 16 bytes. COLORMOD is only 8 bytes, but the last 8 will be ignored
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 }
