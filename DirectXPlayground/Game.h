@@ -6,12 +6,13 @@ using namespace DirectX;
 using namespace Platform;
 
 // used to mirror our constant buffer
-struct COLORMOD {
+struct CONSTANTBUFFER {
 
 	// var names don't have to match with constant buffer BUT
-	// variable size and order must match
-	float REDLEVEL;
-	float BLUELEVEL;
+	// variable size and order must match;
+	float X;
+	float Y;
+	float Z;
 };
 
 struct VERTEX {

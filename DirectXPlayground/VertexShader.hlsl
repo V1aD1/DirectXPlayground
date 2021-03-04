@@ -1,6 +1,5 @@
 cbuffer ConstantBuffer{
-	float redLevel;
-	float blueLevel;
+	float3 offset;
 }
 
 struct VOut {
@@ -14,9 +13,10 @@ VOut main(float4 pos : POSITION, float4 color: COLOR)
 	output.position = pos;
 	output.color = color;
 
-	// modify red and blue channel in each vertex according to our constant buffer
-	output.color.r *= redLevel;
-	output.color.b *= blueLevel;
+	// modify the location of each vertex
+	output.position.x += offset.x;
+	output.position.y += offset.y;
+	output.position.xy *= offset.z;
 
 	// order of return values MUST MATCH order of input variables to pixel shader!
 	return output;
