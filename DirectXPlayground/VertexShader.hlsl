@@ -1,5 +1,14 @@
-float4 main( float4 pos : POSITION ) : SV_POSITION
+struct VOut {
+	float4 position: SV_POSITION;
+	float4 color: COLOR;
+};
+
+VOut main(float4 pos : POSITION, float4 color: COLOR)
 {
-	float4 newPos = {pos.x + 0.5f, pos.y, pos.z, pos.w};
-	return newPos;
+	VOut output;
+	output.position = pos;
+	output.color = color;
+
+	// order of return values MUST MATCH order of input variables to pixel shader!
+	return output;
 }

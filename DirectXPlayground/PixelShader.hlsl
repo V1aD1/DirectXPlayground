@@ -1,4 +1,5 @@
-float4 main() : SV_TARGET
+// order of input variables MUST MATCH order of return values from vertex shader
+float4 main(float4 position: SV_POSITION, float4 color: COLOR) : SV_TARGET
 {
-	return float4(1.0f, 0.5f, 0.5f, 1.0f);
+	return color;
 }

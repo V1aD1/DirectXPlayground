@@ -135,9 +135,9 @@ void CGame::InitGraphics()
 {
 	VERTEX ourVertices[] = 
 	{
-		{0.0f, 0.5f, 0.0f},
-		{0.45f, -0.5f, 0.0f},
-		{-0.45f, -0.5f, 0.0f}
+		{0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f},
+		{0.45f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f},
+		{-0.45f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f}
 	};
 
 	// struct specifying properties of the buffer
@@ -173,7 +173,7 @@ void CGame::InitPipeline()
 		// 5th param specifies on which byte the new piece of info starts
 		// so position starts on byte 0, color on byte 12
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		//{"COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	// create the input layout

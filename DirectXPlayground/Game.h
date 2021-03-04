@@ -7,6 +7,7 @@ using namespace Platform;
 
 struct VERTEX {
 	float X, Y, Z;
+	float R, G, B;
 };
 
 class CGame {
