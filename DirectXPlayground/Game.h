@@ -50,4 +50,9 @@ public:
 
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
+
+	void PointerPressed();
+
+private:
+	CONSTANTBUFFER m_constBufferValues;
 };

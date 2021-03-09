@@ -36,6 +36,7 @@ public:
 		window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::Closed);
 	}
 	virtual void Load(String^ entryPoint) {}
+
 	virtual void Run() {
 		
 		m_game.Initialize();
@@ -54,6 +55,7 @@ public:
 		}
 
 	}
+
 	virtual void Uninitialize() {}
 
 	// an "event" that is called when the application window is ready to be activated
@@ -63,8 +65,9 @@ public:
 	}
 
 	void PointerPressed(CoreWindow^ window, PointerEventArgs^ args){
-		MessageDialog dialog("Thank you for pressing!", "Notice!");
-		dialog.ShowAsync();
+		//MessageDialog dialog("Thank you for pressing!", "Notice!");
+		//dialog.ShowAsync();
+		m_game.PointerPressed();
 	}	
 	
 	void PointerWheelChanged(CoreWindow^ window, PointerEventArgs^ args){

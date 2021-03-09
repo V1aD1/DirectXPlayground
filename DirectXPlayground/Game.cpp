@@ -127,13 +127,8 @@ void CGame::Render(){
 	// draw 3 vertices onto the buffer, starting from vertex 0
 	m_devCon->Draw(3, 0);
 
-	CONSTANTBUFFER constBuffer;
-	constBuffer.X = 0.5f;
-	constBuffer.Y = 0.2f;
-	constBuffer.Z = 0.7f;
-
 	// setup the new values for the constant buffer
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &constBuffer, 0, 0);
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
@@ -197,4 +192,12 @@ void CGame::InitPipeline()
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+}
+
+void CGame::PointerPressed()
+{
+	m_constBufferValues.X = 0.5f;
+	m_constBufferValues.Y = 0.2f;
+	m_constBufferValues.Z = 0.7f;
 }
