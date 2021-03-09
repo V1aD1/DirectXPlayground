@@ -1,6 +1,5 @@
 cbuffer ConstantBuffer{
-	float3 offset; // bytes 0 - 11
-	float4 colorMod;  // bytes 16 - 27
+	float4x4 matFinal;
 }
 
 struct VOut {
@@ -11,16 +10,16 @@ struct VOut {
 VOut main(float4 pos : POSITION, float4 color: COLOR)
 {
 	VOut output;
-	output.position = pos;
+	output.position = mul(matFinal, pos); // mul is an intrinsic that also handles matrix multiplication
 	output.color = color;
 
 	// modify the location of each vertex
-	output.position.x += offset.x;
-	output.position.y += offset.y;
-	output.position.xy *= offset.z;
+	//output.position.x += offset.x;
+	//output.position.y += offset.y;
+	//output.position.xy *= offset.z;
 
 	// modulate the color
-	output.color *= colorMod;
+	//output.color *= colorMod;
 
 	// order of return values MUST MATCH order of input variables to pixel shader!
 	return output;
