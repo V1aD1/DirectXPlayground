@@ -156,6 +156,15 @@ void CGame::InitGraphics()
 	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
 
 	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+
+	m_constBufferValues.X = 0.0f;
+	m_constBufferValues.Y = 0.0f;
+	m_constBufferValues.Z = 1.0f;
+
+	m_constBufferValues.R = 1.0f;
+	m_constBufferValues.G = 1.0f;
+	m_constBufferValues.B = 1.0f;
+	m_constBufferValues.A = 1.0f;
 }
 
 void CGame::InitPipeline()
@@ -197,7 +206,12 @@ void CGame::InitPipeline()
 
 void CGame::PointerPressed()
 {
-	m_constBufferValues.X = 0.5f;
-	m_constBufferValues.Y = 0.2f;
-	m_constBufferValues.Z = 0.7f;
+	m_constBufferValues.X = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.Y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.Z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+	m_constBufferValues.R = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.G = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.B = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }

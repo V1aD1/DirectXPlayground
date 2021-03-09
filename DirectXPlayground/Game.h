@@ -10,9 +10,13 @@ struct CONSTANTBUFFER {
 
 	// var names don't have to match with constant buffer BUT
 	// variable size and order must match;
-	float X;
-	float Y;
-	float Z;
+	
+	// offset
+	float X, Y, Z; // bytes 0 - 11 
+	float padding1; // bytes 12 - 15 
+	
+	// colorMod
+	float R, G, B, A; // bytes 16 - 31
 };
 
 struct VERTEX {
