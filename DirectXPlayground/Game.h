@@ -59,4 +59,5 @@ public:
 
 private:
 	CONSTANTBUFFER m_constBufferValues;
+	float m_time;
 };

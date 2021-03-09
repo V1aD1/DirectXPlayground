@@ -101,6 +101,7 @@ void CGame::Initialize(){
 	// initialize graphics and pipeline
 	InitGraphics();
 	InitPipeline();
+	m_time = 0.0f;
 }
 
 void CGame::InitGraphics()
@@ -174,7 +175,9 @@ void CGame::InitPipeline()
 }
 
 // performs updates to the state of the game
-void CGame::Update(){}
+void CGame::Update(){
+	m_time += 0.05f;
+}
 
 // renders a single frame of 3D graphics
 void CGame::Render(){
@@ -201,7 +204,7 @@ void CGame::Render(){
 
 	// order here matters! Most of the time you'll want your translation to go last!
 	//XMMATRIX matWorld = matRotateX * matScale * matTranslate;
-	XMMATRIX matWorld = XMMatrixRotationY(1.0f);
+	XMMATRIX matWorld = XMMatrixRotationY(m_time);
 
 	// VIEW transformation
 	XMVECTOR vecCamPosition = XMVectorSet(1.5f, 0.5f, 1.5f, 0);
