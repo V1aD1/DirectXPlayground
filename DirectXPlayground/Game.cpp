@@ -198,16 +198,18 @@ void CGame::Render(){
 	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WORLD transformation
-	//XMMATRIX matTranslate = XMMatrixTranslation(40.0f, 12.0f, 0.0f);
-	//XMMATRIX matRotateX = XMMatrixRotationX(XMConvertToRadians(90.0f));
-	//XMMATRIX matScale = XMMatrixScaling(2.0f, 2.0f, 1.0f);
+	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
+	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(180));
+	XMMATRIX matScale = XMMatrixIdentity();
 
 	// order here matters! Most of the time you'll want your translation to go last!
-	//XMMATRIX matWorld = matRotateX * matScale * matTranslate;
-	XMMATRIX matWorld = XMMatrixRotationY(m_time);
+	XMMATRIX matWorld = matRotateY * matScale * matTranslate;
 
 	// VIEW transformation
-	XMVECTOR vecCamPosition = XMVectorSet(1.5f, 0.5f, 1.5f, 0);
+	float camPosX = 0;
+	float camPosY = 0;
+	float camPosZ = 1.5f + m_time*0.2f;
+	XMVECTOR vecCamPosition = XMVectorSet(camPosX, camPosY, camPosZ, 0);
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
 	XMMATRIX matView = XMMatrixLookAtLH(vecCamPosition, vecCamLookAt, vecCamUp);
@@ -217,8 +219,8 @@ void CGame::Render(){
 	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
 		XMConvertToRadians(45), // the field of view
 		(FLOAT)window->Bounds.Width / (FLOAT)window->Bounds.Height, // aspect ratio
-		1, // the newat view plane (usually 1)
-		100 // the far view plane
+		1, // the near view plane (usually 1)
+		10 // the far view plane
 	);
 
 	XMMATRIX matFinal = matWorld * matView * matProjection;
