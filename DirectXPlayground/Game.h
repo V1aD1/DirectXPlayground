@@ -41,6 +41,8 @@ public:
 	// used to access video memory by maintaining both system and video memory
 	// this object automatically copies data from system to video memory when necessary
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	
+	ComPtr<ID3D11Buffer> m_indexBuffer;
 
 	ComPtr<ID3D11Buffer> m_constantBuffer;
 

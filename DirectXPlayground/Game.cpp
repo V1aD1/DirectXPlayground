@@ -127,11 +127,17 @@ void CGame::Initialize(){
 
 void CGame::InitGraphics()
 {
+	// currently draws a square
 	VERTEX ourVertices[] =
 	{
-		{ 0.0f, 0.5f, 0.0f,    1.0f, 0.0f, 0.0f },
-		{ 0.45f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f },
-		{ -0.45f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f }
+		{ -1.0f, 1.0f, -1.0f,  1.0f, 0.0f, 0.0f },    // vertex 0
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f },    // vertex 1
+		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f },    // 2
+		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 1.0f },    // 3
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 1.0f },    // ...
+		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
+		{ -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   1.0f, 1.0f, 1.0f },
 	};
 
 	// struct specifying properties of the buffer
@@ -147,6 +153,29 @@ void CGame::InitGraphics()
 	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
 
 	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+
+	short ourIndices[] = {
+		0, 1, 2,    // side 1
+		2, 1, 3,
+		4, 0, 6,    // side 2
+		6, 0, 2,
+		7, 5, 6,    // side 3
+		6, 5, 4,
+		3, 1, 7,    // side 4
+		7, 1, 5,
+		4, 5, 0,    // side 5
+		0, 5, 1,
+		3, 7, 2,    // side 6
+		2, 7, 6,
+	};
+
+	D3D11_BUFFER_DESC ibd = { 0 };
+	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	
+	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
+	
+	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
 
 	m_constBufferValues.X = 0.0f;
 	m_constBufferValues.Y = 0.0f;
@@ -217,16 +246,14 @@ void CGame::Render(){
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 
 	// set the primitive topology (remember that we're drawing a triangle)
-	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// WORLD transformation
-	XMMATRIX matTranslate[2];
-	matTranslate[0] = XMMatrixTranslation(0, 0, 0);
-	matTranslate[1] = XMMatrixTranslation(0.5f, 0, -0.5f);
-
-	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(m_time*20));
+	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, -4.0);
+	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
 	XMMATRIX matScale = XMMatrixIdentity();
 
 	// order here matters! Most of the time you'll want your translation to go last!
@@ -250,22 +277,17 @@ void CGame::Render(){
 		10 // the far view plane
 	);
 
-	XMMATRIX matFinal[2]; 
-	matFinal[0] = matRotateY * matScale * matTranslate[0] * matView * matProjection;
-	matFinal[1] = matRotateY * matScale * matTranslate[1] * matView * matProjection;
+	XMMATRIX matFinal = matRotateY * matScale * matTranslate * matView * matProjection;
 
 	// draw each triangle
 
 	// setup the new values for the constant buffer
 	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal[0], 0, 0);
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal, 0, 0);
 
-	// draw 3 vertices onto the buffer, starting from vertex 0
-	m_devCon->Draw(3, 0);
-
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal[1], 0, 0);
-	m_devCon->Draw(3, 0);
-
+	// draw 4 vertices onto the buffer, starting from vertex 0
+	//m_devCon->Draw(4, 0);
+	m_devCon->DrawIndexed(36, 0, 0);
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
