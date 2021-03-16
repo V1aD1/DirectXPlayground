@@ -89,12 +89,33 @@ void CGame::Initialize(){
 	// create a render target pointing to the back buffer
 	m_dev->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_renderTarget);
 
+	D3D11_TEXTURE2D_DESC textDesc = { 0 };
+	textDesc.Width = window->Bounds.Width; // z buffer size should match dimensions of window
+	textDesc.Height = window->Bounds.Height;
+	textDesc.ArraySize = 1; // how many textures to make
+	textDesc.MipLevels = 1; // can be used to create multiple versions of a texture, each half the size of the previous texture
+	textDesc.SampleDesc.Count = 1; // anti aliasing kindof, disabled the stair-effect on diagonal lines
+	textDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bits for depth, 8 bits for stencil 
+	textDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL; // flag specifies that this texture will be used as a depth buffer
+	
+	ComPtr<ID3D11Texture2D> zBufferTexture;
+	m_dev->CreateTexture2D(&textDesc, nullptr, &zBufferTexture);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	ZeroMemory(&dsvd, sizeof(dsvd));
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; // specifies what kind of texture we're using
+	m_dev->CreateDepthStencilView(zBufferTexture.Get(), &dsvd, &m_zBuffer);
+
+	m_devCon->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), m_zBuffer.Get());
+
 	// set the viewport (an object that describes what part of the back buffer to draw on)
 	D3D11_VIEWPORT viewport = { 0 };
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.Width = window->Bounds.Width;
 	viewport.Height = window->Bounds.Height;
+	viewport.MinDepth = 0; // closest an object can be on the depth buffer is 0.0
+	viewport.MaxDepth = 1; // farthest an object can be on the depth buffer is 1.0
 
 	m_devCon->RSSetViewports(1, &viewport);
 
@@ -109,8 +130,8 @@ void CGame::InitGraphics()
 	VERTEX ourVertices[] =
 	{
 		{ 0.0f, 0.5f, 0.0f,    1.0f, 0.0f, 0.0f },
-	{ 0.45f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f },
-	{ -0.45f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f }
+		{ 0.45f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f },
+		{ -0.45f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f }
 	};
 
 	// struct specifying properties of the buffer
@@ -183,11 +204,14 @@ void CGame::Update(){
 void CGame::Render(){
 
 	// set our render target object as the active render target
-	m_devCon->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
+	m_devCon->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), m_zBuffer.Get());
 
 	// clear the back buffer to a single color
 	float color[4] = { 0.0f, 0.0f, 0.4f, 1.0f }; // R G B A
 	m_devCon->ClearRenderTargetView(m_renderTarget.Get(), color);
+
+	// clear the depth buffer to have all values set to 1.0f
+	m_devCon->ClearDepthStencilView(m_zBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
 	// set the vertex buffer
 	UINT stride = sizeof(VERTEX);
@@ -198,17 +222,20 @@ void CGame::Render(){
 	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WORLD transformation
-	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
-	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(180));
+	XMMATRIX matTranslate[2];
+	matTranslate[0] = XMMatrixTranslation(0, 0, 0);
+	matTranslate[1] = XMMatrixTranslation(0.5f, 0, -0.5f);
+
+	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(m_time*20));
 	XMMATRIX matScale = XMMatrixIdentity();
 
 	// order here matters! Most of the time you'll want your translation to go last!
-	XMMATRIX matWorld = matRotateY * matScale * matTranslate;
+	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
 
 	// VIEW transformation
 	float camPosX = 0;
 	float camPosY = 0;
-	float camPosZ = 1.5f + m_time*0.2f;
+	float camPosZ = 1.5f;
 	XMVECTOR vecCamPosition = XMVectorSet(camPosX, camPosY, camPosZ, 0);
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
@@ -223,15 +250,22 @@ void CGame::Render(){
 		10 // the far view plane
 	);
 
-	XMMATRIX matFinal = matWorld * matView * matProjection;
+	XMMATRIX matFinal[2]; 
+	matFinal[0] = matRotateY * matScale * matTranslate[0] * matView * matProjection;
+	matFinal[1] = matRotateY * matScale * matTranslate[1] * matView * matProjection;
 
+	// draw each triangle
 
 	// setup the new values for the constant buffer
 	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal, 0, 0);
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal[0], 0, 0);
 
 	// draw 3 vertices onto the buffer, starting from vertex 0
 	m_devCon->Draw(3, 0);
+
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal[1], 0, 0);
+	m_devCon->Draw(3, 0);
+
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);

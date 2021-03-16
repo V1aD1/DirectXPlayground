@@ -44,6 +44,8 @@ public:
 
 	ComPtr<ID3D11Buffer> m_constantBuffer;
 
+	ComPtr<ID3D11DepthStencilView> m_zBuffer;
+
 	ComPtr<ID3D11VertexShader> m_vertexShader; // ran once for each vertex that gets rendered
 	ComPtr<ID3D11PixelShader> m_pixelShader; // ran once for each pixel that gets drawn
 	ComPtr<ID3D11InputLayout> m_inputLayout; // the input layout tells the GPU how our vertex struct is laid out
