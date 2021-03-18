@@ -194,43 +194,6 @@ void CGame::Render() {
 	m_swapChain->Present(1, 0);
 }
 
-void CGame::InitPipeline()
-{
-	// load shader files (.hlsl files become .cso files after compilation)
-	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
-	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-
-	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, &m_vertexShader);
-	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, &m_pixelShader);
-
-	// set the shader objects as the active shaders
-	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-
-	// initialize input layout
-	D3D11_INPUT_ELEMENT_DESC ied[] = {
-		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, color on byte 12
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	// create the input layout
-	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
-	m_devCon->IASetInputLayout(m_inputLayout.Get());
-
-	// create the constant buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.Usage = D3D11_USAGE_DEFAULT;
-
-	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-	bd.ByteWidth = 64;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-}
-
 void CGame::InitGraphics()
 {
 	// currently draws a square
@@ -291,6 +254,43 @@ void CGame::InitGraphics()
 	m_constBufferValues.G = 1.0f;
 	m_constBufferValues.B = 1.0f;
 	m_constBufferValues.A = 1.0f;
+}
+
+void CGame::InitPipeline()
+{
+	// load shader files (.hlsl files become .cso files after compilation)
+	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
+	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
+
+	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, &m_vertexShader);
+	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, &m_pixelShader);
+
+	// set the shader objects as the active shaders
+	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
+	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
+	// initialize input layout
+	D3D11_INPUT_ELEMENT_DESC ied[] = {
+		// 5th param specifies on which byte the new piece of info starts
+		// so position starts on byte 0, color on byte 12
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	// create the input layout
+	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
+	m_devCon->IASetInputLayout(m_inputLayout.Get());
+
+	// create the constant buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.Usage = D3D11_USAGE_DEFAULT;
+
+	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+	bd.ByteWidth = 64;
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 }
 
 void CGame::PointerPressed()
