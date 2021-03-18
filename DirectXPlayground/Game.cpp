@@ -106,8 +106,6 @@ void CGame::Initialize(){
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; // specifies what kind of texture we're using
 	m_dev->CreateDepthStencilView(zBufferTexture.Get(), &dsvd, &m_zBuffer);
 
-	m_devCon->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), m_zBuffer.Get());
-
 	// set the viewport (an object that describes what part of the back buffer to draw on)
 	D3D11_VIEWPORT viewport = { 0 };
 	viewport.TopLeftX = 0;
@@ -150,7 +148,7 @@ void CGame::Render() {
 	m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 
 	// set the primitive topology (remember that we're drawing a triangle)
-	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
@@ -188,7 +186,7 @@ void CGame::Render() {
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
-	m_devCon->DrawIndexed(24, 0, 0);
+	m_devCon->DrawIndexed(36, 0, 0);
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
@@ -225,8 +223,8 @@ void CGame::InitGraphics()
 
 	short ourIndices[] = {
 		0, 1, 2,    // side 1
-		1, 3, 2,
-		/*4, 0, 6,    // side 2
+		2, 1, 3,
+		4, 0, 6,    // side 2
 		6, 0, 2,
 		7, 5, 6,    // side 3
 		6, 5, 4,
@@ -235,7 +233,7 @@ void CGame::InitGraphics()
 		4, 5, 0,    // side 5
 		0, 5, 1,
 		3, 7, 2,    // side 6
-		2, 7, 6,*/
+		2, 7, 6,
 	};
 
 	D3D11_BUFFER_DESC ibd = { 0 };
