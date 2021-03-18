@@ -94,7 +94,7 @@ void CGame::Initialize(){
 	textDesc.Height = window->Bounds.Height;
 	textDesc.ArraySize = 1; // how many textures to make
 	textDesc.MipLevels = 1; // can be used to create multiple versions of a texture, each half the size of the previous texture
-	textDesc.SampleDesc.Count = 1; // anti aliasing kindof, disabled the stair-effect on diagonal lines
+	textDesc.SampleDesc.Count = 1; // anti aliasing kindof, minimizes the stair-effect on diagonal lines
 	textDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bits for depth, 8 bits for stencil 
 	textDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL; // flag specifies that this texture will be used as a depth buffer
 	
@@ -125,7 +125,7 @@ void CGame::Initialize(){
 
 // performs updates to the state of the game
 void CGame::Update() {
-	m_time += 0.05f;
+	m_time += 0.02f;
 }
 
 // renders a single frame of 3D graphics
