@@ -152,7 +152,7 @@ void CGame::Render() {
 
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
-	XMMATRIX matRotateY = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
+	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
 	XMMATRIX matScale = XMMatrixIdentity();
 
 	// order here matters! Most of the time you'll want your translation to go last!
@@ -176,13 +176,20 @@ void CGame::Render() {
 		100 // the far view plane
 	);
 
-	XMMATRIX matFinal = matRotateY * matScale * matTranslate * matView * matProjection;
+	XMMATRIX matFinal = matRotate * matScale * matTranslate * matView * matProjection;
+
+	// set constant buffer
+	m_constBufferValues.final = matFinal;
+	m_constBufferValues.rotation = matRotate;
+	m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
+	m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+	m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 
 	// draw each triangle
 
 	// setup the new values for the constant buffer
 	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &matFinal, 0, 0);
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
@@ -243,15 +250,6 @@ void CGame::InitGraphics()
 	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
 	
 	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
-
-	m_constBufferValues.X = 0.0f;
-	m_constBufferValues.Y = 0.0f;
-	m_constBufferValues.Z = 1.0f;
-
-	m_constBufferValues.R = 1.0f;
-	m_constBufferValues.G = 1.0f;
-	m_constBufferValues.B = 1.0f;
-	m_constBufferValues.A = 1.0f;
 }
 
 void CGame::InitPipeline()
@@ -272,7 +270,8 @@ void CGame::InitPipeline()
 		// 5th param specifies on which byte the new piece of info starts
 		// so position starts on byte 0, color on byte 12
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		//{ "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	// create the input layout
@@ -293,12 +292,12 @@ void CGame::InitPipeline()
 
 void CGame::PointerPressed()
 {
-	m_constBufferValues.X = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	/*m_constBufferValues.X = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.Y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.Z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
 	m_constBufferValues.R = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.G = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.B = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);*/
 }

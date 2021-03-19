@@ -11,17 +11,19 @@ struct CONSTANTBUFFER {
 	// var names don't have to match with constant buffer BUT
 	// variable size and order must match;
 	
-	// offset
-	float X, Y, Z; // bytes 0 - 11 
-	float padding1; // bytes 12 - 15 
+	// final transformation
+	XMMATRIX final; // bytes 0 - 15 
+	XMMATRIX rotation;
+	//float padding1; // bytes 12 - 15 
 	
-	// colorMod
-	float R, G, B, A; // bytes 16 - 31
+	XMVECTOR diffuseVector;
+	XMVECTOR diffuseColor;
+	XMVECTOR ambientColor;
 };
 
 struct VERTEX {
 	float X, Y, Z;
-	float R, G, B;
+	float NX, NY, NZ;
 };
 
 class CGame {
