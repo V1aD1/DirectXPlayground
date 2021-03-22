@@ -12,7 +12,7 @@ struct CONSTANTBUFFER {
 	// variable size and order must match;
 	
 	// final transformation
-	XMMATRIX final; // bytes 0 - 15 
+	XMMATRIX matFinal; // bytes 0 - 15 
 	XMMATRIX rotation;
 	//float padding1; // bytes 12 - 15 
 	

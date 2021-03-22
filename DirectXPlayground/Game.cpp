@@ -179,7 +179,7 @@ void CGame::Render() {
 	XMMATRIX matFinal = matRotate * matScale * matTranslate * matView * matProjection;
 
 	// set constant buffer
-	m_constBufferValues.final = matFinal;
+	m_constBufferValues.matFinal = matFinal;
 	m_constBufferValues.rotation = matRotate;
 	m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
 	m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
@@ -204,14 +204,35 @@ void CGame::InitGraphics()
 	// currently draws a square
 	VERTEX ourVertices[] =
 	{
-		{ -1.0f, 1.0f, -1.0f,  1.0f, 0.0f, 0.0f },    // vertex 0
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f },    // vertex 1
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f },    // 2
-		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 1.0f },    // 3
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 1.0f },    // ...
-		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   1.0f, 1.0f, 1.0f },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f },    // side 1
+		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f },
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
+
+		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f },    // side 2
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f },
+		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f },
+
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f },    // side 3
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
+
+		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f },    // side 4
+		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f },
+
+		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f },    // side 5
+		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f },
+
+		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f },    // side 6
+		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f },
+		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f },
+		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f },
 	};
 
 	// struct specifying properties of the buffer
@@ -231,16 +252,16 @@ void CGame::InitGraphics()
 	short ourIndices[] = {
 		0, 1, 2,    // side 1
 		2, 1, 3,
-		4, 0, 6,    // side 2
-		6, 0, 2,
-		7, 5, 6,    // side 3
-		6, 5, 4,
-		3, 1, 7,    // side 4
-		7, 1, 5,
-		4, 5, 0,    // side 5
-		0, 5, 1,
-		3, 7, 2,    // side 6
-		2, 7, 6,
+		4, 5, 6,    // side 2
+		6, 5, 7,
+		8, 9, 10,    // side 3
+		10, 9, 11,
+		12, 13, 14,    // side 4
+		14, 13, 15,
+		16, 17, 18,    // side 5
+		18, 17, 19,
+		20, 21, 22,    // side 6
+		22, 21, 23,
 	};
 
 	D3D11_BUFFER_DESC ibd = { 0 };
@@ -283,7 +304,7 @@ void CGame::InitPipeline()
 	bd.Usage = D3D11_USAGE_DEFAULT;
 
 	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-	bd.ByteWidth = 64;
+	bd.ByteWidth = sizeof(CONSTANTBUFFER);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
