@@ -153,16 +153,13 @@ void CGame::Render() {
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
 	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
-	XMMATRIX matScale = XMMatrixIdentity();
+	XMMATRIX matScale = XMMatrixScaling(m_time/4.0f, m_time/4.0f, m_time/4.0f);
 
 	// order here matters! Most of the time you'll want your translation to go last!
 	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
 
 	// VIEW transformation
-	float camPosX = 0;
-	float camPosY = 6.0f;
-	float camPosZ = 10.0f;
-	XMVECTOR vecCamPosition = XMVectorSet(camPosX, camPosY, camPosZ, 0);
+	XMVECTOR vecCamPosition = XMVectorSet(0.0f, 6.0f, 10.0f, 0);
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
 	XMMATRIX matView = XMMatrixLookAtLH(vecCamPosition, vecCamLookAt, vecCamUp);
