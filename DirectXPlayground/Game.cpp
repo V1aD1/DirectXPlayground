@@ -4,6 +4,10 @@
 #include <string>
 #include <fstream>
 
+// definitions for static variables
+ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
+ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
+
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file) {
 	Array<byte>^ fileData = nullptr;
@@ -117,9 +121,18 @@ void CGame::Initialize(){
 
 	m_devCon->RSSetViewports(1, &viewport);
 
+	RECT scissor;
+	scissor.left = 0;
+	scissor.top = 0;
+	scissor.right = 800;
+	scissor.left = 300; // half the height of the window
+	m_devCon->RSSetScissorRects(1, &scissor); // doesn't work unless scissoring is enabled through rasterizer state
+
 	// initialize graphics and pipeline
 	InitGraphics();
 	InitPipeline();
+	InitStates();
+	m_wireFrame = false;
 	m_time = 0.0f;
 }
 
@@ -187,6 +200,13 @@ void CGame::Render() {
 	// setup the new values for the constant buffer
 	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
+
+	if (m_wireFrame) {
+		m_devCon->RSSetState(s_wireframeRasterState.Get());
+	}
+	else {
+		m_devCon->RSSetState(s_defaultRasterState.Get());
+	}
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
@@ -306,6 +326,43 @@ void CGame::InitPipeline()
 	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+
+
+	m_devCon->RSSetState(m_rasterizerState.Get());
+}
+
+void CGame::InitStates()
+{
+	/*
+	rd.FillMode = D3D11_FILL_WIREFRAME; // render in wire frame mode
+	rd.CullMode = D3D11_CULL_FRONT; // don't draw the front of primitves, only the back
+	rd.FrontCounterClockwise = TRUE; // set the front to counter-clockwise
+	rd.DepthClipEnable = FALSE; // forces depth of each pixel to be between two planes, but remember to set viewport.MaxDepth to 0.99f!
+	rd.ScissorEnable = TRUE;
+	rd.AntialiasedLineEnable = TRUE;
+	rd.MultisampleEnable = FALSE;
+	rd.DepthBias = 0; // this value is added to the depth of any pixel rendered
+	rd.DepthBiasClamp = 0.0f; // limits the amount of depth bias so that certain distortions are avoided
+	rd.SlopeScaledDepthBias = 0.0f; //this state is used to create high quality shadows (later)	
+	*/
+
+	// set rasterizer properties
+	D3D11_RASTERIZER_DESC rd;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.FrontCounterClockwise = FALSE;
+	rd.DepthClipEnable = TRUE;
+	rd.ScissorEnable = FALSE;
+	rd.AntialiasedLineEnable = FALSE;
+	rd.MultisampleEnable = FALSE;
+	rd.DepthBias = 0;
+	rd.DepthBiasClamp = 0.0f;
+	rd.SlopeScaledDepthBias = 0.0f;
+	m_dev->CreateRasterizerState(&rd, &s_defaultRasterState);
+	
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	rd.AntialiasedLineEnable = TRUE;
+	m_dev->CreateRasterizerState(&rd, &s_wireframeRasterState);
 }
 
 void CGame::PointerPressed()

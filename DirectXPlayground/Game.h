@@ -28,6 +28,10 @@ struct VERTEX {
 
 class CGame {
 public:
+	static ComPtr<ID3D11RasterizerState> s_defaultRasterState;
+	static ComPtr<ID3D11RasterizerState> s_wireframeRasterState;
+
+public:
 	// device interface
 	ComPtr<ID3D11Device1> m_dev;
 
@@ -53,6 +57,13 @@ public:
 	ComPtr<ID3D11VertexShader> m_vertexShader; // ran once for each vertex that gets rendered
 	ComPtr<ID3D11PixelShader> m_pixelShader; // ran once for each pixel that gets drawn
 	ComPtr<ID3D11InputLayout> m_inputLayout; // the input layout tells the GPU how our vertex struct is laid out
+	
+	// used to control "states" of the rendering pipeline
+	// "states" are single properties of a fixed portion of the pipeline,
+	// which can be set by you, but not directly accessed or written to
+	ComPtr<ID3D11RasterizerState> m_rasterizerState;
+
+	bool m_wireFrame;
 
 	void Initialize();
 	void Update();
@@ -60,6 +71,7 @@ public:
 
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
+	void InitStates();
 
 	void PointerPressed();
 
