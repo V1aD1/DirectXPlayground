@@ -62,6 +62,7 @@ public:
 	// "states" are single properties of a fixed portion of the pipeline,
 	// which can be set by you, but not directly accessed or written to
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
+	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
 
 	bool m_wireFrame;
 

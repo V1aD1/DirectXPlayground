@@ -124,8 +124,8 @@ void CGame::Initialize(){
 	RECT scissor;
 	scissor.left = 0;
 	scissor.top = 0;
-	scissor.right = 800;
-	scissor.left = 300; // half the height of the window
+	scissor.right = window->Bounds.Width;
+	scissor.bottom = window->Bounds.Height / 2; // half the height of the window
 	m_devCon->RSSetScissorRects(1, &scissor); // doesn't work unless scissoring is enabled through rasterizer state
 
 	// initialize graphics and pipeline
@@ -207,6 +207,8 @@ void CGame::Render() {
 	else {
 		m_devCon->RSSetState(s_defaultRasterState.Get());
 	}
+
+	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
@@ -363,6 +365,25 @@ void CGame::InitStates()
 	rd.FillMode = D3D11_FILL_WIREFRAME;
 	rd.AntialiasedLineEnable = TRUE;
 	m_dev->CreateRasterizerState(&rd, &s_wireframeRasterState);
+
+	// used for transparent objects (which should be drawn AFTER all non transparent objects are drawn )
+	// blending equation: (Source Color * Source Factor (usually source alpha)) OPERATION (Dest Color * Dest Factor (don't know what it usually is))
+	D3D11_BLEND_DESC bd;
+	bd.RenderTarget[0].BlendEnable = TRUE; // turn on color blending
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // use source alpha for source factor
+	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // use inverse source alpha for dest factor
+
+	// blending alpha instead of colors (rarely needed, and disabled here)
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;    // addition is default for this
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;      // use full source alpha
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;    // use no dest alpha
+
+	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // can be used to disable entire color channels (R, G or B)
+	bd.IndependentBlendEnable = FALSE; // used to activate other render targets, but we only have 1, so we don't use this
+	bd.AlphaToCoverageEnable = FALSE; // improves antialiasing of transparent textures
+
+	m_dev->CreateBlendState(&bd, &m_blendState);
 }
 
 void CGame::PointerPressed()
