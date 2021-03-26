@@ -209,6 +209,7 @@ void CGame::Render() {
 	}
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
+	m_devCon->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
@@ -384,6 +385,13 @@ void CGame::InitStates()
 	bd.AlphaToCoverageEnable = FALSE; // improves antialiasing of transparent textures
 
 	m_dev->CreateBlendState(&bd, &m_blendState);
+
+	D3D11_DEPTH_STENCIL_DESC dsd = { 0 };
+	dsd.DepthEnable = TRUE; // can disable depth buffer
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // disables WRITING to the depth buffer
+	dsd.DepthFunc = D3D11_COMPARISON_LESS; // only render pixels CLOSER to the camera than what's already on the depth buffer
+
+	m_dev->CreateDepthStencilState(&dsd, m_depthStencilState.GetAddressOf()); // todo check if I can use & instead of getAddressOf()
 }
 
 void CGame::PointerPressed()

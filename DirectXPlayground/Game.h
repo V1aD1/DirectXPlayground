@@ -63,6 +63,7 @@ public:
 	// which can be set by you, but not directly accessed or written to
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
+	ComPtr<ID3D11DepthStencilState> m_depthStencilState; // state used for telling output merger how to render pixels
 
 	bool m_wireFrame;
 
