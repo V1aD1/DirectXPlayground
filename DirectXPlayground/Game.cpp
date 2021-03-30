@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Game.h"
+#include "math.h"
 
 #include <string>
 #include <fstream>
@@ -7,6 +8,8 @@
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
 ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
+ComPtr<ID3D11DepthStencilState> CGame::s_depthEnabledStencilState;
+ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
 
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file) {
@@ -166,7 +169,7 @@ void CGame::Render() {
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
 	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
-	XMMATRIX matScale = XMMatrixScaling(m_time/4.0f, m_time/4.0f, m_time/4.0f);
+	XMMATRIX matScale = XMMatrixScaling(1, 1, 1);
 
 	// order here matters! Most of the time you'll want your translation to go last!
 	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
@@ -195,10 +198,7 @@ void CGame::Render() {
 	m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
 	m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 
-	// draw each triangle
-
 	// setup the new values for the constant buffer
-	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 
 	if (m_wireFrame) {
@@ -209,10 +209,24 @@ void CGame::Render() {
 	}
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
-	m_devCon->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
+
+	if (fmod(m_time, 4) > 2) {
+		m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
+	}
+	else {
+		m_devCon->OMSetDepthStencilState(s_depthDisabledStencilState.Get(), 0);
+	}
+
+	// draw each triangle
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
+	
+	m_devCon->DrawIndexed(36, 0, 0);
+
+	matTranslate = XMMatrixTranslation(0, 0, -3);
+	m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 	m_devCon->DrawIndexed(36, 0, 0);
 
 	// switch the back buffer and the front buffer
@@ -388,10 +402,13 @@ void CGame::InitStates()
 
 	D3D11_DEPTH_STENCIL_DESC dsd = { 0 };
 	dsd.DepthEnable = TRUE; // can disable depth buffer
-	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // disables WRITING to the depth buffer
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // can disable WRITING to the depth buffer
 	dsd.DepthFunc = D3D11_COMPARISON_LESS; // only render pixels CLOSER to the camera than what's already on the depth buffer
 
-	m_dev->CreateDepthStencilState(&dsd, m_depthStencilState.GetAddressOf()); // todo check if I can use & instead of getAddressOf()
+	m_dev->CreateDepthStencilState(&dsd, &s_depthEnabledStencilState);
+	
+	dsd.DepthEnable = FALSE;
+	m_dev->CreateDepthStencilState(&dsd, &s_depthDisabledStencilState);
 }
 
 void CGame::PointerPressed()

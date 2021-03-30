@@ -30,6 +30,8 @@ class CGame {
 public:
 	static ComPtr<ID3D11RasterizerState> s_defaultRasterState;
 	static ComPtr<ID3D11RasterizerState> s_wireframeRasterState;
+	static ComPtr<ID3D11DepthStencilState> s_depthEnabledStencilState;
+	static ComPtr<ID3D11DepthStencilState> s_depthDisabledStencilState;
 
 public:
 	// device interface
@@ -63,7 +65,6 @@ public:
 	// which can be set by you, but not directly accessed or written to
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
-	ComPtr<ID3D11DepthStencilState> m_depthStencilState; // state used for telling output merger how to render pixels
 
 	bool m_wireFrame;
 
