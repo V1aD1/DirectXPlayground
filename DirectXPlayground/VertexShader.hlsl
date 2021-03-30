@@ -9,9 +9,10 @@ cbuffer ConstantBuffer{
 struct VOut {
 	float4 position: SV_POSITION;
 	float4 color: COLOR;
+	float2 texCoord: TEXCOORD;
 };
 
-VOut main(float4 pos : POSITION, float4 normal: NORMAL)
+VOut main(float4 pos : POSITION, float4 normal: NORMAL, float2 texCoord: TEXCOORD)
 {
 	VOut output;
 	output.position = mul(final, pos); // mul is an intrinsic that also handles matrix multiplication
@@ -24,6 +25,8 @@ VOut main(float4 pos : POSITION, float4 normal: NORMAL)
 
 	// final color
 	output.color += lightCol* diffuseBrightness; // diffuse color is ADDED to the color!
+
+	output.texCoord = texCoord; // set texture coordinates, unmodified
 
 	// order of return values MUST MATCH order of input variables to pixel shader!
 	return output;

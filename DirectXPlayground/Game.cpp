@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "math.h"
+#include "WICTextureLoader.h"
 
 #include <string>
 #include <fstream>
@@ -238,35 +239,35 @@ void CGame::InitGraphics()
 	// currently draws a square
 	VERTEX ourVertices[] =
 	{
-		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f },    // side 1
-		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f },
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
+		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f },
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f },
 
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f },    // side 2
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f },
-		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f },
+		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f },
+		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  1.0f, 1.0f },
 
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f },    // side 3
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f },
 
-		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f },    // side 4
-		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f },
-		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f },
+		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
+		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  1.0f, 1.0f },
 
-		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f },    // side 5
-		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f },
+		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
+		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f },
+		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f },
 
-		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f },    // side 6
-		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f },
-		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f },
-		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f },
+		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
+		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 1.0f },
+		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  1.0f, 0.0f },
+		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  1.0f, 1.0f },
 	};
 
 	// struct specifying properties of the buffer
@@ -305,6 +306,14 @@ void CGame::InitGraphics()
 	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
 	
 	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
+
+	// load the texture
+	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
+										  nullptr, // our device context but DON'T use it since it makes the function unstable!!
+										  L"Wood.png", // name of file, with project folder as root file
+										  nullptr, 
+										  &m_texture, 
+										  0); // max size of texture, if 0 we load full texture
 }
 
 void CGame::InitPipeline()
@@ -313,20 +322,21 @@ void CGame::InitPipeline()
 	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
 	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
 
-	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, &m_vertexShader);
-	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, &m_pixelShader);
+	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
+	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
 
 	// set the shader objects as the active shaders
 	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	m_devCon->PSSetShaderResources(0, 1, m_texture.GetAddressOf()); // sets the Texture in the pixel shader
 
 	// initialize input layout
 	D3D11_INPUT_ELEMENT_DESC ied[] = {
 		// 5th param specifies on which byte the new piece of info starts
 		// so position starts on byte 0, color on byte 12
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{ "COLOR",    0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	// create the input layout

@@ -22,8 +22,9 @@ struct CONSTANTBUFFER {
 };
 
 struct VERTEX {
-	float X, Y, Z;
-	float NX, NY, NZ;
+	float X, Y, Z; // position
+	float NX, NY, NZ; // normal
+	float U, V; // texture coordinates
 };
 
 class CGame {
@@ -65,6 +66,7 @@ public:
 	// which can be set by you, but not directly accessed or written to
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
+	ComPtr<ID3D11ShaderResourceView> m_texture;
 
 	bool m_wireFrame;
 
