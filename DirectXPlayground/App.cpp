@@ -65,8 +65,6 @@ public:
 	}
 
 	void PointerPressed(CoreWindow^ window, PointerEventArgs^ args){
-		//MessageDialog dialog("Thank you for pressing!", "Notice!");
-		//dialog.ShowAsync();
 		m_game.PointerPressed();
 	}	
 	
@@ -80,17 +78,11 @@ public:
 	}
 
 	void KeyDown(CoreWindow^ window, KeyEventArgs^ args) {
-		if (args->VirtualKey == VirtualKey::A) {
-			MessageDialog dialog("A pressed!", "A pressed!");
-			//dialog.ShowAsync();
-		}
+		m_game.KeyPressed(args->VirtualKey);
 	}	
 	
 	void KeyUp(CoreWindow^ window, KeyEventArgs^ args) {
-		if (args->VirtualKey == VirtualKey::A) {
-			MessageDialog dialog("A released!", "A released!");
-			dialog.ShowAsync();
-		}
+		m_game.KeyPressed(args->VirtualKey);
 	}
 
 	void Suspending(Object^ sender, SuspendingEventArgs^ args) {}

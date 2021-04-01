@@ -4,6 +4,7 @@ using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace DirectX;
 using namespace Platform;
+using namespace Windows::System;
 
 // used to mirror our constant buffer
 struct CONSTANTBUFFER {
@@ -79,8 +80,10 @@ public:
 	void InitStates();
 
 	void PointerPressed();
+	void KeyPressed(VirtualKey key);
 
 private:
 	CONSTANTBUFFER m_constBufferValues;
 	float m_time;
+	XMVECTOR m_vecCamPosition;
 };

@@ -138,6 +138,7 @@ void CGame::Initialize(){
 	InitStates();
 	m_wireFrame = false;
 	m_time = 0.0f;
+	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 10.0f, 0);
 }
 
 // performs updates to the state of the game
@@ -176,10 +177,9 @@ void CGame::Render() {
 	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
 
 	// VIEW transformation
-	XMVECTOR vecCamPosition = XMVectorSet(0.0f, 6.0f, 10.0f, 0);
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	XMMATRIX matView = XMMatrixLookAtLH(vecCamPosition, vecCamLookAt, vecCamUp);
+	XMMATRIX matView = XMMatrixLookAtLH(m_vecCamPosition, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
@@ -210,13 +210,7 @@ void CGame::Render() {
 	}
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
-
-	if (fmod(m_time, 4) > 2) {
-		m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
-	}
-	else {
-		m_devCon->OMSetDepthStencilState(s_depthDisabledStencilState.Get(), 0);
-	}
+	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
 
 	// draw each triangle
 
@@ -431,4 +425,17 @@ void CGame::PointerPressed()
 	m_constBufferValues.G = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.B = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);*/
+}
+
+void CGame::KeyPressed(VirtualKey key)
+{
+	float speed = 0.05f;
+	if (key == VirtualKey::Up) {
+		XMVECTOR distanceMoved = { -1 * speed * m_time, 0, 0, 0 };
+		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
+	}	
+	if (key == VirtualKey::Down) {
+		XMVECTOR distanceMoved = { speed * m_time, 0, 0, 0 };
+		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
+	}
 }
