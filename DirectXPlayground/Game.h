@@ -68,6 +68,7 @@ public:
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
 	ComPtr<ID3D11ShaderResourceView> m_texture;
+	ComPtr<ID3D11SamplerState> m_samplerStates[2]; // sample state interfaces
 
 	bool m_wireFrame;
 
@@ -86,4 +87,5 @@ private:
 	CONSTANTBUFFER m_constBufferValues;
 	float m_time;
 	XMVECTOR m_vecCamPosition;
+	bool m_blurred;
 };

@@ -138,12 +138,21 @@ void CGame::Initialize(){
 	InitStates();
 	m_wireFrame = false;
 	m_time = 0.0f;
-	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 10.0f, 0);
+	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
+	m_blurred = false;
 }
 
 // performs updates to the state of the game
 void CGame::Update() {
 	m_time += 0.02f;
+
+	if ((int)m_time % 2 == 0) {
+		m_blurred = true;
+	}
+	else {
+		m_blurred = false;
+	}
+
 }
 
 // renders a single frame of 3D graphics
@@ -171,7 +180,7 @@ void CGame::Render() {
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
 	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
-	XMMATRIX matScale = XMMatrixScaling(1, 1, 1);
+	XMMATRIX matScale = XMMatrixScaling(4, 2, 4);
 
 	// order here matters! Most of the time you'll want your translation to go last!
 	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
@@ -211,6 +220,13 @@ void CGame::Render() {
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
 	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
+	
+	if (m_blurred) {
+		m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
+	}
+	else {
+		m_devCon->PSSetSamplers(0, 1, m_samplerStates[1].GetAddressOf());
+	}
 
 	// draw each triangle
 
@@ -219,10 +235,11 @@ void CGame::Render() {
 	
 	m_devCon->DrawIndexed(36, 0, 0);
 
-	matTranslate = XMMatrixTranslation(0, 0, -3);
-	m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-	m_devCon->DrawIndexed(36, 0, 0);
+	// drawing second cube
+	//matTranslate = XMMatrixTranslation(0, 0, -6);
+	//m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
+	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
+	//m_devCon->DrawIndexed(36, 0, 0);
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
@@ -230,38 +247,39 @@ void CGame::Render() {
 
 void CGame::InitGraphics()
 {
+	float textLim = 0.5f;
 	// currently draws a square
 	VERTEX ourVertices[] =
 	{
 		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
-		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f },
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   1.0f, 1.0f },
+		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
 
 		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f },
-		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  1.0f, 1.0f },
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
+		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
 
 		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f },
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
 
 		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
-		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f },
-		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  1.0f, 1.0f },
+		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
 
 		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
-		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f },
-		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f },
+		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
+		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
 
 		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
-		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 1.0f },
-		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  1.0f, 0.0f },
-		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  1.0f, 1.0f },
+		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
+		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
+		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
 	};
 
 	// struct specifying properties of the buffer
@@ -304,7 +322,7 @@ void CGame::InitGraphics()
 	// load the texture
 	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
 										  nullptr, // our device context but DON'T use it since it makes the function unstable!!
-										  L"Wood.png", // name of file, with project folder as root file
+										  L"bricks.png", // name of file, with project folder as root file
 										  nullptr, 
 										  &m_texture, 
 										  0); // max size of texture, if 0 we load full texture
@@ -413,6 +431,42 @@ void CGame::InitStates()
 	
 	dsd.DepthEnable = FALSE;
 	m_dev->CreateDepthStencilState(&dsd, &s_depthDisabledStencilState);
+
+	/*
+	D3D11_SAMPLER_DESC sd;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.MaxAnisotropy = 8; // 1 <= value <= 16
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // horizontally, the texture is repeated
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR; // vertically, the texture is mirrored
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; // if it's a 3D texture, it get clamped
+	sd.BorderColor[0] = 1.0f; // setting border color to white
+	sd.BorderColor[1] = 1.0f; 
+	sd.BorderColor[2] = 1.0f; 
+	sd.BorderColor[3] = 1.0f;
+	sd.MinLOD = 0.0f;
+	sd.MaxLOD = FLT_MAX;
+	sd.MipLODBias = 2.0f; // decrease mip level of detail by 2 all the time
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]);
+	*/
+
+	D3D11_SAMPLER_DESC sd;
+	sd.Filter = D3D11_FILTER_ANISOTROPIC;
+	sd.MaxAnisotropy = 16;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; 
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; 
+	sd.BorderColor[0] = 1.0f;
+	sd.BorderColor[1] = 1.0f;
+	sd.BorderColor[2] = 1.0f;
+	sd.BorderColor[3] = 1.0f;
+	sd.MinLOD = 0.0f;
+	sd.MaxLOD = FLT_MAX;
+	sd.MipLODBias = 0.0f;
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]); // anisotropic sampler
+
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // linear filtering
+	sd.MinLOD = 5.0f; // mip level 5 will appear blurred
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[1]); // linear blur sampler
 }
 
 void CGame::PointerPressed()
@@ -431,11 +485,11 @@ void CGame::KeyPressed(VirtualKey key)
 {
 	float speed = 0.05f;
 	if (key == VirtualKey::Up) {
-		XMVECTOR distanceMoved = { -1 * speed * m_time, 0, 0, 0 };
+		XMVECTOR distanceMoved = { 0, 0, -1 * speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
 	}	
 	if (key == VirtualKey::Down) {
-		XMVECTOR distanceMoved = { speed * m_time, 0, 0, 0 };
+		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
 	}
 }
