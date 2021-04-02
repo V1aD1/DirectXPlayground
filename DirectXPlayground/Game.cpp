@@ -329,7 +329,7 @@ void CGame::InitGraphics()
 
 	hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
 		nullptr, // our device context but DON'T use it since it makes the function unstable!!
-		L"ball.png", // name of file, with project folder as root file
+		L"wood.png", // name of file, with project folder as root file
 		nullptr,
 		&m_texture2,
 		0); // max size of texture, if 0 we load full texture
