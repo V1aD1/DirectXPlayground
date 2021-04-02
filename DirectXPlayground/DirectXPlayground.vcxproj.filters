@@ -34,6 +34,9 @@
     <Image Include="bricks.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="ball.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

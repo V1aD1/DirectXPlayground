@@ -34,7 +34,7 @@ Array<byte>^ LoadShaderFile(std::string file) {
 }
 
 // initializes and prepares Direct3D for use
-void CGame::Initialize(){
+void CGame::Initialize() {
 	// define temp pointers to a device and device context
 	ComPtr<ID3D11Device> dev11;
 	ComPtr<ID3D11DeviceContext> devcon11;
@@ -77,9 +77,9 @@ void CGame::Initialize(){
 	scd.BufferCount = 2; // 2 buffers, a front and back buffer
 	scd.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // the most common swap chain format: 8 bits for R, G, B and Alpha each
 	scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // recommended flip mode
-	
+
 	// disables anti-aliasing since not all gpu's support it, but maybe play with it later? There's also SampleDesc.Quality
-	scd.SampleDesc.Count = 1; 
+	scd.SampleDesc.Count = 1;
 
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
 
@@ -105,7 +105,7 @@ void CGame::Initialize(){
 	textDesc.SampleDesc.Count = 1; // anti aliasing kindof, minimizes the stair-effect on diagonal lines
 	textDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bits for depth, 8 bits for stencil 
 	textDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL; // flag specifies that this texture will be used as a depth buffer
-	
+
 	ComPtr<ID3D11Texture2D> zBufferTexture;
 	m_dev->CreateTexture2D(&textDesc, nullptr, &zBufferTexture);
 
@@ -220,7 +220,7 @@ void CGame::Render() {
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
 	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
-	
+
 	if (m_blurred) {
 		m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
 	}
@@ -232,7 +232,7 @@ void CGame::Render() {
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
-	
+
 	m_devCon->DrawIndexed(36, 0, 0);
 
 	// drawing second cube
@@ -247,7 +247,7 @@ void CGame::Render() {
 
 void CGame::InitGraphics()
 {
-	float textLim = 0.5f;
+	float textLim = 1.0f;
 	// currently draws a square
 	VERTEX ourVertices[] =
 	{
@@ -314,18 +314,25 @@ void CGame::InitGraphics()
 	D3D11_BUFFER_DESC ibd = { 0 };
 	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	
+
 	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
-	
+
 	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
 
 	// load the texture
 	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
-										  nullptr, // our device context but DON'T use it since it makes the function unstable!!
-										  L"bricks.png", // name of file, with project folder as root file
-										  nullptr, 
-										  &m_texture, 
-										  0); // max size of texture, if 0 we load full texture
+		nullptr, // our device context but DON'T use it since it makes the function unstable!!
+		L"bricks.png", // name of file, with project folder as root file
+		nullptr,
+		&m_texture1,
+		0); // max size of texture, if 0 we load full texture
+
+	hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
+		nullptr, // our device context but DON'T use it since it makes the function unstable!!
+		L"ball.png", // name of file, with project folder as root file
+		nullptr,
+		&m_texture2,
+		0); // max size of texture, if 0 we load full texture
 }
 
 void CGame::InitPipeline()
@@ -340,12 +347,13 @@ void CGame::InitPipeline()
 	// set the shader objects as the active shaders
 	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	m_devCon->PSSetShaderResources(0, 1, m_texture.GetAddressOf()); // sets the Texture in the pixel shader
+	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
+	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
 
 	// initialize input layout
 	D3D11_INPUT_ELEMENT_DESC ied[] = {
 		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, color on byte 12
+		// so position starts on byte 0, next on byte 12
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -382,7 +390,7 @@ void CGame::InitStates()
 	rd.MultisampleEnable = FALSE;
 	rd.DepthBias = 0; // this value is added to the depth of any pixel rendered
 	rd.DepthBiasClamp = 0.0f; // limits the amount of depth bias so that certain distortions are avoided
-	rd.SlopeScaledDepthBias = 0.0f; //this state is used to create high quality shadows (later)	
+	rd.SlopeScaledDepthBias = 0.0f; //this state is used to create high quality shadows (later)
 	*/
 
 	// set rasterizer properties
@@ -398,7 +406,7 @@ void CGame::InitStates()
 	rd.DepthBiasClamp = 0.0f;
 	rd.SlopeScaledDepthBias = 0.0f;
 	m_dev->CreateRasterizerState(&rd, &s_defaultRasterState);
-	
+
 	rd.FillMode = D3D11_FILL_WIREFRAME;
 	rd.AntialiasedLineEnable = TRUE;
 	m_dev->CreateRasterizerState(&rd, &s_wireframeRasterState);
@@ -428,7 +436,7 @@ void CGame::InitStates()
 	dsd.DepthFunc = D3D11_COMPARISON_LESS; // only render pixels CLOSER to the camera than what's already on the depth buffer
 
 	m_dev->CreateDepthStencilState(&dsd, &s_depthEnabledStencilState);
-	
+
 	dsd.DepthEnable = FALSE;
 	m_dev->CreateDepthStencilState(&dsd, &s_depthDisabledStencilState);
 
@@ -440,8 +448,8 @@ void CGame::InitStates()
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR; // vertically, the texture is mirrored
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; // if it's a 3D texture, it get clamped
 	sd.BorderColor[0] = 1.0f; // setting border color to white
-	sd.BorderColor[1] = 1.0f; 
-	sd.BorderColor[2] = 1.0f; 
+	sd.BorderColor[1] = 1.0f;
+	sd.BorderColor[2] = 1.0f;
 	sd.BorderColor[3] = 1.0f;
 	sd.MinLOD = 0.0f;
 	sd.MaxLOD = FLT_MAX;
@@ -453,8 +461,8 @@ void CGame::InitStates()
 	sd.Filter = D3D11_FILTER_ANISOTROPIC;
 	sd.MaxAnisotropy = 16;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; 
-	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; 
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.BorderColor[0] = 1.0f;
 	sd.BorderColor[1] = 1.0f;
 	sd.BorderColor[2] = 1.0f;
@@ -487,7 +495,7 @@ void CGame::KeyPressed(VirtualKey key)
 	if (key == VirtualKey::Up) {
 		XMVECTOR distanceMoved = { 0, 0, -1 * speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
-	}	
+	}
 	if (key == VirtualKey::Down) {
 		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);

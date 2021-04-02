@@ -216,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\SplashScreen.png" />
+    <Image Include="ball.png" />
     <Image Include="bricks.png" />
     <Image Include="Wood.png" />
   </ItemGroup>

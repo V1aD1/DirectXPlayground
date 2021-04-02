@@ -73,8 +73,8 @@ public:
 		// multiples of 120, positive number means scroll up, negative means scroll down
 		int wheel = args->CurrentPoint->Properties->MouseWheelDelta;
 		
-		MessageDialog dialog("Scrolling!", "Scrolling!");
-		dialog.ShowAsync();
+		//MessageDialog dialog("Scrolling!", "Scrolling!");
+		//dialog.ShowAsync();
 	}
 
 	void KeyDown(CoreWindow^ window, KeyEventArgs^ args) {
