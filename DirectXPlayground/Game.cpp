@@ -374,7 +374,6 @@ void CGame::InitPipeline()
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 
-
 	m_devCon->RSSetState(m_rasterizerState.Get());
 }
 
