@@ -44,7 +44,7 @@ void CGame::Initialize() {
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
-		0,
+		D3D11_CREATE_DEVICE_DEBUG,
 		nullptr,
 		0,
 		D3D11_SDK_VERSION,
@@ -70,6 +70,8 @@ void CGame::Initialize() {
 	// third use the IDXGIAdapter interface to get access to the factory
 	ComPtr<IDXGIFactory2> dxgiFactory;
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), &dxgiFactory);
+
+	HRESULT hr = m_dev->QueryInterface(IID_PPV_ARGS(&m_debug));
 
 	// set up the swap chain description
 	DXGI_SWAP_CHAIN_DESC1 scd = { 0 };
@@ -501,5 +503,12 @@ void CGame::KeyPressed(VirtualKey key)
 	if (key == VirtualKey::Down) {
 		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
+	}
+}
+
+void CGame::Finalize()
+{
+	if (m_debug) {
+		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
 }

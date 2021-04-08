@@ -54,6 +54,8 @@ public:
 			m_game.Render();
 		}
 
+		m_game.Finalize();
+
 	}
 
 	virtual void Uninitialize() {}

@@ -36,6 +36,9 @@ public:
 	static ComPtr<ID3D11DepthStencilState> s_depthDisabledStencilState;
 
 public:
+	// debug info
+	ComPtr<ID3D11Debug> m_debug;
+
 	// device interface
 	ComPtr<ID3D11Device1> m_dev;
 
@@ -83,6 +86,8 @@ public:
 
 	void PointerPressed();
 	void KeyPressed(VirtualKey key);
+
+	void Finalize();
 
 private:
 	CONSTANTBUFFER m_constBufferValues;
