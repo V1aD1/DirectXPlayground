@@ -235,6 +235,8 @@ void CGame::Render() {
 
 	m_devCon->DrawIndexed(36, 0, 0);
 
+	// draw teapot
+
 	// drawing second cube
 	//matTranslate = XMMatrixTranslation(0, 0, -6);
 	//m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
@@ -349,6 +351,7 @@ void CGame::InitPipeline()
 	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
 	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
+
 
 	// initialize input layout
 	D3D11_INPUT_ELEMENT_DESC ied[] = {
