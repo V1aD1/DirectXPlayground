@@ -99,8 +99,12 @@ public:
 		m_game.KeyPressed(args->VirtualKey);
 	}
 
-	void Suspending(Object^ sender, SuspendingEventArgs^ args) {}
-	void Resuming(Object^ sender, Object^ args) {}
+	void Suspending(Object^ sender, SuspendingEventArgs^ args) {
+		Log("Suspending()");
+	}
+	void Resuming(Object^ sender, Object^ args) {
+		Log("Resuming()");
+	}
 	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { 
 		m_windowClosed = true; 
 		Log("Close()");
