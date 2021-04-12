@@ -1,4 +1,9 @@
 #include "pch.h"
+
+// all includes must be made AFTER including pch.h!!
+#include <sstream>
+#include <iostream>
+
 #include "Game.h"
 
 using namespace Windows::ApplicationModel;
@@ -16,6 +21,13 @@ ref class App sealed: public IFrameworkView
 {
 	bool m_windowClosed;
 	CGame m_game;
+
+	void Log(std::string msg) {
+		std::ostringstream os;
+		os << msg;
+		OutputDebugStringA(os.str().c_str());
+	}
+
 public:
 	// some functions called by Windows
 	virtual void Initialize(CoreApplicationView^ appView) {
@@ -25,6 +37,7 @@ public:
 		CoreApplication::Resuming += ref new EventHandler<Object^>(this, &App::Resuming);
 
 		m_windowClosed = false;
+		Log("Initialize()\n");
 	}
 
 	virtual void SetWindow(CoreWindow^ window){
@@ -32,13 +45,11 @@ public:
 		window->PointerWheelChanged += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerWheelChanged);
 		window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyDown);
 		window->KeyUp += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyUp);
-
 		window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::Closed);
 	}
 	virtual void Load(String^ entryPoint) {}
 
 	virtual void Run() {
-		
 		m_game.Initialize();
 		
 		CoreWindow^ Window = CoreWindow::GetForCurrentThread();
@@ -55,10 +66,11 @@ public:
 		}
 
 		m_game.Finalize();
-
 	}
 
-	virtual void Uninitialize() {}
+	virtual void Uninitialize() {
+		Log("Uninitialize()");
+	}
 
 	// an "event" that is called when the application window is ready to be activated
 	void OnActivated(CoreApplicationView^ coreAppView, IActivatedEventArgs^ args) {
@@ -89,7 +101,10 @@ public:
 
 	void Suspending(Object^ sender, SuspendingEventArgs^ args) {}
 	void Resuming(Object^ sender, Object^ args) {}
-	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { m_windowClosed = true; }
+	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { 
+		m_windowClosed = true; 
+		Log("Close()");
+	}
 };
 
 // the class definition that creates an instance of our core framework class
