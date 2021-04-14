@@ -22,7 +22,16 @@ ref class App sealed: public IFrameworkView
 	bool m_windowClosed;
 	CGame m_game;
 
-	void Log(std::string msg) {
+	void Log(std::string&& msg) {
+		if (msg.length() == 0) {
+			return;
+		}
+
+		// appending new line character in case it was forgotten
+		if (msg.back() != '\n') {
+			msg.append("\n");
+		}
+
 		std::ostringstream os;
 		os << msg;
 		OutputDebugStringA(os.str().c_str());
@@ -46,6 +55,7 @@ public:
 		window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyDown);
 		window->KeyUp += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyUp);
 		window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::Closed);
+		window->VisibilityChanged += ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::VisibilityChanged);
 	}
 	virtual void Load(String^ entryPoint) {}
 
@@ -108,6 +118,14 @@ public:
 	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { 
 		m_windowClosed = true; 
 		Log("Close()");
+	}
+	void VisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args) { 
+		Log("VisibilityChanged()");
+
+		// window no longer visible, so it MAY have been shut down
+		if (sender->Visible == false) {
+			m_game.Finalize();
+		}
 	}
 };
 
