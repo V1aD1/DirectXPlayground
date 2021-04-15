@@ -12,6 +12,37 @@ ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthEnabledStencilState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
 
+// example of alternate way to load shaders that allows me to pass in flags
+/*void overlay::init_shaders()
+{
+	auto device = d3d_device::instance()->raw();
+
+	com_ptr<ID3DBlob> vs_blob, ps_blob;
+	const string & vs_code = vertex_shader_code();
+	const string & ps_code = pixel_shader_code();
+
+	HRESULT result = D3DCompile(vs_code.c_str(), vs_code.size(), nullptr, nullptr, nullptr, "vs", "vs_5_0", 0, 0, &vs_blob, nullptr);
+
+	if (FAILED(result))
+		throw std::runtime_error("Error compiling vertex shader");
+
+	result = D3DCompile(ps_code.c_str(), ps_code.size(), nullptr, nullptr, nullptr, "ps", "ps_5_0", 0, 0, &ps_blob, nullptr);
+
+	if (FAILED(result))
+		throw std::runtime_error("Error compiling pixel shader");
+
+	D3D11_INPUT_ELEMENT_DESC input_desc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	device->CreateInputLayout(input_desc, 2, vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &input_layout);
+	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader);
+	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader);
+}*/
+
+
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file) {
 	Array<byte>^ fileData = nullptr;
@@ -344,7 +375,7 @@ void CGame::InitPipeline()
 	// load shader files (.hlsl files become .cso files after compilation)
 	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
 	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-
+	
 	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
 	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
 
