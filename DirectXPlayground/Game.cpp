@@ -5,12 +5,37 @@
 
 #include <string>
 #include <fstream>
+#include <streambuf>
+#include <d3dcompiler.h>
 
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
 ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthEnabledStencilState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
+
+void CGame::InitShaders() {
+	ComPtr<ID3DBlob> vsBlob, psBlob;
+	std::unique_ptr<std::string> vsFile = LoadShaderFile2("..\..\..\VertexShader.hlsl");
+	std::unique_ptr<std::string> psFile = LoadShaderFile2("..\..\..\PixelShader.hlsl");
+
+	// todo remember to add compile flags for shaders!!
+
+	HRESULT r = D3DCompile(vsFile->c_str(), vsFile->size(), nullptr, nullptr, nullptr, "vs", "vs_5_0", 0, 0, &vsBlob, nullptr);
+	if (FAILED(r)) {
+		//throw std::runtime_error("Error compiling vertex shader");
+		OutputDebugStringA("Error compiling vertex shader!!");
+	}
+
+	r = D3DCompile(psFile->c_str(), psFile->size(), nullptr, nullptr, nullptr, "ps", "ps_5_0", 0, 0, &psBlob, nullptr);
+	if (FAILED(r)) {
+		//throw std::runtime_error("Error compiling pixel shader");
+		OutputDebugStringA("Error compiling pixel shader!!");
+	}
+
+	m_dev->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, m_vertexShader.GetAddressOf());
+	m_dev->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, m_pixelShader.GetAddressOf());
+}
 
 // example of alternate way to load shaders that allows me to pass in flags
 /*void overlay::init_shaders()
@@ -41,6 +66,22 @@ ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
 	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader);
 	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader);
 }*/
+
+std::unique_ptr<std::string> LoadShaderFile2(std::string file) {
+	std::ifstream stream(file);
+	std::unique_ptr<std::string> str(new std::string);
+
+	// reserving space in string to length of file, then starting to read from beginning of file again
+	stream.seekg(0, std::ios::end);
+	str->reserve(stream.tellg());
+	stream.seekg(0, std::ios::beg);
+
+	// the extra brackets around the first param are there to avoid the "most vexing parse" problem
+	// more info: http://web.archive.org/web/20110426155617/http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=439
+	str->assign((std::istreambuf_iterator<char>(stream)),
+		std::istreambuf_iterator<char>());
+	return str;
+}
 
 
 // this function loads a file into an Array^
@@ -372,12 +413,7 @@ void CGame::InitGraphics()
 
 void CGame::InitPipeline()
 {
-	// load shader files (.hlsl files become .cso files after compilation)
-	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
-	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-	
-	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
-	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
+	InitShaders();
 
 	// set the shader objects as the active shaders
 	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);

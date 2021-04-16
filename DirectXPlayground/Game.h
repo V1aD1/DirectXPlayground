@@ -80,6 +80,7 @@ public:
 	void Update();
 	void Render();
 
+	void InitShaders();
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
 	void InitStates();
