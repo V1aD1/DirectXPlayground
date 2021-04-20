@@ -14,20 +14,47 @@ ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthEnabledStencilState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
 
+std::unique_ptr<std::string> LoadShaderFile2(std::string file) {
+	std::ifstream stream(file);
+	std::unique_ptr<std::string> str(new std::string);
+
+	// reserving space in string to length of file, then starting to read from beginning of file again
+	stream.seekg(0, std::ios::end);
+	str->reserve(stream.tellg());
+	stream.seekg(0, std::ios::beg);
+
+	// the extra brackets around the first param are there to avoid the "most vexing parse" problem
+	// more info: http://web.archive.org/web/20110426155617/http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=439
+	str->assign((std::istreambuf_iterator<char>(stream)),
+		std::istreambuf_iterator<char>());
+	return str;
+}
+
 void CGame::InitShaders() {
-	ComPtr<ID3DBlob> vsBlob, psBlob;
-	std::unique_ptr<std::string> vsFile = LoadShaderFile2("..\..\..\VertexShader.hlsl");
-	std::unique_ptr<std::string> psFile = LoadShaderFile2("..\..\..\PixelShader.hlsl");
+
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+
+	ComPtr<ID3DBlob> vsBlob, psBlob, errorBlob;
+	std::unique_ptr<std::string> vsFile = LoadShaderFile2("VertexShader.hlsl");
+	std::unique_ptr<std::string> psFile = LoadShaderFile2("PixelShader.hlsl");
 
 	// todo remember to add compile flags for shaders!!
 
-	HRESULT r = D3DCompile(vsFile->c_str(), vsFile->size(), nullptr, nullptr, nullptr, "vs", "vs_5_0", 0, 0, &vsBlob, nullptr);
+	HRESULT r = D3DCompile(vsFile->c_str(), vsFile->size(), nullptr, nullptr, nullptr, "vs", "vs_5_0", 0, 0, &vsBlob, &errorBlob);
 	if (FAILED(r)) {
-		//throw std::runtime_error("Error compiling vertex shader");
 		OutputDebugStringA("Error compiling vertex shader!!");
+		if (errorBlob)
+		{
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+			errorBlob->Release();
+		}
+
+		if (vsBlob)
+			vsBlob->Release();
 	}
 
-	r = D3DCompile(psFile->c_str(), psFile->size(), nullptr, nullptr, nullptr, "ps", "ps_5_0", 0, 0, &psBlob, nullptr);
+	r = D3DCompile(psFile->c_str(), psFile->size(), nullptr, nullptr, nullptr, "ps", "ps_5_0", 0, 0, &psBlob, &errorBlob);
 	if (FAILED(r)) {
 		//throw std::runtime_error("Error compiling pixel shader");
 		OutputDebugStringA("Error compiling pixel shader!!");
@@ -35,6 +62,19 @@ void CGame::InitShaders() {
 
 	m_dev->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, m_vertexShader.GetAddressOf());
 	m_dev->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, m_pixelShader.GetAddressOf());
+
+	// initialize input layout
+	D3D11_INPUT_ELEMENT_DESC ied[] = {
+		// 5th param specifies on which byte the new piece of info starts
+		// so position starts on byte 0, next on byte 12
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	// create the input layout
+	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &m_inputLayout);
+	m_devCon->IASetInputLayout(m_inputLayout.Get());
 }
 
 // example of alternate way to load shaders that allows me to pass in flags
@@ -66,23 +106,6 @@ void CGame::InitShaders() {
 	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader);
 	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader);
 }*/
-
-std::unique_ptr<std::string> LoadShaderFile2(std::string file) {
-	std::ifstream stream(file);
-	std::unique_ptr<std::string> str(new std::string);
-
-	// reserving space in string to length of file, then starting to read from beginning of file again
-	stream.seekg(0, std::ios::end);
-	str->reserve(stream.tellg());
-	stream.seekg(0, std::ios::beg);
-
-	// the extra brackets around the first param are there to avoid the "most vexing parse" problem
-	// more info: http://web.archive.org/web/20110426155617/http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=439
-	str->assign((std::istreambuf_iterator<char>(stream)),
-		std::istreambuf_iterator<char>());
-	return str;
-}
-
 
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file) {
@@ -420,20 +443,6 @@ void CGame::InitPipeline()
 	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
 	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
-
-
-	// initialize input layout
-	D3D11_INPUT_ELEMENT_DESC ied[] = {
-		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, next on byte 12
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	// create the input layout
-	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
-	m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 	// create the constant buffer
 	D3D11_BUFFER_DESC bd = { 0 };
