@@ -118,8 +118,8 @@
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -137,8 +137,8 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -156,8 +156,8 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -175,8 +175,8 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -194,8 +194,8 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -213,8 +213,8 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)VertexShader.hlsl $(LayoutDir)
-xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -252,6 +252,12 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -260,6 +266,18 @@ xcopy /y $(ProjectDir)PixelShader.hlsl $(LayoutDir)</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
