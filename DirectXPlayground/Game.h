@@ -77,13 +77,12 @@ public:
 	bool m_wireFrame;
 
 	void Initialize();
-	void Update();
-	void Render();
-
-	void InitShaders();
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
 	void InitStates();
+
+	void Update();
+	void Render();
 
 	void PointerPressed();
 	void KeyPressed(VirtualKey key);

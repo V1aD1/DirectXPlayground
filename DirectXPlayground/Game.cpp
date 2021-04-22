@@ -146,6 +146,238 @@ void CGame::Initialize() {
 	m_blurred = false;
 }
 
+void CGame::InitGraphics()
+{
+	float textLim = 1.0f;
+	// currently draws a square
+	VERTEX ourVertices[] =
+	{
+		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
+	{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
+	{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
+	{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
+
+	{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
+	{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
+	{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
+	{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
+
+	{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
+	{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
+	{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
+	{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
+
+	{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
+	{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
+	{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
+	{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
+
+	{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
+	{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
+	{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
+	{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
+
+	{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
+	{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
+	{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
+	{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
+	};
+
+	// struct specifying properties of the buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+
+	// size of the buffer that we'll create, in bytes
+	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
+
+	// what kind of buffer we're making (vertex buffer)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	// data we're going to store in the vertex buffer
+	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
+
+	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+
+	short ourIndices[] = {
+		0, 1, 2,    // side 1
+		2, 1, 3,
+		4, 5, 6,    // side 2
+		6, 5, 7,
+		8, 9, 10,    // side 3
+		10, 9, 11,
+		12, 13, 14,    // side 4
+		14, 13, 15,
+		16, 17, 18,    // side 5
+		18, 17, 19,
+		20, 21, 22,    // side 6
+		22, 21, 23,
+	};
+
+	D3D11_BUFFER_DESC ibd = { 0 };
+	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
+
+	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
+
+	// load the texture
+	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
+		nullptr, // our device context but DON'T use it since it makes the function unstable!!
+		L"bricks.png", // name of file, with project folder as root file
+		nullptr,
+		&m_texture1,
+		0); // max size of texture, if 0 we load full texture
+
+	hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
+		nullptr, // our device context but DON'T use it since it makes the function unstable!!
+		L"wood.png", // name of file, with project folder as root file
+		nullptr,
+		&m_texture2,
+		0); // max size of texture, if 0 we load full texture
+}
+
+void CGame::InitPipeline()
+{
+	// load shader files (.hlsl files become .cso files after compilation)
+	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
+	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
+
+	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
+	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
+
+
+	// set the shader objects as the active shaders
+	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
+	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
+	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
+
+																	 // initialize input layout
+	D3D11_INPUT_ELEMENT_DESC ied[] = {
+		// 5th param specifies on which byte the new piece of info starts
+		// so position starts on byte 0, next on byte 12
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	// create the input layout
+	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
+	m_devCon->IASetInputLayout(m_inputLayout.Get());
+
+	// create the constant buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.Usage = D3D11_USAGE_DEFAULT;
+
+	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+	bd.ByteWidth = sizeof(CONSTANTBUFFER);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+
+	m_devCon->RSSetState(m_rasterizerState.Get());
+}
+
+void CGame::InitStates()
+{
+	/*
+	rd.FillMode = D3D11_FILL_WIREFRAME; // render in wire frame mode
+	rd.CullMode = D3D11_CULL_FRONT; // don't draw the front of primitves, only the back
+	rd.FrontCounterClockwise = TRUE; // set the front to counter-clockwise
+	rd.DepthClipEnable = FALSE; // forces depth of each pixel to be between two planes, but remember to set viewport.MaxDepth to 0.99f!
+	rd.ScissorEnable = TRUE;
+	rd.AntialiasedLineEnable = TRUE;
+	rd.MultisampleEnable = FALSE;
+	rd.DepthBias = 0; // this value is added to the depth of any pixel rendered
+	rd.DepthBiasClamp = 0.0f; // limits the amount of depth bias so that certain distortions are avoided
+	rd.SlopeScaledDepthBias = 0.0f; //this state is used to create high quality shadows (later)
+	*/
+
+	// set rasterizer properties
+	D3D11_RASTERIZER_DESC rd;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.FrontCounterClockwise = FALSE;
+	rd.DepthClipEnable = TRUE;
+	rd.ScissorEnable = FALSE;
+	rd.AntialiasedLineEnable = FALSE;
+	rd.MultisampleEnable = FALSE;
+	rd.DepthBias = 0;
+	rd.DepthBiasClamp = 0.0f;
+	rd.SlopeScaledDepthBias = 0.0f;
+	m_dev->CreateRasterizerState(&rd, &s_defaultRasterState);
+
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	rd.AntialiasedLineEnable = TRUE;
+	m_dev->CreateRasterizerState(&rd, &s_wireframeRasterState);
+
+	// used for transparent objects (which should be drawn AFTER all non transparent objects are drawn )
+	// blending equation: (Source Color * Source Factor (usually source alpha)) OPERATION (Dest Color * Dest Factor (don't know what it usually is))
+	D3D11_BLEND_DESC bd;
+	bd.RenderTarget[0].BlendEnable = TRUE; // turn on color blending
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // use source alpha for source factor
+	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // use inverse source alpha for dest factor
+
+															  // blending alpha instead of colors (rarely needed, and disabled here)
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;    // addition is default for this
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;      // use full source alpha
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;    // use no dest alpha
+
+	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // can be used to disable entire color channels (R, G or B)
+	bd.IndependentBlendEnable = FALSE; // used to activate other render targets, but we only have 1, so we don't use this
+	bd.AlphaToCoverageEnable = FALSE; // improves antialiasing of transparent textures
+
+	m_dev->CreateBlendState(&bd, &m_blendState);
+
+	D3D11_DEPTH_STENCIL_DESC dsd = { 0 };
+	dsd.DepthEnable = TRUE; // can disable depth buffer
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // can disable WRITING to the depth buffer
+	dsd.DepthFunc = D3D11_COMPARISON_LESS; // only render pixels CLOSER to the camera than what's already on the depth buffer
+
+	m_dev->CreateDepthStencilState(&dsd, &s_depthEnabledStencilState);
+
+	dsd.DepthEnable = FALSE;
+	m_dev->CreateDepthStencilState(&dsd, &s_depthDisabledStencilState);
+
+	/*
+	D3D11_SAMPLER_DESC sd;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.MaxAnisotropy = 8; // 1 <= value <= 16
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // horizontally, the texture is repeated
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR; // vertically, the texture is mirrored
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; // if it's a 3D texture, it get clamped
+	sd.BorderColor[0] = 1.0f; // setting border color to white
+	sd.BorderColor[1] = 1.0f;
+	sd.BorderColor[2] = 1.0f;
+	sd.BorderColor[3] = 1.0f;
+	sd.MinLOD = 0.0f;
+	sd.MaxLOD = FLT_MAX;
+	sd.MipLODBias = 2.0f; // decrease mip level of detail by 2 all the time
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]);
+	*/
+
+	D3D11_SAMPLER_DESC sd;
+	sd.Filter = D3D11_FILTER_ANISOTROPIC;
+	sd.MaxAnisotropy = 16;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.BorderColor[0] = 1.0f;
+	sd.BorderColor[1] = 1.0f;
+	sd.BorderColor[2] = 1.0f;
+	sd.BorderColor[3] = 1.0f;
+	sd.MinLOD = 0.0f;
+	sd.MaxLOD = FLT_MAX;
+	sd.MipLODBias = 0.0f;
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]); // anisotropic sampler
+
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // linear filtering
+	sd.MinLOD = 5.0f; // mip level 5 will appear blurred
+	m_dev->CreateSamplerState(&sd, &m_samplerStates[1]); // linear blur sampler
+}
+
 // performs updates to the state of the game
 void CGame::Update() {
 	m_time += 0.02f;
@@ -249,238 +481,6 @@ void CGame::Render() {
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
-}
-
-void CGame::InitGraphics()
-{
-	float textLim = 1.0f;
-	// currently draws a square
-	VERTEX ourVertices[] =
-	{
-		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
-		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
-		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
-
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
-		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
-		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
-
-		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
-		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
-		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
-		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
-		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
-		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
-	};
-
-	// struct specifying properties of the buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-
-	// size of the buffer that we'll create, in bytes
-	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
-
-	// what kind of buffer we're making (vertex buffer)
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	// data we're going to store in the vertex buffer
-	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
-
-	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
-
-	short ourIndices[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 5, 6,    // side 2
-		6, 5, 7,
-		8, 9, 10,    // side 3
-		10, 9, 11,
-		12, 13, 14,    // side 4
-		14, 13, 15,
-		16, 17, 18,    // side 5
-		18, 17, 19,
-		20, 21, 22,    // side 6
-		22, 21, 23,
-	};
-
-	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
-
-	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
-
-	// load the texture
-	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
-		nullptr, // our device context but DON'T use it since it makes the function unstable!!
-		L"bricks.png", // name of file, with project folder as root file
-		nullptr,
-		&m_texture1,
-		0); // max size of texture, if 0 we load full texture
-
-	hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
-		nullptr, // our device context but DON'T use it since it makes the function unstable!!
-		L"wood.png", // name of file, with project folder as root file
-		nullptr,
-		&m_texture2,
-		0); // max size of texture, if 0 we load full texture
-}
-
-void CGame::InitPipeline()
-{
-	// load shader files (.hlsl files become .cso files after compilation)
-	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
-	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-
-	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
-	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
-
-
-	// set the shader objects as the active shaders
-	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
-	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
-
-																	 // initialize input layout
-	D3D11_INPUT_ELEMENT_DESC ied[] = {
-		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, next on byte 12
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	// create the input layout
-	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
-	m_devCon->IASetInputLayout(m_inputLayout.Get());
-
-	// create the constant buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.Usage = D3D11_USAGE_DEFAULT;
-
-	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-	bd.ByteWidth = sizeof(CONSTANTBUFFER);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-
-	m_devCon->RSSetState(m_rasterizerState.Get());
-}
-
-void CGame::InitStates()
-{
-	/*
-	rd.FillMode = D3D11_FILL_WIREFRAME; // render in wire frame mode
-	rd.CullMode = D3D11_CULL_FRONT; // don't draw the front of primitves, only the back
-	rd.FrontCounterClockwise = TRUE; // set the front to counter-clockwise
-	rd.DepthClipEnable = FALSE; // forces depth of each pixel to be between two planes, but remember to set viewport.MaxDepth to 0.99f!
-	rd.ScissorEnable = TRUE;
-	rd.AntialiasedLineEnable = TRUE;
-	rd.MultisampleEnable = FALSE;
-	rd.DepthBias = 0; // this value is added to the depth of any pixel rendered
-	rd.DepthBiasClamp = 0.0f; // limits the amount of depth bias so that certain distortions are avoided
-	rd.SlopeScaledDepthBias = 0.0f; //this state is used to create high quality shadows (later)
-	*/
-
-	// set rasterizer properties
-	D3D11_RASTERIZER_DESC rd;
-	rd.FillMode = D3D11_FILL_SOLID;
-	rd.CullMode = D3D11_CULL_BACK;
-	rd.FrontCounterClockwise = FALSE;
-	rd.DepthClipEnable = TRUE;
-	rd.ScissorEnable = FALSE;
-	rd.AntialiasedLineEnable = FALSE;
-	rd.MultisampleEnable = FALSE;
-	rd.DepthBias = 0;
-	rd.DepthBiasClamp = 0.0f;
-	rd.SlopeScaledDepthBias = 0.0f;
-	m_dev->CreateRasterizerState(&rd, &s_defaultRasterState);
-
-	rd.FillMode = D3D11_FILL_WIREFRAME;
-	rd.AntialiasedLineEnable = TRUE;
-	m_dev->CreateRasterizerState(&rd, &s_wireframeRasterState);
-
-	// used for transparent objects (which should be drawn AFTER all non transparent objects are drawn )
-	// blending equation: (Source Color * Source Factor (usually source alpha)) OPERATION (Dest Color * Dest Factor (don't know what it usually is))
-	D3D11_BLEND_DESC bd;
-	bd.RenderTarget[0].BlendEnable = TRUE; // turn on color blending
-	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // use source alpha for source factor
-	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // use inverse source alpha for dest factor
-
-	// blending alpha instead of colors (rarely needed, and disabled here)
-	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;    // addition is default for this
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;      // use full source alpha
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;    // use no dest alpha
-
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // can be used to disable entire color channels (R, G or B)
-	bd.IndependentBlendEnable = FALSE; // used to activate other render targets, but we only have 1, so we don't use this
-	bd.AlphaToCoverageEnable = FALSE; // improves antialiasing of transparent textures
-
-	m_dev->CreateBlendState(&bd, &m_blendState);
-
-	D3D11_DEPTH_STENCIL_DESC dsd = { 0 };
-	dsd.DepthEnable = TRUE; // can disable depth buffer
-	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // can disable WRITING to the depth buffer
-	dsd.DepthFunc = D3D11_COMPARISON_LESS; // only render pixels CLOSER to the camera than what's already on the depth buffer
-
-	m_dev->CreateDepthStencilState(&dsd, &s_depthEnabledStencilState);
-
-	dsd.DepthEnable = FALSE;
-	m_dev->CreateDepthStencilState(&dsd, &s_depthDisabledStencilState);
-
-	/*
-	D3D11_SAMPLER_DESC sd;
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.MaxAnisotropy = 8; // 1 <= value <= 16
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // horizontally, the texture is repeated
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR; // vertically, the texture is mirrored
-	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP; // if it's a 3D texture, it get clamped
-	sd.BorderColor[0] = 1.0f; // setting border color to white
-	sd.BorderColor[1] = 1.0f;
-	sd.BorderColor[2] = 1.0f;
-	sd.BorderColor[3] = 1.0f;
-	sd.MinLOD = 0.0f;
-	sd.MaxLOD = FLT_MAX;
-	sd.MipLODBias = 2.0f; // decrease mip level of detail by 2 all the time
-	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]);
-	*/
-
-	D3D11_SAMPLER_DESC sd;
-	sd.Filter = D3D11_FILTER_ANISOTROPIC;
-	sd.MaxAnisotropy = 16;
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sd.BorderColor[0] = 1.0f;
-	sd.BorderColor[1] = 1.0f;
-	sd.BorderColor[2] = 1.0f;
-	sd.BorderColor[3] = 1.0f;
-	sd.MinLOD = 0.0f;
-	sd.MaxLOD = FLT_MAX;
-	sd.MipLODBias = 0.0f;
-	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]); // anisotropic sampler
-
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // linear filtering
-	sd.MinLOD = 5.0f; // mip level 5 will appear blurred
-	m_dev->CreateSamplerState(&sd, &m_samplerStates[1]); // linear blur sampler
 }
 
 void CGame::PointerPressed()
