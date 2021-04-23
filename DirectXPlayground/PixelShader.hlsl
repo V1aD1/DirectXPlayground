@@ -8,7 +8,7 @@ float4 main(float4 position: SV_POSITION, float4 color: COLOR, float2 texCoord: 
 {
 	float4 color1 = Texture1.Sample(ss, texCoord);
 	float4 color2 = Texture2.Sample(ss, texCoord);
-	float4 finalColor = color2;
+	float4 finalColor = color1;
 	
 	return finalColor;
 }

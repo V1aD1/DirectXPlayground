@@ -94,4 +94,10 @@ private:
 	float m_time;
 	XMVECTOR m_vecCamPosition;
 	bool m_blurred;
+
+	// todo maybe split into GetBoxVertices(), SetVerticesToBuffers()?
+	// todo create new class ObjectFactory?
+	// todo create new class Object, with method AddToBuffers()?
+	void AddBoxToBuffers();
+	void AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo);
 };

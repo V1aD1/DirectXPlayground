@@ -148,92 +148,10 @@ void CGame::Initialize() {
 
 void CGame::InitGraphics()
 {
-	float textLim = 1.0f;
-	// currently draws a square
-	VERTEX ourVertices[] =
-	{
-		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
-	{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
-	{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
-	{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
+	AddBoxToBuffers();
 
-	{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
-	{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
-	{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
-	{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
-
-	{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
-	{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
-	{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
-	{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
-
-	{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
-	{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
-	{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
-	{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
-
-	{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
-	{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
-	{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
-	{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
-
-	{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
-	{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
-	{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
-	{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
-	};
-
-	// struct specifying properties of the buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-
-	// size of the buffer that we'll create, in bytes
-	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
-
-	// what kind of buffer we're making (vertex buffer)
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	// data we're going to store in the vertex buffer
-	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
-
-	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
-
-	short ourIndices[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 5, 6,    // side 2
-		6, 5, 7,
-		8, 9, 10,    // side 3
-		10, 9, 11,
-		12, 13, 14,    // side 4
-		14, 13, 15,
-		16, 17, 18,    // side 5
-		18, 17, 19,
-		20, 21, 22,    // side 6
-		22, 21, 23,
-	};
-
-	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
-
-	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
-
-	// load the texture
-	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
-		nullptr, // our device context but DON'T use it since it makes the function unstable!!
-		L"bricks.png", // name of file, with project folder as root file
-		nullptr,
-		&m_texture1,
-		0); // max size of texture, if 0 we load full texture
-
-	hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
-		nullptr, // our device context but DON'T use it since it makes the function unstable!!
-		L"wood.png", // name of file, with project folder as root file
-		nullptr,
-		&m_texture2,
-		0); // max size of texture, if 0 we load full texture
+	AddTexture(L"bricks.png", m_texture1);
+	AddTexture(L"wood.png", m_texture2);
 }
 
 void CGame::InitPipeline()
@@ -245,20 +163,19 @@ void CGame::InitPipeline()
 	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
 	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
 
-
 	// set the shader objects as the active shaders
 	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
 	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
 
-																	 // initialize input layout
+	// initialize input layout
 	D3D11_INPUT_ELEMENT_DESC ied[] = {
 		// 5th param specifies on which byte the new piece of info starts
 		// so position starts on byte 0, next on byte 12
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	// create the input layout
@@ -269,13 +186,12 @@ void CGame::InitPipeline()
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.Usage = D3D11_USAGE_DEFAULT;
 
-	// constant buffers MUST be multiples of 16 bytes. if our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+	// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
 	bd.ByteWidth = sizeof(CONSTANTBUFFER);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-
 	m_devCon->RSSetState(m_rasterizerState.Get());
 }
 
@@ -410,7 +326,7 @@ void CGame::Render() {
 	m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 
-	// set the primitive topology (remember that we're drawing a triangle)
+	// set the primitive topology
 	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// WORLD transformation
@@ -513,4 +429,90 @@ void CGame::Finalize()
 	if (m_debug) {
 		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
+}
+
+void CGame::AddBoxToBuffers()
+{
+	float textLim = 1.0f;
+	VERTEX ourVertices[] =
+	{
+		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
+		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
+
+		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
+		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
+
+		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
+		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
+		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
+
+		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
+		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
+		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
+		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
+
+		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
+		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
+		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
+		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
+
+		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
+		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
+		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
+		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
+	};
+
+	// todo abstract this section into SetupVertexBuffer(Vertex[]& vertices)
+	// struct specifying properties of the buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+
+	// size of the buffer that we'll create, in bytes
+	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
+
+	// what kind of buffer we're making (vertex buffer)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	// data we're going to store in the vertex buffer
+	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
+
+	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
+
+	short ourIndices[] = {
+		0, 1, 2,    // side 1
+		2, 1, 3,
+		4, 5, 6,    // side 2
+		6, 5, 7,
+		8, 9, 10,    // side 3
+		10, 9, 11,
+		12, 13, 14,    // side 4
+		14, 13, 15,
+		16, 17, 18,    // side 5
+		18, 17, 19,
+		20, 21, 22,    // side 6
+		22, 21, 23,
+	};
+
+	// todo abstract this section into SetupIndexBuffer(short[]& indeces)
+	D3D11_BUFFER_DESC ibd = { 0 };
+	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
+
+	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
+}
+
+void CGame::AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo)
+{
+	HRESULT hr = CreateWICTextureFromFile(m_dev.Get(), // our device 
+		nullptr, // our device context but DON'T use it since it makes the function unstable!!
+		textName, // name of file, with project folder as root file
+		nullptr,
+		&resToMapTo,
+		0); // max size of texture, if 0 we load full texture
 }
