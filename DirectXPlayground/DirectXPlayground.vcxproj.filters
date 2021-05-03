@@ -23,6 +23,8 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="GraphicsObject.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -44,6 +46,7 @@
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="Shaders\PixelShader2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

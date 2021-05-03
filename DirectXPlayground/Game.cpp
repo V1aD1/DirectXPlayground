@@ -15,7 +15,7 @@ ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthEnabledStencilState;
 ComPtr<ID3D11DepthStencilState> CGame::s_depthDisabledStencilState;
 
-// this function loads a file into an Array^
+// todo move this to ShaderManager.h
 Array<byte>^ LoadShaderFile(std::string file) {
 	Array<byte>^ fileData = nullptr;
 
@@ -119,6 +119,8 @@ void CGame::Initialize() {
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; // specifies what kind of texture we're using
 	m_dev->CreateDepthStencilView(zBufferTexture.Get(), &dsvd, &m_zBuffer);
 
+	m_shaderManager.Initialize(m_dev);
+
 	// set the viewport (an object that describes what part of the back buffer to draw on)
 	D3D11_VIEWPORT viewport = { 0 };
 	viewport.TopLeftX = 0;
@@ -141,6 +143,7 @@ void CGame::Initialize() {
 	InitGraphics();
 	InitPipeline();
 	InitStates();
+	AddObjectsToWorld();
 	m_wireFrame = false;
 	m_time = 0.0f;
 	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
@@ -157,16 +160,13 @@ void CGame::InitGraphics()
 
 void CGame::InitPipeline()
 {
-	// load shader files (.hlsl files become .cso files after compilation)
-	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
+	// todo remove these since Shader Manager should be handling all of this
 	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-
-	m_dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, m_vertexShader.GetAddressOf());
-	m_dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, m_pixelShader.GetAddressOf());
+	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
 
 	// set the shader objects as the active shaders
-	m_devCon->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	m_devCon->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	m_devCon->VSSetShader(m_shaderManager.GetVertexShader(VertexShaders::VertexShader1).Get(), nullptr, 0);
+	m_devCon->PSSetShader(m_shaderManager.GetPixelShader(PixelShaders::PixelShader1).Get(), nullptr, 0);
 	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
 	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
 
@@ -295,6 +295,18 @@ void CGame::InitStates()
 	m_dev->CreateSamplerState(&sd, &m_samplerStates[1]); // linear blur sampler
 }
 
+void CGame::AddObjectsToWorld()
+{
+	auto cube = new Cube();
+	m_objects.push_back(cube);
+
+	// todo this should probably be done automatically by the GraphicsObject constructor or factory...
+	// now go through all objects, and link them to the corresponding shader
+	for (auto&& object : m_objects) {
+		m_vertexShaderMap[object->m_vertexShader].push_back(object);
+	}
+}
+
 // performs updates to the state of the game
 void CGame::Update() {
 	m_time += 0.02f;
@@ -320,6 +332,9 @@ void CGame::Render() {
 
 	// clear the depth buffer to have all values set to 1.0f
 	m_devCon->ClearDepthStencilView(m_zBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	// todo iterate over our shaders and render those objects
+
 
 	// set the vertex buffer
 	UINT stride = sizeof(VERTEX);
@@ -434,11 +449,11 @@ void CGame::AddBoxToBuffers()
 {
 	Cube cube = {};
 	
-	auto cubeVertices = cube.GetVertices();
-	auto cubeIndices = cube.GetIndices();
+	auto cubeVertices = cube.m_vertices;
+	auto cubeIndices = cube.m_indices;
 
-	m_dev->CreateBuffer(&cube.GetBufferDesc(), &cube.GetVertexData(), &m_vertexBuffer);
-	m_dev->CreateBuffer(&cube.GetIndexDesc(), &cube.GetIndexData(), &m_indexBuffer);
+	m_dev->CreateBuffer(&(cube.m_bufferDesc), &(cube.m_vertexData), &m_vertexBuffer);
+	m_dev->CreateBuffer(&(cube.m_indexDesc), &(cube.m_indexData), &m_indexBuffer);
 }
 
 void CGame::AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo)

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Vertex.h"
+#include "Globals.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
@@ -11,23 +12,15 @@ using namespace Platform;
 using namespace Windows::System;
 
 class GraphicsObject {
-private:
+public:
 	D3D11_BUFFER_DESC m_bufferDesc;
 	D3D11_BUFFER_DESC m_indexDesc;
 	D3D11_SUBRESOURCE_DATA m_vertexData;
 	D3D11_SUBRESOURCE_DATA m_indexData;
-
-protected:
 	std::vector<VERTEX> m_vertices;
 	std::vector<short> m_indices;
-
-public:
-	std::vector<VERTEX> GetVertices() { return m_vertices; }
-	std::vector<short> GetIndices() { return m_indices; }
-	D3D11_BUFFER_DESC GetBufferDesc() { return m_bufferDesc; }
-	D3D11_BUFFER_DESC GetIndexDesc() { return m_indexDesc; }
-	D3D11_SUBRESOURCE_DATA GetVertexData() { return m_vertexData; }
-	D3D11_SUBRESOURCE_DATA GetIndexData() { return m_indexData; }
+	VertexShaders m_vertexShader;
+	PixelShaders m_pixelShader;
 
 protected:
 	void SetupBuffers() {
@@ -54,6 +47,7 @@ protected:
 // todo move to own file
 class Cube : public GraphicsObject {
 public:
+	// todo account for Cube size, texture, shaders (use fluent builder for this?)
 	Cube(float textLim = 1.0f) {
 		m_vertices = {
 			{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
@@ -104,5 +98,8 @@ public:
 
 		// todo maybe factory should call this method...
 		SetupBuffers();
+
+		m_vertexShader = VertexShaders::VertexShader1;
+		m_pixelShader = PixelShaders::PixelShader1;
 	}
 };

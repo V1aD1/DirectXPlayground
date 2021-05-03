@@ -2,6 +2,9 @@
 
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
+#include "ShaderManager.h"
+
+#include <map>
 
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
@@ -55,12 +58,15 @@ public:
 	ComPtr<ID3D11ShaderResourceView> m_texture2;
 	ComPtr<ID3D11SamplerState> m_samplerStates[2]; // sample state interfaces
 
+	ShaderManager m_shaderManager;
+
 	bool m_wireFrame;
 
 	void Initialize();
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
 	void InitStates();
+	void AddObjectsToWorld();
 
 	void Update();
 	void Render();
@@ -75,6 +81,9 @@ private:
 	float m_time;
 	XMVECTOR m_vecCamPosition;
 	bool m_blurred;
+	std::vector<GraphicsObject*> m_objects;
+	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
+	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;
 
 	// todo maybe split into GetBoxVertices(), SetVerticesToBuffers()?
 	// todo create new class ObjectFactory?
