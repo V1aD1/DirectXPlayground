@@ -160,29 +160,12 @@ void CGame::InitGraphics()
 
 void CGame::InitPipeline()
 {
-	// todo remove these since Shader Manager should be handling all of this
-	Array<byte>^ psFile = LoadShaderFile("PixelShader.cso");
-	Array<byte>^ vsFile = LoadShaderFile("VertexShader.cso");
 
-	// set the shader objects as the active shaders
-	m_devCon->VSSetShader(m_shaderManager.GetVertexShader(VertexShaders::VertexShader1).Get(), nullptr, 0);
-	m_devCon->PSSetShader(m_shaderManager.GetPixelShader(PixelShaders::PixelShader1).Get(), nullptr, 0);
+	// todo individual objects should have materials
 	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
 	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
 
-	// initialize input layout
-	D3D11_INPUT_ELEMENT_DESC ied[] = {
-		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, next on byte 12
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	// create the input layout
-	m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vsFile->Data, vsFile->Length, &m_inputLayout);
-	m_devCon->IASetInputLayout(m_inputLayout.Get());
-
+	// todo move this to render()
 	// create the constant buffer
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -335,6 +318,24 @@ void CGame::Render() {
 
 	// todo iterate over our shaders and render those objects
 
+	// iterate over our objects and render them
+	for (auto&& object : m_objects) {
+		VertexShader* vs = m_shaderManager.GetVertexShader(object->m_vertexShader);
+		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
+		m_devCon->PSSetShader(m_shaderManager.GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
+	
+		// initialize input layout
+		D3D11_INPUT_ELEMENT_DESC ied[] = {
+			// 5th param specifies on which byte the new piece of info starts
+			// so position starts on byte 0, next on byte 12
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
+		m_devCon->IASetInputLayout(m_inputLayout.Get());
+	}
 
 	// set the vertex buffer
 	UINT stride = sizeof(VERTEX);

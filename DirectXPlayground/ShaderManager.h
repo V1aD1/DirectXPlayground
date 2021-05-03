@@ -19,9 +19,14 @@ using namespace Windows::System;
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file);
 
+struct VertexShader {
+	ComPtr<ID3D11VertexShader> m_directXShaderObj;
+	Array<byte>^ m_vsFile;
+};
+
 class ShaderManager {
 private:
-	std::map<VertexShaders, ComPtr<ID3D11VertexShader>> m_vertexShaders;
+	std::map<VertexShaders, VertexShader*> m_vertexShaders;
 	std::map<PixelShaders, ComPtr<ID3D11PixelShader>> m_pixelShaders;
 
 private:
@@ -29,7 +34,11 @@ private:
 		Array<byte>^ vsFile = LoadShaderFile(path);
 		ComPtr<ID3D11VertexShader> vertexShader = {};
 		dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, vertexShader.GetAddressOf());
-		m_vertexShaders[key] = vertexShader;
+		
+		VertexShader* vs = new VertexShader{};
+		vs->m_directXShaderObj = vertexShader;
+		vs->m_vsFile = vsFile;
+		m_vertexShaders[key] = vs;
 	}
 
 	void AddPixelShader(PixelShaders key, std::string path, ComPtr<ID3D11Device1> dev) {
@@ -47,6 +56,6 @@ public:
 		AddPixelShader(PixelShaders::PixelShader1, "PixelShader.cso", dev);
 	}
 
-	ComPtr<ID3D11VertexShader> GetVertexShader(VertexShaders key) { return m_vertexShaders[key]; };
+	VertexShader* GetVertexShader(VertexShaders key) { return m_vertexShaders[key]; };
 	ComPtr<ID3D11PixelShader> GetPixelShader(PixelShaders key) { return m_pixelShaders[key]; };
 };
