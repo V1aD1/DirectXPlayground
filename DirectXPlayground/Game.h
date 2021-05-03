@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interfaces/IGraphicsObject.h"
+#include "GraphicsObject.h"
 #include "ConstantBuffer.h"
 
 using namespace Microsoft::WRL;

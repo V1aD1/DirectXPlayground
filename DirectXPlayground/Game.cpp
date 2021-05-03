@@ -2,7 +2,7 @@
 #include "Game.h"
 #include "math.h"
 #include "WICTextureLoader.h"
-#include "Interfaces/IGraphicsObject.h"
+#include "GraphicsObject.h"
 
 #include <string>
 #include <fstream>
@@ -388,8 +388,6 @@ void CGame::Render() {
 
 	m_devCon->DrawIndexed(36, 0, 0);
 
-	// draw teapot
-
 	// drawing second cube
 	//matTranslate = XMMatrixTranslation(0, 0, -6);
 	//m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
@@ -439,29 +437,8 @@ void CGame::AddBoxToBuffers()
 	auto cubeVertices = cube.GetVertices();
 	auto cubeIndices = cube.GetIndices();
 
-	// todo abstract this section into SetupVertexBuffer(Vertex[]& vertices)
-	// struct specifying properties of the buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-
-	// size of the buffer that we'll create, in bytes
-	bd.ByteWidth = sizeof(VERTEX) * cubeVertices.size();
-
-	// what kind of buffer we're making (vertex buffer)
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	// data we're going to store in the vertex buffer
-	D3D11_SUBRESOURCE_DATA srd = { &cubeVertices[0], 0, 0 };
-
-	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
-
-	// todo abstract this section into SetupIndexBuffer(short[]& indeces)
-	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(short) * cubeIndices.size(); // indices are stored in short values
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA isrd = { &cubeIndices[0], 0, 0 };
-
-	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
+	m_dev->CreateBuffer(&cube.GetBufferDesc(), &cube.GetVertexData(), &m_vertexBuffer);
+	m_dev->CreateBuffer(&cube.GetIndexDesc(), &cube.GetIndexData(), &m_indexBuffer);
 }
 
 void CGame::AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo)

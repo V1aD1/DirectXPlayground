@@ -220,7 +220,7 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="Interfaces\IGraphicsObject.h" />
+    <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

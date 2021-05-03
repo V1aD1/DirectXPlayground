@@ -10,18 +10,49 @@ using namespace DirectX;
 using namespace Platform;
 using namespace Windows::System;
 
-class IGraphicsObject {
+class GraphicsObject {
+private:
+	D3D11_BUFFER_DESC m_bufferDesc;
+	D3D11_BUFFER_DESC m_indexDesc;
+	D3D11_SUBRESOURCE_DATA m_vertexData;
+	D3D11_SUBRESOURCE_DATA m_indexData;
+
 protected:
 	std::vector<VERTEX> m_vertices;
 	std::vector<short> m_indices;
 
 public:
-	virtual std::vector<VERTEX> GetVertices() { return m_vertices; };
-	virtual std::vector<short> GetIndices() { return m_indices; };
+	std::vector<VERTEX> GetVertices() { return m_vertices; }
+	std::vector<short> GetIndices() { return m_indices; }
+	D3D11_BUFFER_DESC GetBufferDesc() { return m_bufferDesc; }
+	D3D11_BUFFER_DESC GetIndexDesc() { return m_indexDesc; }
+	D3D11_SUBRESOURCE_DATA GetVertexData() { return m_vertexData; }
+	D3D11_SUBRESOURCE_DATA GetIndexData() { return m_indexData; }
+
+protected:
+	void SetupBuffers() {
+		// struct specifying properties of the buffer
+		m_bufferDesc = { 0 };
+
+		// size of the buffer that we'll create, in bytes
+		m_bufferDesc.ByteWidth = sizeof(VERTEX) * m_vertices.size();
+
+		// what kind of buffer we're making (vertex buffer)
+		m_bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		// data we're going to store in the vertex buffer
+		m_vertexData = { &m_vertices[0], 0, 0 };
+
+		// repeat for index buffer
+		m_indexDesc = { 0 };
+		m_indexDesc.ByteWidth = sizeof(short) * m_indices.size(); // indices are stored in short values
+		m_indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		m_indexData = { &m_indices[0], 0, 0 };
+	}
 };
 
 // todo move to own file
-class Cube : public IGraphicsObject {
+class Cube : public GraphicsObject {
 public:
 	Cube(float textLim = 1.0f) {
 		m_vertices = {
@@ -70,5 +101,8 @@ public:
 			20, 21, 22,    // side 6
 			22, 21, 23,
 		};
+
+		// todo maybe factory should call this method...
+		SetupBuffers();
 	}
 };

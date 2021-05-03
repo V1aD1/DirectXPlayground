@@ -20,7 +20,9 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Interfaces\IGraphicsObject.h" />
+    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="GraphicsObject.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
