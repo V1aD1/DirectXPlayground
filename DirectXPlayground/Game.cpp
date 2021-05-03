@@ -147,7 +147,6 @@ void CGame::Initialize() {
 	m_wireFrame = false;
 	m_time = 0.0f;
 	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
-	m_blurred = false;
 }
 
 void CGame::InitGraphics()
@@ -160,23 +159,6 @@ void CGame::InitGraphics()
 
 void CGame::InitPipeline()
 {
-
-	// todo individual objects should have materials
-	m_devCon->PSSetShaderResources(0, 1, m_texture1.GetAddressOf()); // sets the Texture in the pixel shader
-	m_devCon->PSSetShaderResources(1, 1, m_texture2.GetAddressOf()); // sets the Texture in the pixel shader
-
-	// todo move this to render()
-	// create the constant buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.Usage = D3D11_USAGE_DEFAULT;
-
-	// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-	bd.ByteWidth = sizeof(CONSTANTBUFFER);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->RSSetState(m_rasterizerState.Get());
 }
 
 void CGame::InitStates()
@@ -272,15 +254,13 @@ void CGame::InitStates()
 	sd.MaxLOD = FLT_MAX;
 	sd.MipLODBias = 0.0f;
 	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]); // anisotropic sampler
-
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // linear filtering
-	sd.MinLOD = 5.0f; // mip level 5 will appear blurred
-	m_dev->CreateSamplerState(&sd, &m_samplerStates[1]); // linear blur sampler
 }
 
 void CGame::AddObjectsToWorld()
 {
 	auto cube = new Cube();
+	cube->AddTexture(m_texture1);
+	cube->AddTexture(m_texture2);
 	m_objects.push_back(cube);
 
 	// todo this should probably be done automatically by the GraphicsObject constructor or factory...
@@ -292,15 +272,8 @@ void CGame::AddObjectsToWorld()
 
 // performs updates to the state of the game
 void CGame::Update() {
+	// todo fix with actual time passing
 	m_time += 0.02f;
-
-	if ((int)m_time % 2 == 0) {
-		m_blurred = true;
-	}
-	else {
-		m_blurred = false;
-	}
-
 }
 
 // renders a single frame of 3D graphics
@@ -324,6 +297,11 @@ void CGame::Render() {
 		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
 		m_devCon->PSSetShader(m_shaderManager.GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
 	
+		for (auto&& text : object->m_textures) {
+			m_devCon->PSSetShaderResources(0, 1, text.GetAddressOf());
+			m_devCon->PSSetShaderResources(1, 1, text.GetAddressOf());
+		}
+
 		// initialize input layout
 		D3D11_INPUT_ELEMENT_DESC ied[] = {
 			// 5th param specifies on which byte the new piece of info starts
@@ -335,8 +313,21 @@ void CGame::Render() {
 
 		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
+
+		// create the constant buffer
+		D3D11_BUFFER_DESC bd = { 0 };
+		bd.Usage = D3D11_USAGE_DEFAULT;
+
+		// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+		bd.ByteWidth = sizeof(CONSTANTBUFFER);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+		m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+		m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+		m_devCon->RSSetState(m_rasterizerState.Get());
 	}
 
+	// todo should be done on a per object basis
 	// set the vertex buffer
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -346,6 +337,7 @@ void CGame::Render() {
 	// set the primitive topology
 	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// todo should be done on a per object basis
 	// WORLD transformation
 	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
 	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
@@ -370,6 +362,7 @@ void CGame::Render() {
 
 	XMMATRIX matFinal = matRotate * matScale * matTranslate * matView * matProjection;
 
+	// todo should be done on a per object basis
 	// set constant buffer
 	m_constBufferValues.matFinal = matFinal;
 	m_constBufferValues.rotation = matRotate;
@@ -389,19 +382,14 @@ void CGame::Render() {
 
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
 	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
-
-	if (m_blurred) {
-		m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
-	}
-	else {
-		m_devCon->PSSetSamplers(0, 1, m_samplerStates[1].GetAddressOf());
-	}
+	m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
 
 	// draw each triangle
 
 	// draw 4 vertices onto the buffer, starting from vertex 0
 	//m_devCon->Draw(4, 0);
 
+	// todo should be done on a per object basis
 	m_devCon->DrawIndexed(36, 0, 0);
 
 	// drawing second cube
@@ -446,6 +434,7 @@ void CGame::Finalize()
 	}
 }
 
+// todo get rid of this function
 void CGame::AddBoxToBuffers()
 {
 	Cube cube = {};

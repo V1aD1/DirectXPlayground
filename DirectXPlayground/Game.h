@@ -56,7 +56,7 @@ public:
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
 	ComPtr<ID3D11ShaderResourceView> m_texture1;
 	ComPtr<ID3D11ShaderResourceView> m_texture2;
-	ComPtr<ID3D11SamplerState> m_samplerStates[2]; // sample state interfaces
+	ComPtr<ID3D11SamplerState> m_samplerStates[1]; // sample state interfaces
 
 	ShaderManager m_shaderManager;
 
@@ -80,7 +80,6 @@ private:
 	CONSTANTBUFFER m_constBufferValues;
 	float m_time;
 	XMVECTOR m_vecCamPosition;
-	bool m_blurred;
 	std::vector<GraphicsObject*> m_objects;
 	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
 	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;

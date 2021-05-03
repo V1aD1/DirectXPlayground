@@ -21,6 +21,9 @@ public:
 	std::vector<short> m_indices;
 	VertexShaders m_vertexShader;
 	PixelShaders m_pixelShader;
+	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures;
+
+	void AddTexture(ComPtr<ID3D11ShaderResourceView> texture) { m_textures.push_back(texture); }
 
 protected:
 	void SetupBuffers() {

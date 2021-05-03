@@ -35,7 +35,7 @@ private:
 		ComPtr<ID3D11VertexShader> vertexShader = {};
 		dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, vertexShader.GetAddressOf());
 		
-		VertexShader* vs = new VertexShader{};
+		VertexShader* vs = new VertexShader();
 		vs->m_directXShaderObj = vertexShader;
 		vs->m_vsFile = vsFile;
 		m_vertexShaders[key] = vs;
