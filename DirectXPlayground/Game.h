@@ -1,32 +1,13 @@
 #pragma once
 
+#include "Interfaces/IGraphicsObject.h"
+#include "ConstantBuffer.h"
+
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace DirectX;
 using namespace Platform;
 using namespace Windows::System;
-
-// used to mirror our constant buffer
-struct CONSTANTBUFFER {
-
-	// var names don't have to match with constant buffer BUT
-	// variable size and order must match;
-	
-	// final transformation
-	XMMATRIX matFinal; // bytes 0 - 15 
-	XMMATRIX rotation;
-	//float padding1; // bytes 12 - 15 
-	
-	XMVECTOR diffuseVector;
-	XMVECTOR diffuseColor;
-	XMVECTOR ambientColor;
-};
-
-struct VERTEX {
-	float X, Y, Z; // position
-	float NX, NY, NZ; // normal
-	float U, V; // texture coordinates
-};
 
 class CGame {
 public:

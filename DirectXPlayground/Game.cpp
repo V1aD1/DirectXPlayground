@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "math.h"
 #include "WICTextureLoader.h"
+#include "Interfaces/IGraphicsObject.h"
 
 #include <string>
 #include <fstream>
@@ -433,76 +434,32 @@ void CGame::Finalize()
 
 void CGame::AddBoxToBuffers()
 {
-	float textLim = 1.0f;
-	VERTEX ourVertices[] =
-	{
-		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
-		{ 1.0f, -1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   0.0f, textLim },
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f, 0.0f },    // side 2
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, textLim },
-		{ 1.0f, -1.0f, -1.0f,  0.0f, 0.0f, -1.0f,  textLim, 0.0f },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 0.0f, -1.0f,  textLim, textLim },
-
-		{ -1.0f, 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f },    // side 3
-		{ -1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, textLim },
-		{ 1.0f, 1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,  0.0f, 0.0f },    // side 4
-		{ 1.0f, -1.0f, -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, textLim },
-		{ -1.0f, -1.0f, 1.0f,  0.0f, -1.0f, 0.0f,  textLim, 0.0f },
-		{ 1.0f, -1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  textLim, textLim },
-
-		{ 1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f },    // side 5
-		{ 1.0f, 1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, textLim },
-		{ 1.0f, -1.0f, 1.0f,   1.0f, 0.0f, 0.0f,   textLim, 0.0f },
-		{ 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 0.0f,   textLim, textLim },
-
-		{ -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f },    // side 6
-		{ -1.0f, -1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, textLim },
-		{ -1.0f, 1.0f, -1.0f,  -1.0f, 0.0f, 0.0f,  textLim, 0.0f },
-		{ -1.0f, 1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  textLim, textLim },
-	};
+	Cube cube = {};
+	
+	auto cubeVertices = cube.GetVertices();
+	auto cubeIndices = cube.GetIndices();
 
 	// todo abstract this section into SetupVertexBuffer(Vertex[]& vertices)
 	// struct specifying properties of the buffer
 	D3D11_BUFFER_DESC bd = { 0 };
 
 	// size of the buffer that we'll create, in bytes
-	bd.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(ourVertices);
+	bd.ByteWidth = sizeof(VERTEX) * cubeVertices.size();
 
 	// what kind of buffer we're making (vertex buffer)
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 	// data we're going to store in the vertex buffer
-	D3D11_SUBRESOURCE_DATA srd = { ourVertices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA srd = { &cubeVertices[0], 0, 0 };
 
 	m_dev->CreateBuffer(&bd, &srd, &m_vertexBuffer);
 
-	short ourIndices[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 5, 6,    // side 2
-		6, 5, 7,
-		8, 9, 10,    // side 3
-		10, 9, 11,
-		12, 13, 14,    // side 4
-		14, 13, 15,
-		16, 17, 18,    // side 5
-		18, 17, 19,
-		20, 21, 22,    // side 6
-		22, 21, 23,
-	};
-
 	// todo abstract this section into SetupIndexBuffer(short[]& indeces)
 	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(short) * ARRAYSIZE(ourIndices); // indices are stored in short values
+	ibd.ByteWidth = sizeof(short) * cubeIndices.size(); // indices are stored in short values
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-	D3D11_SUBRESOURCE_DATA isrd = { ourIndices, 0, 0 };
+	D3D11_SUBRESOURCE_DATA isrd = { &cubeIndices[0], 0, 0 };
 
 	m_dev->CreateBuffer(&ibd, &isrd, &m_indexBuffer);
 }
