@@ -151,10 +151,8 @@ void CGame::Initialize() {
 
 void CGame::InitGraphics()
 {
-	AddBoxToBuffers();
-
-	AddTexture(L"bricks.png", m_texture1);
-	AddTexture(L"wood.png", m_texture2);
+	AddTexture(L"bricks.png", m_texture2);
+	AddTexture(L"wood.png", m_texture1);
 }
 
 void CGame::InitPipeline()
@@ -325,6 +323,9 @@ void CGame::Render() {
 		m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 		m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 		m_devCon->RSSetState(m_rasterizerState.Get());
+
+		m_dev->CreateBuffer(&(object->m_bufferDesc), &(object->m_vertexData), &m_vertexBuffer);
+		m_dev->CreateBuffer(&(object->m_indexDesc), &(object->m_indexData), &m_indexBuffer);
 	}
 
 	// todo should be done on a per object basis
@@ -432,18 +433,6 @@ void CGame::Finalize()
 	if (m_debug) {
 		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
-}
-
-// todo get rid of this function
-void CGame::AddBoxToBuffers()
-{
-	Cube cube = {};
-	
-	auto cubeVertices = cube.m_vertices;
-	auto cubeIndices = cube.m_indices;
-
-	m_dev->CreateBuffer(&(cube.m_bufferDesc), &(cube.m_vertexData), &m_vertexBuffer);
-	m_dev->CreateBuffer(&(cube.m_indexDesc), &(cube.m_indexData), &m_indexBuffer);
 }
 
 void CGame::AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo)

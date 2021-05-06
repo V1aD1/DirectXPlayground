@@ -84,9 +84,5 @@ private:
 	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
 	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;
 
-	// todo maybe split into GetBoxVertices(), SetVerticesToBuffers()?
-	// todo create new class ObjectFactory?
-	// todo create new class Object, with method AddToBuffers()?
-	void AddBoxToBuffers();
 	void AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo);
 };
