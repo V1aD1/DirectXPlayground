@@ -256,10 +256,17 @@ void CGame::InitStates()
 
 void CGame::AddObjectsToWorld()
 {
-	auto cube = new Cube();
-	cube->AddTexture(m_texture1);
-	cube->AddTexture(m_texture2);
-	m_objects.push_back(cube);
+	auto cube1 = new Cube();
+	cube1->AddTexture(m_texture1);
+	cube1->AddTexture(m_texture2);
+	m_objects.push_back(cube1);
+
+	// todo fix so that multiple objects show up!
+	/*auto cube2 = new Cube();
+	cube2->AddTexture(m_texture1);
+	cube2->AddTexture(m_texture2);
+	cube2->m_translation = XMMatrixTranslation(1, 1, 0);
+	m_objects.push_back(cube2);*/
 
 	// todo this should probably be done automatically by the GraphicsObject constructor or factory...
 	// now go through all objects, and link them to the corresponding shader
@@ -271,7 +278,13 @@ void CGame::AddObjectsToWorld()
 // performs updates to the state of the game
 void CGame::Update() {
 	// todo fix with actual time passing
-	m_time += 0.02f;
+	auto dt = 0.02f;
+	
+	for (auto&& object : m_objects) {
+		object->Update(dt);
+	}
+	
+	m_time += dt;
 }
 
 // renders a single frame of 3D graphics
@@ -287,8 +300,43 @@ void CGame::Render() {
 	// clear the depth buffer to have all values set to 1.0f
 	m_devCon->ClearDepthStencilView(m_zBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	// todo iterate over our shaders and render those objects
+	// VIEW transformation
+	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
+	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
+	XMMATRIX matView = XMMatrixLookAtLH(m_vecCamPosition, vecCamLookAt, vecCamUp);
 
+	// PROJECTION transformation
+	CoreWindow^ window = CoreWindow::GetForCurrentThread();
+	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
+		XMConvertToRadians(45), // the field of view
+		(FLOAT)window->Bounds.Width / (FLOAT)window->Bounds.Height, // aspect ratio
+		1, // the near view plane (usually 1)
+		100 // the far view plane
+	);
+
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+
+	m_devCon->RSSetState(s_defaultRasterState.Get());
+	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
+	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
+	m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
+
+	// create the constant buffer
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.Usage = D3D11_USAGE_DEFAULT;
+
+	// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+	bd.ByteWidth = sizeof(CONSTANTBUFFER);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
+
+	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+	m_devCon->RSSetState(m_rasterizerState.Get());
+
+	// todo iterate over our shaders and render those objects
 	// iterate over our objects and render them
 	for (auto&& object : m_objects) {
 		VertexShader* vs = m_shaderManager.GetVertexShader(object->m_vertexShader);
@@ -312,86 +360,27 @@ void CGame::Render() {
 		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
-		// create the constant buffer
-		D3D11_BUFFER_DESC bd = { 0 };
-		bd.Usage = D3D11_USAGE_DEFAULT;
-
-		// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-		bd.ByteWidth = sizeof(CONSTANTBUFFER);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-		m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-		m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-		m_devCon->RSSetState(m_rasterizerState.Get());
-
+		// buffer work
 		m_dev->CreateBuffer(&(object->m_bufferDesc), &(object->m_vertexData), &m_vertexBuffer);
 		m_dev->CreateBuffer(&(object->m_indexDesc), &(object->m_indexData), &m_indexBuffer);
+		m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+		m_devCon->IASetPrimitiveTopology(object->m_topology);
+
+		// order here matters! Most of the time you'll want translation AFTER rot and scale
+		XMMATRIX matFinal = object->m_rotation * object->m_scale * object->m_translation * matView * matProjection;
+
+		// todo should be done on a per object basis
+		// set constant buffer
+		m_constBufferValues.matFinal = matFinal;
+		m_constBufferValues.rotation = object->m_rotation;
+		m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
+		m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+
+		m_devCon->DrawIndexed(36, 0, 0);
 	}
-
-	// todo should be done on a per object basis
-	// set the vertex buffer
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
-	m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-
-	// set the primitive topology
-	m_devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// todo should be done on a per object basis
-	// WORLD transformation
-	XMMATRIX matTranslate = XMMatrixTranslation(0, 0, 0);
-	XMMATRIX matRotate = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
-	XMMATRIX matScale = XMMatrixScaling(4, 2, 4);
-
-	// order here matters! Most of the time you'll want your translation to go last!
-	// XMMATRIX matWorld = matRotateY * matScale * matTranslate;
-
-	// VIEW transformation
-	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
-	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	XMMATRIX matView = XMMatrixLookAtLH(m_vecCamPosition, vecCamLookAt, vecCamUp);
-
-	// PROJECTION transformation
-	CoreWindow^ window = CoreWindow::GetForCurrentThread();
-	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
-		XMConvertToRadians(45), // the field of view
-		(FLOAT)window->Bounds.Width / (FLOAT)window->Bounds.Height, // aspect ratio
-		1, // the near view plane (usually 1)
-		100 // the far view plane
-	);
-
-	XMMATRIX matFinal = matRotate * matScale * matTranslate * matView * matProjection;
-
-	// todo should be done on a per object basis
-	// set constant buffer
-	m_constBufferValues.matFinal = matFinal;
-	m_constBufferValues.rotation = matRotate;
-	m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
-	m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-	m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
-
-	// setup the new values for the constant buffer
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-
-	if (m_wireFrame) {
-		m_devCon->RSSetState(s_wireframeRasterState.Get());
-	}
-	else {
-		m_devCon->RSSetState(s_defaultRasterState.Get());
-	}
-
-	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
-	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
-	m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
-
-	// draw each triangle
-
-	// draw 4 vertices onto the buffer, starting from vertex 0
-	//m_devCon->Draw(4, 0);
-
-	// todo should be done on a per object basis
-	m_devCon->DrawIndexed(36, 0, 0);
 
 	// drawing second cube
 	//matTranslate = XMMatrixTranslation(0, 0, -6);

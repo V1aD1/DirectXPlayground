@@ -22,8 +22,19 @@ public:
 	VertexShaders m_vertexShader;
 	PixelShaders m_pixelShader;
 	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures;
+	D3D_PRIMITIVE_TOPOLOGY m_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	// todo store simple data, and set it in Update or Render functions
+	XMMATRIX m_rotation;
+	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
+	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0);
+
+public:
+	GraphicsObject() = default;
+	virtual ~GraphicsObject() {}
 
 	void AddTexture(ComPtr<ID3D11ShaderResourceView> texture) { m_textures.push_back(texture); }
+	virtual void Update(float dt) {}
 
 protected:
 	void SetupBuffers() {
@@ -49,6 +60,8 @@ protected:
 
 // todo move to own file
 class Cube : public GraphicsObject {
+	// todo get rid of this
+	float m_time;
 public:
 	// todo account for Cube size, texture, shaders (use fluent builder for this?)
 	Cube(float textLim = 1.0f) {
@@ -104,5 +117,12 @@ public:
 
 		m_vertexShader = VertexShaders::VertexShader1;
 		m_pixelShader = PixelShaders::PixelShader1;
+
+		m_scale = XMMatrixScaling(4, 2, 4);
+	}
+
+	void Update(float dt) {
+		m_time += dt;
+		m_rotation = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
 	}
 };
