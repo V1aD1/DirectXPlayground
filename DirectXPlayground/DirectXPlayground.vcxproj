@@ -223,6 +223,7 @@
     <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="PhysicsObject.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

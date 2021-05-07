@@ -25,6 +25,7 @@
     <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="PhysicsObject.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

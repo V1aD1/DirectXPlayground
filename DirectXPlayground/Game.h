@@ -3,6 +3,7 @@
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
 #include "ShaderManager.h"
+#include "PhysicsObject.h"
 
 #include <map>
 
@@ -80,6 +81,7 @@ private:
 	CONSTANTBUFFER m_constBufferValues;
 	float m_time;
 	XMVECTOR m_vecCamPosition;
+	Camera m_camera;
 	std::vector<GraphicsObject*> m_objects;
 	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
 	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;

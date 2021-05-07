@@ -283,7 +283,8 @@ void CGame::Update() {
 	for (auto&& object : m_objects) {
 		object->Update(dt);
 	}
-	
+	m_camera.Update(dt);
+
 	m_time += dt;
 }
 
@@ -363,13 +364,12 @@ void CGame::Render() {
 		m_dev->CreateBuffer(&(object->m_ibDesc), &(object->m_indexData), &m_indexBuffer);
 		m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-
+		
 		m_devCon->IASetPrimitiveTopology(object->m_topology);
 
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
 		XMMATRIX matFinal = object->m_rotation * object->m_scale * object->m_translation * matView * matProjection;
 
-		// todo should be done on a per object basis
 		// set constant buffer
 		m_constBufferValues.matFinal = matFinal;
 		m_constBufferValues.rotation = object->m_rotation;
@@ -380,12 +380,6 @@ void CGame::Render() {
 
 		m_devCon->DrawIndexed(object->m_indices.size(), 0, 0);
 	}
-
-	// drawing second cube
-	//matTranslate = XMMatrixTranslation(0, 0, -6);
-	//m_constBufferValues.matFinal = matRotate * matScale * matTranslate * matView * matProjection;
-	//m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
-	//m_devCon->DrawIndexed(36, 0, 0);
 
 	// switch the back buffer and the front buffer
 	m_swapChain->Present(1, 0);
@@ -409,6 +403,8 @@ void CGame::KeyPressed(VirtualKey key)
 	if (key == VirtualKey::Up) {
 		XMVECTOR distanceMoved = { 0, 0, -1 * speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
+
+		m_camera.Accelerate(0.2f);
 	}
 	if (key == VirtualKey::Down) {
 		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
