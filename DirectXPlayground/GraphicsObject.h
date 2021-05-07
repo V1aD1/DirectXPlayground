@@ -13,8 +13,8 @@ using namespace Windows::System;
 
 class GraphicsObject {
 public:
-	D3D11_BUFFER_DESC m_bufferDesc;
-	D3D11_BUFFER_DESC m_indexDesc;
+	D3D11_BUFFER_DESC m_vbDesc;
+	D3D11_BUFFER_DESC m_ibDesc;
 	D3D11_SUBRESOURCE_DATA m_vertexData;
 	D3D11_SUBRESOURCE_DATA m_indexData;
 	std::vector<VERTEX> m_vertices;
@@ -27,7 +27,7 @@ public:
 	// todo store simple data, and set it in Update or Render functions
 	XMMATRIX m_rotation;
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
-	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0);
+	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0); // todo add relative translations
 
 public:
 	GraphicsObject() = default;
@@ -39,21 +39,21 @@ public:
 protected:
 	void SetupBuffers() {
 		// struct specifying properties of the buffer
-		m_bufferDesc = { 0 };
+		m_vbDesc = { 0 };
 
 		// size of the buffer that we'll create, in bytes
-		m_bufferDesc.ByteWidth = sizeof(VERTEX) * m_vertices.size();
+		m_vbDesc.ByteWidth = sizeof(VERTEX) * m_vertices.size();
 
 		// what kind of buffer we're making (vertex buffer)
-		m_bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		m_vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 		// data we're going to store in the vertex buffer
 		m_vertexData = { &m_vertices[0], 0, 0 };
 
 		// repeat for index buffer
-		m_indexDesc = { 0 };
-		m_indexDesc.ByteWidth = sizeof(short) * m_indices.size(); // indices are stored in short values
-		m_indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		m_ibDesc = { 0 };
+		m_ibDesc.ByteWidth = sizeof(short) * m_indices.size(); // indices are stored in short values
+		m_ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		m_indexData = { &m_indices[0], 0, 0 };
 	}
 };

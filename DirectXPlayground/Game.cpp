@@ -262,11 +262,11 @@ void CGame::AddObjectsToWorld()
 	m_objects.push_back(cube1);
 
 	// todo fix so that multiple objects show up!
-	/*auto cube2 = new Cube();
+	auto cube2 = new Cube();
 	cube2->AddTexture(m_texture1);
 	cube2->AddTexture(m_texture2);
-	cube2->m_translation = XMMatrixTranslation(1, 1, 0);
-	m_objects.push_back(cube2);*/
+	cube2->m_translation = XMMatrixTranslation(4, 4, 0);
+	m_objects.push_back(cube2);
 
 	// todo this should probably be done automatically by the GraphicsObject constructor or factory...
 	// now go through all objects, and link them to the corresponding shader
@@ -330,7 +330,6 @@ void CGame::Render() {
 	bd.ByteWidth = sizeof(CONSTANTBUFFER);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-	m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 
 	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
@@ -343,15 +342,14 @@ void CGame::Render() {
 		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
 		m_devCon->PSSetShader(m_shaderManager.GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
 	
-		for (auto&& text : object->m_textures) {
-			m_devCon->PSSetShaderResources(0, 1, text.GetAddressOf());
-			m_devCon->PSSetShaderResources(1, 1, text.GetAddressOf());
+		for (int i = 0; i < object->m_textures.size(); i++) {
+			m_devCon->PSSetShaderResources(i, 1, object->m_textures[i].GetAddressOf());
 		}
 
 		// initialize input layout
 		D3D11_INPUT_ELEMENT_DESC ied[] = {
 			// 5th param specifies on which byte the new piece of info starts
-			// so position starts on byte 0, next on byte 12
+			// so position starts on byte 0, next on byte 12 etc
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -361,8 +359,8 @@ void CGame::Render() {
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 		// buffer work
-		m_dev->CreateBuffer(&(object->m_bufferDesc), &(object->m_vertexData), &m_vertexBuffer);
-		m_dev->CreateBuffer(&(object->m_indexDesc), &(object->m_indexData), &m_indexBuffer);
+		m_dev->CreateBuffer(&(object->m_vbDesc), &(object->m_vertexData), &m_vertexBuffer);
+		m_dev->CreateBuffer(&(object->m_ibDesc), &(object->m_indexData), &m_indexBuffer);
 		m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 
@@ -378,8 +376,9 @@ void CGame::Render() {
 		m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
 		m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
 		m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
 
-		m_devCon->DrawIndexed(36, 0, 0);
+		m_devCon->DrawIndexed(object->m_indices.size(), 0, 0);
 	}
 
 	// drawing second cube
