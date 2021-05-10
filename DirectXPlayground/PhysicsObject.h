@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <SimpleMath.h>
 
 #include "Globals.h"
 
@@ -11,50 +12,68 @@ using namespace Windows::UI::Core;
 using namespace DirectX;
 using namespace Platform;
 using namespace Windows::System;
+using namespace SimpleMath;
 
 class PhysicsObject {
 protected:
 	XMMATRIX m_translation;
-	XMFLOAT3 m_velocity;
+	Vector3 m_velocity;
 
 public:
-	XMFLOAT3 m_position;
+	Vector3 m_position;
 
 protected:
 	void Update(float dt) {
-		XMFLOAT3 dVel = XMFLOAT3(m_velocity.x * dt, m_velocity.y * dt, m_velocity.z * dt);
-		m_position.x += dVel.x;
-		m_position.y += dVel.y;
-		m_position.z += dVel.z;
+		Vector3 dVel = m_velocity * dt;
+		m_position += dVel;
 		m_translation = XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
 	}
-	void SetVelocity(XMFLOAT3 vel) { m_velocity = vel; }
+	void SetVelocity(Vector3 vel) { m_velocity = vel; }
 
 };
 
 class Camera : public PhysicsObject {
 private:
-	XMFLOAT3 m_forward = XMFLOAT3(0,0,1);
+	Vector3 m_forward = { 0,0,1 };
 	float m_acc = 1.0f;
 	float m_maxAcc = 100.0f;
 	float m_currAcc = 0.0f;
+	float m_drag = m_acc / 2;
 
 public:
 	void Accelerate(float dt) { 
-		m_currAcc += m_acc * dt;
+		ApplyAcceleration(m_acc * dt);
+	}
 
-		// todo please tell there's a better way to use std::min than this! https://stackoverflow.com/questions/13416418/define-nominmax-using-stdmin-max/13420838
-		m_currAcc = (std::min)(m_currAcc, m_maxAcc);
+	void Decelerate(float dt) {
+		ApplyAcceleration(-1 * m_acc * dt);
 	}
 
 	void Update(float dt) {
+		ApplyDrag(dt);
+
 		float dSpeed = m_currAcc * dt;
-		XMFLOAT3 dVelocity = XMFLOAT3(m_forward.x * dSpeed, m_forward.y * dSpeed, m_forward.z * dSpeed);
-		
-		// TODO overload operators as free function? Or create own math library for this?
-		m_velocity.x += dVelocity.x;
-		m_velocity.y += dVelocity.y;
-		m_velocity.z += dVelocity.z;
+		Vector3 dVel = m_forward * dSpeed;
+		m_velocity += dVel;
 		PhysicsObject::Update(dt);
+	}
+
+private:
+	void ApplyDrag(float dt) {
+		if (m_currAcc > 0) {
+			if (m_currAcc > m_drag * dt){ m_currAcc -= m_drag * dt; }
+			else { m_currAcc = 0; }
+		}
+		else if (m_currAcc < 0) {
+			if (m_currAcc < m_drag * dt) { m_currAcc += m_drag * dt; }
+			else { m_currAcc = 0; }
+		}
+	}
+
+	void ApplyAcceleration(float dAcc) {
+		m_currAcc += dAcc;
+
+		// todo please tell there's a better way to use std::min than this! https://stackoverflow.com/questions/13416418/define-nominmax-using-stdmin-max/13420838
+		m_currAcc = (std::min)(m_currAcc, m_maxAcc);
 	}
 };

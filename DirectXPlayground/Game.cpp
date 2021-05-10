@@ -405,10 +405,14 @@ void CGame::KeyPressed(VirtualKey key)
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
 
 		m_camera.Accelerate(0.2f);
+		//m_vecCamPosition = XMVECTOR(m_camera.m_position);
 	}
 	if (key == VirtualKey::Down) {
 		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
 		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
+
+		m_camera.Decelerate(0.2f);
+		//m_vecCamPosition = XMVECTOR(m_camera.m_position);
 	}
 }
 
