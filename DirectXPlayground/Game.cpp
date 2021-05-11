@@ -146,7 +146,7 @@ void CGame::Initialize() {
 	AddObjectsToWorld();
 	m_wireFrame = false;
 	m_time = 0.0f;
-	m_vecCamPosition = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
+	m_camera.m_position = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
 }
 
 void CGame::InitGraphics()
@@ -284,6 +284,7 @@ void CGame::Update() {
 		object->Update(dt);
 	}
 	m_camera.Update(dt);
+	m_vecCamPosition = XMVECTOR(m_camera.m_position);
 
 	m_time += dt;
 }
@@ -401,18 +402,10 @@ void CGame::KeyPressed(VirtualKey key)
 {
 	float speed = 0.05f;
 	if (key == VirtualKey::Up) {
-		XMVECTOR distanceMoved = { 0, 0, -1 * speed * m_time, 0 };
-		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
-
 		m_camera.Accelerate(0.2f);
-		//m_vecCamPosition = XMVECTOR(m_camera.m_position);
 	}
 	if (key == VirtualKey::Down) {
-		XMVECTOR distanceMoved = { 0, 0, speed * m_time, 0 };
-		m_vecCamPosition = XMVectorAdd(m_vecCamPosition, distanceMoved);
-
 		m_camera.Decelerate(0.2f);
-		//m_vecCamPosition = XMVECTOR(m_camera.m_position);
 	}
 }
 

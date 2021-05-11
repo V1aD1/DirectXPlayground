@@ -34,46 +34,54 @@ protected:
 
 class Camera : public PhysicsObject {
 private:
-	Vector3 m_forward = { 0,0,1 };
-	float m_acc = 1.0f;
-	float m_maxAcc = 100.0f;
-	float m_currAcc = 0.0f;
-	float m_drag = m_acc / 2;
+	Vector3 m_forward = Vector3::Forward;
+
+	float m_accRate = 4.0f;
+	float m_dragRate = m_accRate * 1.5;
+
+	float m_maxSpeed = 10.0f;
 
 public:
+
+	// todo for now these only handle accelerating forward
 	void Accelerate(float dt) { 
-		ApplyAcceleration(m_acc * dt);
+		ApplyAcceleration(dt, m_forward);
 	}
 
+	// todo for now these only handle decelerating forward
 	void Decelerate(float dt) {
-		ApplyAcceleration(-1 * m_acc * dt);
+		ApplyAcceleration(dt, -1 * m_forward);
 	}
 
 	void Update(float dt) {
 		ApplyDrag(dt);
-
-		float dSpeed = m_currAcc * dt;
-		Vector3 dVel = m_forward * dSpeed;
-		m_velocity += dVel;
 		PhysicsObject::Update(dt);
 	}
 
 private:
 	void ApplyDrag(float dt) {
-		if (m_currAcc > 0) {
-			if (m_currAcc > m_drag * dt){ m_currAcc -= m_drag * dt; }
-			else { m_currAcc = 0; }
+
+		// find direction we're moving in
+		auto velDir = Vector3(m_velocity);
+		velDir.Normalize();
+		auto dragVel = velDir * -1.0f * m_dragRate * dt;
+
+		// decelerate in opposite direction
+		if (m_velocity.Length() > dragVel.Length()) {
+			m_velocity += dragVel;
 		}
-		else if (m_currAcc < 0) {
-			if (m_currAcc < m_drag * dt) { m_currAcc += m_drag * dt; }
-			else { m_currAcc = 0; }
-		}
+
+		// we don't want our drag to reverse us, so set to 0
+		else { m_velocity *= 0; }
 	}
 
-	void ApplyAcceleration(float dAcc) {
-		m_currAcc += dAcc;
+	void ApplyAcceleration(float dt, Vector3 dir) {
+		auto dVel = dir * dt * m_accRate;
+		m_velocity += dVel;
 
-		// todo please tell there's a better way to use std::min than this! https://stackoverflow.com/questions/13416418/define-nominmax-using-stdmin-max/13420838
-		m_currAcc = (std::min)(m_currAcc, m_maxAcc);
+		if (m_velocity.Length() > m_maxSpeed) {
+			m_velocity.Normalize();
+			m_velocity = m_velocity * m_maxSpeed;
+		}
 	}
 };
