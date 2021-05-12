@@ -283,8 +283,9 @@ void CGame::Update() {
 	for (auto&& object : m_objects) {
 		object->Update(dt);
 	}
+
+	// todo m_camera isn't a GraphicsObject, so it shouldn't be added to m_objects
 	m_camera.Update(dt);
-	m_vecCamPosition = XMVECTOR(m_camera.m_position);
 
 	m_time += dt;
 }
@@ -305,7 +306,7 @@ void CGame::Render() {
 	// VIEW transformation
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	XMMATRIX matView = XMMatrixLookAtLH(m_vecCamPosition, vecCamLookAt, vecCamUp);
+	XMMATRIX matView = XMMatrixLookAtLH(m_camera.m_position, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
@@ -398,6 +399,11 @@ void CGame::PointerPressed()
 	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);*/
 }
 
+// todo create EventHandler, which will replace this method and contain flags for all keys and mouse stuff being pressed
+//		in Update(), InputComponent should update and set states in GameObject(which will contain position, rotation and scale by default).
+//		GameObject will also be made up of physics and graphics components, so InputComponent can set flags in PhysicsComponent by calling public functions
+//		like physicsComp->SetBrakeFlag(), which will be unimplemented in GameObject, but MAY be overridden by specific PhysicsComponent
+//		then PhysicsComponent should update according to its states, (Graphics component will update in Render()?)
 void CGame::KeyPressed(VirtualKey key)
 {
 	float speed = 0.05f;

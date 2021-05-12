@@ -80,7 +80,6 @@ public:
 private:
 	CONSTANTBUFFER m_constBufferValues;
 	float m_time;
-	XMVECTOR m_vecCamPosition;
 	Camera m_camera;
 	std::vector<GraphicsObject*> m_objects;
 	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
