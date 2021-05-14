@@ -16,6 +16,10 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Entities\Entity.cpp" />
+    <ClCompile Include="Entities\InputHandler.cpp" />
+    <ClCompile Include="Entities\PhysicsComponent.cpp" />
+    <ClCompile Include="Entities\InputComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -26,6 +30,10 @@
     <ClInclude Include="Globals.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="PhysicsObject.h" />
+    <ClInclude Include="Entities\Entity.h" />
+    <ClInclude Include="Entities\InputComponent.h" />
+    <ClInclude Include="Entities\PhysicsComponent.h" />
+    <ClInclude Include="Entities\InputHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

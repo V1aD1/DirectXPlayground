@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Entities/InputHandler.h"
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
 #include "ShaderManager.h"
@@ -73,7 +74,8 @@ public:
 	void Render();
 
 	void PointerPressed();
-	void KeyPressed(VirtualKey key);
+	void KeyDown(VirtualKey key);
+	void KeyUp(VirtualKey key);
 
 	void Finalize();
 
@@ -84,6 +86,7 @@ private:
 	std::vector<GraphicsObject*> m_objects;
 	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
 	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;
+	InputHandler m_inputHandler;
 
 	void AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo);
 };

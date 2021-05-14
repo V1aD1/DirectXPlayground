@@ -27,6 +27,8 @@ public:
 	// todo store simple data, and set it in Update or Render functions
 	XMMATRIX m_rotation;
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
+	
+	// todo remove should be computed in render directly
 	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0); // todo add relative translations
 
 public:

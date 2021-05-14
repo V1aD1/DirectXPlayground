@@ -1,11 +1,7 @@
 #pragma once
 #define NOMINMAX
 
-#include <algorithm>
-#include <vector>
 #include <SimpleMath.h>
-
-#include "Globals.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;

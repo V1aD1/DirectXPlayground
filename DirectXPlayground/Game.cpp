@@ -404,8 +404,11 @@ void CGame::PointerPressed()
 //		GameObject will also be made up of physics and graphics components, so InputComponent can set flags in PhysicsComponent by calling public functions
 //		like physicsComp->SetBrakeFlag(), which will be unimplemented in GameObject, but MAY be overridden by specific PhysicsComponent
 //		then PhysicsComponent should update according to its states, (Graphics component will update in Render()?)
-void CGame::KeyPressed(VirtualKey key)
+void CGame::KeyDown(VirtualKey key)
 {
+	m_inputHandler.KeyDown(key);
+
+	// todo remove once component work is done
 	float speed = 0.05f;
 	if (key == VirtualKey::Up) {
 		m_camera.Accelerate(0.2f);
@@ -413,6 +416,11 @@ void CGame::KeyPressed(VirtualKey key)
 	if (key == VirtualKey::Down) {
 		m_camera.Decelerate(0.2f);
 	}
+}
+
+void CGame::KeyUp(VirtualKey key)
+{
+	m_inputHandler.KeyUp(key);
 }
 
 void CGame::Finalize()

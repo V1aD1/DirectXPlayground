@@ -102,11 +102,11 @@ public:
 	}
 
 	void KeyDown(CoreWindow^ window, KeyEventArgs^ args) {
-		m_game.KeyPressed(args->VirtualKey);
+		m_game.KeyDown(args->VirtualKey);
 	}	
 	
 	void KeyUp(CoreWindow^ window, KeyEventArgs^ args) {
-		m_game.KeyPressed(args->VirtualKey);
+		m_game.KeyUp(args->VirtualKey);
 	}
 
 	void Suspending(Object^ sender, SuspendingEventArgs^ args) {
