@@ -7,11 +7,6 @@ InputComponent::InputComponent()
 {
 }
 
-void InputComponent::Update(Entity & self, float dt, const InputHandler & inputHandler)
-{
-}
-
-
 InputComponent::~InputComponent()
 {
 }

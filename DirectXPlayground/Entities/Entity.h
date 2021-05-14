@@ -5,7 +5,7 @@ class InputHandler;
 
 class Entity
 {
-private:
+public:
 	InputComponent * m_input;
 	PhysicsComponent* m_physics;
 	// todo add graphics component

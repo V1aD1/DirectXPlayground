@@ -8,7 +8,7 @@ class InputComponent
 public:
 	InputComponent();
 
-	void Update(Entity& self, float dt, const InputHandler& inputHandler);
+	virtual void Update(Entity& self, float dt, const InputHandler& inputHandler) = 0;
 
 	~InputComponent();
 };

@@ -7,6 +7,7 @@ class InputHandler
 public:
 	InputHandler();
 
+	// todo make these into private function friended to App.cpp?
 	void KeyDown(VirtualKey key);
 	void KeyUp(VirtualKey key);
 

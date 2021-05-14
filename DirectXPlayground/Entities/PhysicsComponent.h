@@ -15,15 +15,27 @@ class PhysicsComponent
 {
 protected:
 	Vector3 m_velocity;
+	Vector3 m_acceleration;
+
+	float m_accRate;
+
+	bool m_isAccelerating = false;
 
 public:
 	Vector3 m_position;
+	Vector3 m_rotation;
+	Vector3 m_forward = Vector3::Forward;
 
 public:
 	PhysicsComponent();
 
-	void Update(Entity& self, float dt);
 	void SetVelocity(Vector3 vel);
+	void SetAcceleration(Vector3 acc);
+	virtual void Accelerate(float dt);
+	virtual void Decelerate(float dt);
+	virtual void Update(Entity& self, float dt);
+
+	void SetIsAcceleratingFlag(bool isAccelerating);
 
 	~PhysicsComponent();
 };
