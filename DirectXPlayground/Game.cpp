@@ -2,12 +2,20 @@
 #include "Game.h"
 #include "math.h"
 #include "WICTextureLoader.h"
-#include "GraphicsObject.h"
 
 #include <string>
 #include <fstream>
 #include <streambuf>
 #include <d3dcompiler.h>
+
+#include "Entities/Camera/CameraInputComponent.h"
+#include "Entities/Camera/CameraPhysicsComponent.h"
+#include "Entities/InputHandler.h"
+#include "Entities/Entity.h"
+#include "ShaderManager.h"
+#include "PhysicsObject.h"
+#include "ConstantBuffer.h"
+#include "GraphicsObject.h"
 
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
@@ -119,7 +127,7 @@ void CGame::Initialize() {
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; // specifies what kind of texture we're using
 	m_dev->CreateDepthStencilView(zBufferTexture.Get(), &dsvd, &m_zBuffer);
 
-	m_shaderManager.Initialize(m_dev);
+	m_shaderManager = new ShaderManager(m_dev);
 
 	// set the viewport (an object that describes what part of the back buffer to draw on)
 	D3D11_VIEWPORT viewport = { 0 };
@@ -139,14 +147,15 @@ void CGame::Initialize() {
 	scissor.bottom = window->Bounds.Height / 2; // half the height of the window
 	m_devCon->RSSetScissorRects(1, &scissor); // doesn't work unless scissoring is enabled through rasterizer state
 
-	// initialize graphics and pipeline
+	m_constBufferValues = new CONSTANTBUFFER();
 	InitGraphics();
 	InitPipeline();
 	InitStates();
-	AddObjectsToWorld();
+	AddEntitiesToWorld();
 	m_wireFrame = false;
 	m_time = 0.0f;
-	m_camera.m_position = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
+	m_inputHandler = new InputHandler();
+	m_camera->m_position = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
 }
 
 void CGame::InitGraphics()
@@ -254,25 +263,21 @@ void CGame::InitStates()
 	m_dev->CreateSamplerState(&sd, &m_samplerStates[0]); // anisotropic sampler
 }
 
-void CGame::AddObjectsToWorld()
+void CGame::AddEntitiesToWorld()
 {
 	auto cube1 = new Cube();
 	cube1->AddTexture(m_texture1);
 	cube1->AddTexture(m_texture2);
 	m_objects.push_back(cube1);
 
-	// todo fix so that multiple objects show up!
 	auto cube2 = new Cube();
 	cube2->AddTexture(m_texture1);
 	cube2->AddTexture(m_texture2);
 	cube2->m_translation = XMMatrixTranslation(4, 4, 0);
 	m_objects.push_back(cube2);
 
-	// todo this should probably be done automatically by the GraphicsObject constructor or factory...
-	// now go through all objects, and link them to the corresponding shader
-	for (auto&& object : m_objects) {
-		m_vertexShaderMap[object->m_vertexShader].push_back(object);
-	}
+	m_camera = new Camera();
+	//Entity* camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent());
 }
 
 // performs updates to the state of the game
@@ -285,7 +290,7 @@ void CGame::Update() {
 	}
 
 	// todo m_camera isn't a GraphicsObject, so it shouldn't be added to m_objects
-	m_camera.Update(dt);
+	m_camera->Update(dt);
 
 	m_time += dt;
 }
@@ -306,7 +311,7 @@ void CGame::Render() {
 	// VIEW transformation
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	XMMATRIX matView = XMMatrixLookAtLH(m_camera.m_position, vecCamLookAt, vecCamUp);
+	XMMATRIX matView = XMMatrixLookAtLH(m_camera->m_position, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
@@ -341,9 +346,9 @@ void CGame::Render() {
 	// todo iterate over our shaders and render those objects
 	// iterate over our objects and render them
 	for (auto&& object : m_objects) {
-		VertexShader* vs = m_shaderManager.GetVertexShader(object->m_vertexShader);
+		VertexShader* vs = m_shaderManager->GetVertexShader(object->m_vertexShader);
 		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager.GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
+		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
 	
 		for (int i = 0; i < object->m_textures.size(); i++) {
 			m_devCon->PSSetShaderResources(i, 1, object->m_textures[i].GetAddressOf());
@@ -373,12 +378,12 @@ void CGame::Render() {
 		XMMATRIX matFinal = object->m_rotation * object->m_scale * object->m_translation * matView * matProjection;
 
 		// set constant buffer
-		m_constBufferValues.matFinal = matFinal;
-		m_constBufferValues.rotation = object->m_rotation;
-		m_constBufferValues.ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
-		m_constBufferValues.diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-		m_constBufferValues.diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
-		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, &m_constBufferValues, 0, 0);
+		m_constBufferValues->matFinal = matFinal;
+		m_constBufferValues->rotation = object->m_rotation;
+		m_constBufferValues->ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
+		m_constBufferValues->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		m_constBufferValues->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, m_constBufferValues, 0, 0);
 
 		m_devCon->DrawIndexed(object->m_indices.size(), 0, 0);
 	}
@@ -406,21 +411,21 @@ void CGame::PointerPressed()
 //		then PhysicsComponent should update according to its states, (Graphics component will update in Render()?)
 void CGame::KeyDown(VirtualKey key)
 {
-	m_inputHandler.KeyDown(key);
+	m_inputHandler->KeyDown(key);
 
 	// todo remove once component work is done
 	float speed = 0.05f;
 	if (key == VirtualKey::Up) {
-		m_camera.Accelerate(0.2f);
+		m_camera->Accelerate(0.2f);
 	}
 	if (key == VirtualKey::Down) {
-		m_camera.Decelerate(0.2f);
+		m_camera->Decelerate(0.2f);
 	}
 }
 
 void CGame::KeyUp(VirtualKey key)
 {
-	m_inputHandler.KeyUp(key);
+	m_inputHandler->KeyUp(key);
 }
 
 void CGame::Finalize()
@@ -428,6 +433,19 @@ void CGame::Finalize()
 	if (m_debug) {
 		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
+
+	delete m_camera;
+	delete m_inputHandler;
+	delete m_shaderManager;
+	for (auto object : m_objects) {
+		delete object;
+	}
+	for (auto entity : m_entities) {
+		delete entity;
+	}
+
+	m_objects.clear();
+	m_entities.clear();
 }
 
 void CGame::AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo)

@@ -49,7 +49,7 @@ private:
 	}
 
 public:
-	void Initialize(ComPtr<ID3D11Device1> dev) {
+	ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 		// load shader files (.hlsl files become .cso files after compilation)
 		AddVertexShader(VertexShaders::VertexShader1, "VertexShader.cso", dev);

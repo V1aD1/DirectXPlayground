@@ -1,18 +1,19 @@
 #pragma once
 
-#include "Entities/InputHandler.h"
-#include "GraphicsObject.h"
-#include "ConstantBuffer.h"
-#include "ShaderManager.h"
-#include "PhysicsObject.h"
-
-#include <map>
+#include <vector>
 
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace DirectX;
 using namespace Platform;
 using namespace Windows::System;
+
+class InputHandler;
+class Entity;
+class ShaderManager;
+class Camera;
+class CONSTANTBUFFER;
+class GraphicsObject;
 
 class CGame {
 public:
@@ -60,15 +61,13 @@ public:
 	ComPtr<ID3D11ShaderResourceView> m_texture2;
 	ComPtr<ID3D11SamplerState> m_samplerStates[1]; // sample state interfaces
 
-	ShaderManager m_shaderManager;
-
 	bool m_wireFrame;
 
 	void Initialize();
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
 	void InitStates();
-	void AddObjectsToWorld();
+	void AddEntitiesToWorld();
 
 	void Update();
 	void Render();
@@ -80,13 +79,13 @@ public:
 	void Finalize();
 
 private:
-	CONSTANTBUFFER m_constBufferValues;
+	CONSTANTBUFFER* m_constBufferValues;
 	float m_time;
-	Camera m_camera;
+	Camera* m_camera;
 	std::vector<GraphicsObject*> m_objects;
-	std::map<VertexShaders, std::vector<GraphicsObject*>> m_vertexShaderMap;
-	std::map<PixelShaders, std::vector<GraphicsObject*>> m_pixelShaderMap;
-	InputHandler m_inputHandler;
+	std::vector<Entity*> m_entities;
+	InputHandler* m_inputHandler;
+	ShaderManager* m_shaderManager;
 
 	void AddTexture(const wchar_t* textName, ComPtr<ID3D11ShaderResourceView>& resToMapTo);
 };
