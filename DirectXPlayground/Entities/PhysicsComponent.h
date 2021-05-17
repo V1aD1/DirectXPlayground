@@ -35,8 +35,6 @@ public:
 	virtual void Decelerate(float dt);
 	virtual void Update(Entity& self, float dt);
 
-	void SetIsAcceleratingFlag(bool isAccelerating);
-
 	~PhysicsComponent();
 };
 

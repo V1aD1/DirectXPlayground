@@ -81,7 +81,7 @@ public:
 private:
 	CONSTANTBUFFER* m_constBufferValues;
 	float m_time;
-	Camera* m_camera;
+	Entity* m_camera;
 	std::vector<GraphicsObject*> m_objects;
 	std::vector<Entity*> m_entities;
 	InputHandler* m_inputHandler;

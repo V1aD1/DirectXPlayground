@@ -24,7 +24,7 @@ void CameraPhysicsComponent::ApplyDrag(float dt)
 	velDir.Normalize();
 	auto dragVel = velDir * -1.0f * m_dragRate * dt;
 
-	// decelerate in opposite direction
+	// slow down
 	if (m_velocity.Length() > dragVel.Length()) {
 		m_velocity += dragVel;
 	}
@@ -34,17 +34,33 @@ void CameraPhysicsComponent::ApplyDrag(float dt)
 }
 
 void CameraPhysicsComponent::Accelerate(float dt) {
-	ApplyAcceleration(dt, m_forward);
+	m_isAccelerating = true;
+	PhysicsComponent::Accelerate(dt);
+	//ApplyAcceleration(dt, m_forward);
 }
 
 void CameraPhysicsComponent::Decelerate(float dt) {
-	ApplyAcceleration(dt, -1 * m_forward);
+	m_isAccelerating = true;
+	PhysicsComponent::Decelerate(dt);
+	//ApplyAcceleration(dt, -1 * m_forward);
 }
 
-void CameraPhysicsComponent::Update(Entity & self, float dt)
+void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
-	ApplyAcceleration(dt, m_forward);
+	m_velocity += m_acceleration * dt;
+
+	// only apply drag if user isn't directly moving camera right now
 	if (!m_isAccelerating){ ApplyDrag(dt); }
+	
+	if (m_velocity.Length() > m_maxSpeed) {
+		m_velocity.Normalize();
+		m_velocity = m_velocity * m_maxSpeed;
+	}
+	
+	m_position += m_velocity * dt;
+	
+	// todo move to ResetFlags()?
+	m_isAccelerating = false;
 }
 
 CameraPhysicsComponent::~CameraPhysicsComponent()

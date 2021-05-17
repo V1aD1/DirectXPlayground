@@ -155,7 +155,7 @@ void CGame::Initialize() {
 	m_wireFrame = false;
 	m_time = 0.0f;
 	m_inputHandler = new InputHandler();
-	m_camera->m_position = XMVectorSet(0.0f, 6.0f, 40.0f, 0);
+	m_camera->m_physics->m_position = Vector3(0.0f, 6.0f, 40.0f);
 }
 
 void CGame::InitGraphics()
@@ -276,8 +276,7 @@ void CGame::AddEntitiesToWorld()
 	cube2->m_translation = XMMatrixTranslation(4, 4, 0);
 	m_objects.push_back(cube2);
 
-	m_camera = new Camera();
-	//Entity* camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent());
+	m_camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent());
 }
 
 // performs updates to the state of the game
@@ -290,7 +289,7 @@ void CGame::Update() {
 	}
 
 	// todo m_camera isn't a GraphicsObject, so it shouldn't be added to m_objects
-	m_camera->Update(dt);
+	m_camera->Update(dt, *m_inputHandler);
 
 	m_time += dt;
 }
@@ -311,7 +310,8 @@ void CGame::Render() {
 	// VIEW transformation
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	XMMATRIX matView = XMMatrixLookAtLH(m_camera->m_position, vecCamLookAt, vecCamUp);
+	auto camPos = XMLoadFloat3(&(m_camera->m_physics->m_position));
+	XMMATRIX matView = XMMatrixLookAtLH(camPos, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
@@ -414,13 +414,12 @@ void CGame::KeyDown(VirtualKey key)
 	m_inputHandler->KeyDown(key);
 
 	// todo remove once component work is done
-	float speed = 0.05f;
-	if (key == VirtualKey::Up) {
+	/*if (key == VirtualKey::Up) {
 		m_camera->Accelerate(0.2f);
 	}
 	if (key == VirtualKey::Down) {
 		m_camera->Decelerate(0.2f);
-	}
+	}*/
 }
 
 void CGame::KeyUp(VirtualKey key)

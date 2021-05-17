@@ -32,11 +32,6 @@ void PhysicsComponent::Decelerate(float dt)
 	m_acceleration += -1* m_forward * m_accRate * dt;
 }
 
-void PhysicsComponent::SetIsAcceleratingFlag(bool isAccelerating)
-{
-	m_isAccelerating = isAccelerating;
-}
-
 PhysicsComponent::~PhysicsComponent()
 {
 }
