@@ -13,8 +13,8 @@ private:
 public:
 	CameraPhysicsComponent();
 
-	void Accelerate(float dt) override;
-	void Decelerate(float dt) override;
+	void Accelerate() override;
+	void Decelerate() override;
 	void Update(Entity& self, float dt) override;
 
 	~CameraPhysicsComponent();

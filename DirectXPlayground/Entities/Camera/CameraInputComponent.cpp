@@ -12,10 +12,10 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 {
 	auto physics = self.m_physics;
 	if (inputHandler.upFlag) { 
-		physics->Accelerate(dt); 
+		physics->Accelerate(); 
 	}
 	if (inputHandler.downFlag) { 
-		physics->Decelerate(dt); 
+		physics->Decelerate(); 
 	}
 }
 

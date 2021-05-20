@@ -3,7 +3,9 @@
 
 CameraPhysicsComponent::CameraPhysicsComponent()
 {
-	m_accRate = 4.0f;
+	m_maxSpeed = 10.0f;
+	m_accRate = 6.0f;
+	m_dragRate = m_accRate * 3.0;
 }
 
 void CameraPhysicsComponent::ApplyDrag(float dt)
@@ -22,27 +24,27 @@ void CameraPhysicsComponent::ApplyDrag(float dt)
 	else { m_velocity *= 0; }
 }
 
-void CameraPhysicsComponent::Accelerate(float dt) {
+void CameraPhysicsComponent::Accelerate() {
 	m_isAccelerating = true;
-	PhysicsComponent::Accelerate(dt);
+	PhysicsComponent::Accelerate();
 }
 
-void CameraPhysicsComponent::Decelerate(float dt) {
+void CameraPhysicsComponent::Decelerate() {
 	m_isAccelerating = true;
-	PhysicsComponent::Decelerate(dt);
+	PhysicsComponent::Decelerate();
 }
 
 void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
 	m_velocity += m_acceleration * dt;
-
-	// only apply drag if user isn't directly moving camera right now
-	if (!m_isAccelerating){ ApplyDrag(dt); }
 	
 	if (m_velocity.Length() > m_maxSpeed) {
 		m_velocity.Normalize();
 		m_velocity = m_velocity * m_maxSpeed;
 	}
+
+	// only apply drag if user isn't directly moving camera right now
+	if (!m_isAccelerating) { ApplyDrag(dt); }
 	
 	m_position += m_velocity * dt;
 	

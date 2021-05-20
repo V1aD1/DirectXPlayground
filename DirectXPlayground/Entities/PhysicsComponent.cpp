@@ -22,14 +22,14 @@ void PhysicsComponent::SetAcceleration(Vector3 acc)
 	m_acceleration = acc;
 }
 
-void PhysicsComponent::Accelerate(float dt)
+void PhysicsComponent::Accelerate()
 {
-	m_acceleration += m_forward * m_accRate * dt;
+	m_acceleration = m_forward * m_accRate;
 }
 
-void PhysicsComponent::Decelerate(float dt)
+void PhysicsComponent::Decelerate()
 {
-	m_acceleration += -1* m_forward * m_accRate * dt;
+	m_acceleration = -1* m_forward * m_accRate;
 }
 
 PhysicsComponent::~PhysicsComponent()

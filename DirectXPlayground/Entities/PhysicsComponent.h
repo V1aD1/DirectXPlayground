@@ -31,8 +31,8 @@ public:
 
 	void SetVelocity(Vector3 vel);
 	void SetAcceleration(Vector3 acc);
-	virtual void Accelerate(float dt);
-	virtual void Decelerate(float dt);
+	virtual void Accelerate();
+	virtual void Decelerate();
 	virtual void Update(Entity& self, float dt);
 
 	~PhysicsComponent();
