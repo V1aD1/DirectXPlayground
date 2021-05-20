@@ -110,7 +110,7 @@ public:
 
 		// window no longer visible, so it MAY have been shut down
 		if (sender->Visible == false) {
-			m_game.Finalize();
+			//m_game.Finalize();
 		}
 	}
 };

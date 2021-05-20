@@ -13,7 +13,6 @@
 #include "Entities/InputHandler.h"
 #include "Entities/Entity.h"
 #include "ShaderManager.h"
-#include "PhysicsObject.h"
 #include "ConstantBuffer.h"
 #include "GraphicsObject.h"
 #include "Logger.h"
