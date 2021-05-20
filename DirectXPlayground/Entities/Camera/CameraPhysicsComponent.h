@@ -5,7 +5,7 @@ class CameraPhysicsComponent : public PhysicsComponent
 {
 private:
 	float m_maxSpeed = 10.0f;
-	float m_dragRate = m_accRate * 1.5;
+	float m_dragRate;
 
 private:
 	void ApplyDrag(float dt);
