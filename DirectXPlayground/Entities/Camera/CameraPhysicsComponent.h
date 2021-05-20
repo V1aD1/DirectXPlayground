@@ -8,7 +8,6 @@ private:
 	float m_dragRate = m_accRate * 1.5;
 
 private:
-	void ApplyAcceleration(float dt, Vector3 dir);
 	void ApplyDrag(float dt);
 
 public:

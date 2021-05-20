@@ -22,6 +22,7 @@
     <ClCompile Include="Entities\InputComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraInputComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraPhysicsComponent.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -38,6 +39,7 @@
     <ClInclude Include="Entities\InputHandler.h" />
     <ClInclude Include="Entities\Camera\CameraInputComponent.h" />
     <ClInclude Include="Entities\Camera\CameraPhysicsComponent.h" />
+    <ClInclude Include="Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

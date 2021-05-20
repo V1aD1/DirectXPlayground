@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "Game.h"
+#include "Logger.h"
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -22,21 +23,6 @@ ref class App sealed: public IFrameworkView
 	bool m_windowClosed;
 	CGame m_game;
 
-	void Log(std::string&& msg) {
-		if (msg.length() == 0) {
-			return;
-		}
-
-		// appending new line character in case it was forgotten
-		if (msg.back() != '\n') {
-			msg.append("\n");
-		}
-
-		std::ostringstream os;
-		os << msg;
-		OutputDebugStringA(os.str().c_str());
-	}
-
 public:
 	// some functions called by Windows
 	virtual void Initialize(CoreApplicationView^ appView) {
@@ -46,7 +32,7 @@ public:
 		CoreApplication::Resuming += ref new EventHandler<Object^>(this, &App::Resuming);
 
 		m_windowClosed = false;
-		Log("Initialize()\n");
+		Logger::Log("Initialize()\n");
 	}
 
 	virtual void SetWindow(CoreWindow^ window){
@@ -79,7 +65,7 @@ public:
 	}
 
 	virtual void Uninitialize() {
-		Log("Uninitialize()");
+		Logger::Log("Uninitialize()");
 	}
 
 	// an "event" that is called when the application window is ready to be activated
@@ -110,17 +96,17 @@ public:
 	}
 
 	void Suspending(Object^ sender, SuspendingEventArgs^ args) {
-		Log("Suspending()");
+		Logger::Log("Suspending()");
 	}
 	void Resuming(Object^ sender, Object^ args) {
-		Log("Resuming()");
+		Logger::Log("Resuming()");
 	}
 	void Closed(CoreWindow^ sender, CoreWindowEventArgs^ args) { 
 		m_windowClosed = true; 
-		Log("Close()");
+		Logger::Log("Close()");
 	}
 	void VisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args) { 
-		Log("VisibilityChanged()");
+		Logger::Log("VisibilityChanged()");
 
 		// window no longer visible, so it MAY have been shut down
 		if (sender->Visible == false) {

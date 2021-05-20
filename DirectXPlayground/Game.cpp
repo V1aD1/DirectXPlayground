@@ -16,6 +16,7 @@
 #include "PhysicsObject.h"
 #include "ConstantBuffer.h"
 #include "GraphicsObject.h"
+#include "Logger.h"
 
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
@@ -429,6 +430,8 @@ void CGame::KeyUp(VirtualKey key)
 
 void CGame::Finalize()
 {
+	Logger::Log("CGame::Finalize()");
+
 	if (m_debug) {
 		m_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}

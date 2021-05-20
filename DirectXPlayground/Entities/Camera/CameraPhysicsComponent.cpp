@@ -6,17 +6,6 @@ CameraPhysicsComponent::CameraPhysicsComponent()
 	m_accRate = 4.0f;
 }
 
-void CameraPhysicsComponent::ApplyAcceleration(float dt, Vector3 dir)
-{
-	auto dVel = dir * dt * m_accRate;
-	m_velocity += dVel;
-
-	if (m_velocity.Length() > m_maxSpeed) {
-		m_velocity.Normalize();
-		m_velocity = m_velocity * m_maxSpeed;
-	}
-}
-
 void CameraPhysicsComponent::ApplyDrag(float dt)
 {
 	// find direction we're moving in
@@ -36,13 +25,11 @@ void CameraPhysicsComponent::ApplyDrag(float dt)
 void CameraPhysicsComponent::Accelerate(float dt) {
 	m_isAccelerating = true;
 	PhysicsComponent::Accelerate(dt);
-	//ApplyAcceleration(dt, m_forward);
 }
 
 void CameraPhysicsComponent::Decelerate(float dt) {
 	m_isAccelerating = true;
 	PhysicsComponent::Decelerate(dt);
-	//ApplyAcceleration(dt, -1 * m_forward);
 }
 
 void CameraPhysicsComponent::Update(Entity& self, float dt)

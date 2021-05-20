@@ -1,9 +1,11 @@
 #include "pch.h"
-#include "Entity.h"
 
+#include "Entity.h"
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
+#include "Logger.h"
 
+#include <iostream>
 
 Entity::Entity()
 {
@@ -26,7 +28,9 @@ void Entity::Update(float dt, const InputHandler& inputHandler)
 	}
 }
 
-
 Entity::~Entity()
 {
+	Logger::Log("~Entity");
+	delete m_input;
+	delete m_physics;
 }
