@@ -24,6 +24,8 @@ protected:
 public:
 	Vector3 m_position{};
 	Vector3 m_rotation{};
+
+	// todo m_forward should be determined according to rotation?
 	Vector3 m_forward{ Vector3::Forward };
 
 public:

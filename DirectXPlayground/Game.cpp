@@ -268,11 +268,13 @@ void CGame::AddEntitiesToWorld()
 	auto cube1 = new Cube();
 	cube1->AddTexture(m_texture1);
 	cube1->AddTexture(m_texture2);
+	cube1->m_physics = new PhysicsComponent();
 	m_objects.push_back(cube1);
 
 	auto cube2 = new Cube();
 	cube2->AddTexture(m_texture1);
 	cube2->AddTexture(m_texture2);
+	cube2->m_physics = new PhysicsComponent(Vector3{ 4, 4, 0 }, Vector3{});
 	cube2->m_translation = XMMatrixTranslation(4, 4, 0);
 	m_objects.push_back(cube2);
 
@@ -374,8 +376,12 @@ void CGame::Render() {
 		
 		m_devCon->IASetPrimitiveTopology(object->m_topology);
 
+		// todo move m_translation function out to PhysicsComponent::GetTranslation()
+		auto m_translation = XMMatrixTranslationFromVector(XMLoadFloat3(&(object->m_physics->m_position)));
+		auto m_rotation = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&(object->m_physics->m_rotation)));
+
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
-		XMMATRIX matFinal = object->m_rotation * object->m_scale * object->m_translation * matView * matProjection;
+		XMMATRIX matFinal = object->m_rotation * object->m_scale * m_translation * matView * matProjection;
 
 		// set constant buffer
 		m_constBufferValues->matFinal = matFinal;

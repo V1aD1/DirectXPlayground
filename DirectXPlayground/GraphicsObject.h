@@ -4,6 +4,7 @@
 
 #include "Vertex.h"
 #include "Globals.h"
+#include "Entities/PhysicsComponent.h"
 
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
@@ -30,6 +31,8 @@ public:
 	
 	// todo remove should be computed in render directly
 	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0); // todo add relative translations
+
+	PhysicsComponent* m_physics;
 
 public:
 	GraphicsObject() = default;
@@ -64,6 +67,7 @@ protected:
 class Cube : public GraphicsObject {
 	// todo get rid of this
 	float m_time;
+
 public:
 	// todo account for Cube size, texture, shaders (use fluent builder for this?)
 	Cube(float textLim = 1.0f) {
@@ -126,5 +130,10 @@ public:
 	void Update(float dt) {
 		m_time += dt;
 		m_rotation = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
+		m_physics->m_rotation = Vector3(0, XMConvertToRadians(m_time * 20), 0);
+	}
+
+	~Cube() {
+		delete m_physics;
 	}
 };
