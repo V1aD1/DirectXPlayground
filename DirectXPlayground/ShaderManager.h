@@ -26,8 +26,8 @@ struct VertexShader {
 
 class ShaderManager {
 private:
-	std::map<VertexShaders, VertexShader*> m_vertexShaders;
-	std::map<PixelShaders, ComPtr<ID3D11PixelShader>> m_pixelShaders;
+	std::map<VertexShaders, VertexShader*> m_vertexShaders{};
+	std::map<PixelShaders, ComPtr<ID3D11PixelShader>> m_pixelShaders{};
 
 private:
 	void AddVertexShader(VertexShaders key, std::string path, ComPtr<ID3D11Device1> dev) {

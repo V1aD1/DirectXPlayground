@@ -80,10 +80,10 @@ public:
 
 private:
 	CONSTANTBUFFER* m_constBufferValues;
-	float m_time;
+	float m_time{0};
 	Entity* m_camera;
-	std::vector<GraphicsObject*> m_objects;
-	std::vector<Entity*> m_entities;
+	std::vector<GraphicsObject*> m_objects{};
+	std::vector<Entity*> m_entities{};
 	InputHandler* m_inputHandler;
 	ShaderManager* m_shaderManager;
 

@@ -7,11 +7,11 @@ struct CONSTANTBUFFER {
 	// variable size and order must match;
 
 	// final transformation
-	XMMATRIX matFinal; // bytes 0 - 15 
-	XMMATRIX rotation;
+	XMMATRIX matFinal{}; // bytes 0 - 15 
+	XMMATRIX rotation{};
 	//float padding1; // bytes 12 - 15 
 
-	XMVECTOR diffuseVector;
-	XMVECTOR diffuseColor;
-	XMVECTOR ambientColor;
+	XMVECTOR diffuseVector{};
+	XMVECTOR diffuseColor{};
+	XMVECTOR ambientColor{};
 };

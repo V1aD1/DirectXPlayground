@@ -13,19 +13,19 @@ using namespace Windows::System;
 
 class GraphicsObject {
 public:
-	D3D11_BUFFER_DESC m_vbDesc;
-	D3D11_BUFFER_DESC m_ibDesc;
-	D3D11_SUBRESOURCE_DATA m_vertexData;
-	D3D11_SUBRESOURCE_DATA m_indexData;
-	std::vector<VERTEX> m_vertices;
-	std::vector<short> m_indices;
-	VertexShaders m_vertexShader;
-	PixelShaders m_pixelShader;
-	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures;
+	D3D11_BUFFER_DESC m_vbDesc{};
+	D3D11_BUFFER_DESC m_ibDesc{};
+	D3D11_SUBRESOURCE_DATA m_vertexData{};
+	D3D11_SUBRESOURCE_DATA m_indexData{};
+	std::vector<VERTEX> m_vertices{};
+	std::vector<short> m_indices{};
+	VertexShaders m_vertexShader{};
+	PixelShaders m_pixelShader{};
+	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures{};
 	D3D_PRIMITIVE_TOPOLOGY m_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	// todo store simple data, and set it in Update or Render functions
-	XMMATRIX m_rotation;
+	XMMATRIX m_rotation{};
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
 	
 	// todo remove should be computed in render directly

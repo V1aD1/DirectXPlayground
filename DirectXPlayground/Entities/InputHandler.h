@@ -11,10 +11,10 @@ public:
 	void KeyDown(VirtualKey key);
 	void KeyUp(VirtualKey key);
 
-	bool upFlag = false;
-	bool downFlag = false;
-	bool leftFlag = false;
-	bool rightFlag = false;
+	bool upFlag{ false };
+	bool downFlag{ false };
+	bool leftFlag{ false };
+	bool rightFlag{ false };
 
 	~InputHandler();
 };
