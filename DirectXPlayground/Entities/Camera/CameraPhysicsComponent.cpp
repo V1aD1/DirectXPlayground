@@ -47,6 +47,7 @@ void CameraPhysicsComponent::Update(Entity& self, float dt)
 	if (!m_isAccelerating) { ApplyDrag(dt); }
 	
 	m_position += m_velocity * dt;
+	UpdateTranslation();
 	
 	// todo move to ResetFlags()?
 	m_isAccelerating = false;

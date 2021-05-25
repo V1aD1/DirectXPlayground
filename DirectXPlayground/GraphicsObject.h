@@ -25,12 +25,8 @@ public:
 	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures{};
 	D3D_PRIMITIVE_TOPOLOGY m_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	// todo store simple data, and set it in Update or Render functions
-	XMMATRIX m_rotation{};
+	// move to physics component
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
-	
-	// todo remove should be computed in render directly
-	XMMATRIX m_translation = XMMatrixTranslation(0, 0, 0); // todo add relative translations
 
 	PhysicsComponent* m_physics;
 
@@ -65,8 +61,9 @@ protected:
 
 // todo move to own file
 class Cube : public GraphicsObject {
-	// todo get rid of this
-	float m_time;
+
+	// todo remove
+	Entity m_entity{};
 
 public:
 	// todo account for Cube size, texture, shaders (use fluent builder for this?)
@@ -128,9 +125,10 @@ public:
 	}
 
 	void Update(float dt) {
-		m_time += dt;
-		m_rotation = XMMatrixRotationY(XMConvertToRadians(m_time * 20));
-		m_physics->m_rotation = Vector3(0, XMConvertToRadians(m_time * 20), 0);
+		auto currRot = m_physics->GetRotation();
+		currRot.y += dt;
+		m_physics->SetRotation(currRot);
+		m_physics->Update(m_entity, dt);
 	}
 
 	~Cube() {

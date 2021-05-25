@@ -13,20 +13,25 @@ class Entity;
 
 class PhysicsComponent
 {
+private:
+	XMMATRIX m_translation{};
+	Vector3 m_rotation{};
+	XMMATRIX m_rotQuaternion{};
+	
+	// todo m_forward should be determined according to rotation? Should have Rotate() then
+	Vector3 m_forward{ Vector3::Forward };
+
 protected:
 	Vector3 m_velocity{};
 	Vector3 m_acceleration{};
+	Vector3 m_position{};
 
 	float m_accRate{ 0 };
 
 	bool m_isAccelerating{ false };
 
-public:
-	Vector3 m_position{};
-	Vector3 m_rotation{};
-
-	// todo m_forward should be determined according to rotation?
-	Vector3 m_forward{ Vector3::Forward };
+protected:
+	void UpdateTranslation();
 
 public:
 	PhysicsComponent();
@@ -37,6 +42,18 @@ public:
 	virtual void Accelerate();
 	virtual void Decelerate();
 	virtual void Update(Entity& self, float dt);
+
+	// rotation
+	Vector3 GetRotation();
+	void SetRotation(Vector3 newRot);
+	XMMATRIX GetQuaternion();
+
+	//position
+	Vector3 GetPosition();
+	void SetPosition(Vector3 newPos);
+
+	//translation
+	XMMATRIX GetTranslation();
 
 	~PhysicsComponent();
 };

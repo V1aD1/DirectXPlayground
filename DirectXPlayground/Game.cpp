@@ -155,7 +155,7 @@ void CGame::Initialize() {
 	m_wireFrame = false;
 	m_time = 0.0f;
 	m_inputHandler = new InputHandler();
-	m_camera->m_physics->m_position = Vector3(0.0f, 6.0f, 40.0f);
+	m_camera->m_physics->SetPosition(Vector3(0.0f, 6.0f, 40.0f));
 }
 
 void CGame::InitGraphics()
@@ -275,7 +275,6 @@ void CGame::AddEntitiesToWorld()
 	cube2->AddTexture(m_texture1);
 	cube2->AddTexture(m_texture2);
 	cube2->m_physics = new PhysicsComponent(Vector3{ 4, 4, 0 }, Vector3{});
-	cube2->m_translation = XMMatrixTranslation(4, 4, 0);
 	m_objects.push_back(cube2);
 
 	m_camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent());
@@ -312,7 +311,7 @@ void CGame::Render() {
 	// VIEW transformation
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
-	auto camPos = XMLoadFloat3(&(m_camera->m_physics->m_position));
+	auto camPos = XMLoadFloat3(&(m_camera->m_physics->GetPosition()));
 	XMMATRIX matView = XMMatrixLookAtLH(camPos, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
@@ -376,16 +375,12 @@ void CGame::Render() {
 		
 		m_devCon->IASetPrimitiveTopology(object->m_topology);
 
-		// todo move m_translation function out to PhysicsComponent::GetTranslation()
-		auto m_translation = XMMatrixTranslationFromVector(XMLoadFloat3(&(object->m_physics->m_position)));
-		auto m_rotation = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&(object->m_physics->m_rotation)));
-
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
-		XMMATRIX matFinal = object->m_rotation * object->m_scale * m_translation * matView * matProjection;
+		XMMATRIX matFinal = object->m_physics->GetQuaternion() * object->m_scale * object->m_physics->GetTranslation() * matView * matProjection;
 
 		// set constant buffer
 		m_constBufferValues->matFinal = matFinal;
-		m_constBufferValues->rotation = object->m_rotation;
+		m_constBufferValues->rotation = object->m_physics->GetQuaternion();
 		m_constBufferValues->ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
 		m_constBufferValues->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
 		m_constBufferValues->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
