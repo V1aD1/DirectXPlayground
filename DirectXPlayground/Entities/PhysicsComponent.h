@@ -25,6 +25,7 @@ protected:
 	Vector3 m_velocity{};
 	Vector3 m_acceleration{};
 	Vector3 m_position{};
+	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
 
 	float m_accRate{ 0 };
 
@@ -35,7 +36,8 @@ protected:
 
 public:
 	PhysicsComponent();
-	PhysicsComponent(Vector3 pos, Vector3 rot) : m_position(pos), m_rotation(rot) {};
+	PhysicsComponent(Vector3 pos, Vector3 rot, XMMATRIX scale = XMMatrixScaling(1, 1, 1)) : 
+		m_position(pos), m_rotation(rot), m_scale(scale) {};
 
 	void SetVelocity(Vector3 vel);
 	void SetAcceleration(Vector3 acc);
@@ -54,6 +56,9 @@ public:
 
 	//translation
 	XMMATRIX GetTranslation();
+
+	//scale
+	XMMATRIX GetScale();
 
 	~PhysicsComponent();
 };

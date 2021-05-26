@@ -23,13 +23,15 @@
     <ClCompile Include="Entities\Camera\CameraInputComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraPhysicsComponent.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Entities\GraphicsComponent.cpp" />
+    <ClCompile Include="Entities\RotatingPhysicsComponent.cpp" />
+    <ClCompile Include="Entities\Cube\CubeGraphicsComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Entities\Entity.h" />
@@ -39,6 +41,9 @@
     <ClInclude Include="Entities\Camera\CameraInputComponent.h" />
     <ClInclude Include="Entities\Camera\CameraPhysicsComponent.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Entities\GraphicsComponent.h" />
+    <ClInclude Include="Entities\RotatingPhysicsComponent.h" />
+    <ClInclude Include="Entities\Cube\CubeGraphicsComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

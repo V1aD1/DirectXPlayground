@@ -218,29 +218,33 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Entities\Cube\CubeGraphicsComponent.h" />
     <ClInclude Include="Entities\Camera\CameraPhysicsComponent.h" />
     <ClInclude Include="Entities\Camera\CameraInputComponent.h" />
     <ClInclude Include="Entities\Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="GraphicsObject.h" />
+    <ClInclude Include="Entities\GraphicsComponent.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Entities\InputComponent.h" />
     <ClInclude Include="Entities\InputHandler.h" />
     <ClInclude Include="Entities\PhysicsComponent.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Entities\RotatingPhysicsComponent.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Entities\Cube\CubeGraphicsComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraPhysicsComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraInputComponent.cpp" />
     <ClCompile Include="Entities\Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Entities\InputComponent.cpp" />
     <ClCompile Include="Entities\InputHandler.cpp" />
+    <ClCompile Include="Entities\GraphicsComponent.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -251,6 +255,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Entities\PhysicsComponent.cpp" />
+    <ClCompile Include="Entities\RotatingPhysicsComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

@@ -8,14 +8,16 @@
 #include <streambuf>
 #include <d3dcompiler.h>
 
-#include "Entities/Camera/CameraInputComponent.h"
-#include "Entities/Camera/CameraPhysicsComponent.h"
-#include "Entities/InputHandler.h"
-#include "Entities/Entity.h"
 #include "ShaderManager.h"
 #include "ConstantBuffer.h"
-#include "GraphicsObject.h"
 #include "Logger.h"
+
+#include "Entities/Camera/CameraInputComponent.h"
+#include "Entities/Camera/CameraPhysicsComponent.h"
+#include "Entities/RotatingPhysicsComponent.h"
+#include "Entities/InputHandler.h"
+#include "Entities/Entity.h"
+#include "Entities/Cube/CubeGraphicsComponent.h"
 
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
@@ -265,32 +267,31 @@ void CGame::InitStates()
 
 void CGame::AddEntitiesToWorld()
 {
-	auto cube1 = new Cube();
-	cube1->AddTexture(m_texture1);
-	cube1->AddTexture(m_texture2);
-	cube1->m_physics = new PhysicsComponent();
-	m_objects.push_back(cube1);
+	auto cube1Graphics = new CubeGraphicsComponent();
+	cube1Graphics->AddTexture(m_texture1);
+	cube1Graphics->AddTexture(m_texture2);
+	auto cube1 = new Entity(NULL, new RotatingPhysicsComponent(), cube1Graphics);
+	m_entities.push_back(cube1);
 
-	auto cube2 = new Cube();
-	cube2->AddTexture(m_texture1);
-	cube2->AddTexture(m_texture2);
-	cube2->m_physics = new PhysicsComponent(Vector3{ 4, 4, 0 }, Vector3{});
-	m_objects.push_back(cube2);
+	auto cube2Physics = new PhysicsComponent(Vector3{ 4, 4, 0 }, Vector3{}, XMMatrixScaling(4, 2, 4));
+	auto cube2Graphics = new CubeGraphicsComponent();
+	cube2Graphics->AddTexture(m_texture1);
+	cube2Graphics->AddTexture(m_texture2);
+	auto cube2 = new Entity(NULL, cube2Physics, cube2Graphics);
+	m_entities.push_back(cube2);
 
-	m_camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent());
+	m_camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent(), NULL);
+	m_entities.push_back(m_camera);
 }
 
 // performs updates to the state of the game
 void CGame::Update() {
 	// todo fix with actual time passing
 	auto dt = 0.02f;
-	
-	for (auto&& object : m_objects) {
-		object->Update(dt);
-	}
 
-	// todo m_camera isn't a GraphicsObject, so it shouldn't be added to m_objects
-	m_camera->Update(dt, *m_inputHandler);
+	for (auto&& entity : m_entities) {
+		entity->Update(dt, *m_inputHandler);
+	}
 
 	m_time += dt;
 }
@@ -344,49 +345,53 @@ void CGame::Render() {
 	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 	m_devCon->RSSetState(m_rasterizerState.Get());
 
-	// todo iterate over our shaders and render those objects
-	// iterate over our objects and render them
-	for (auto&& object : m_objects) {
-		VertexShader* vs = m_shaderManager->GetVertexShader(object->m_vertexShader);
+	// todo iterate over our shaders and render those entities
+	// iterate over our entities and render them
+	for (auto&& entity : m_entities) {
+		if (!entity->m_graphics) { continue; }
+
+		auto graphics = entity->m_graphics;
+		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShader);
 		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(object->m_pixelShader).Get(), nullptr, 0);
-	
-		for (int i = 0; i < object->m_textures.size(); i++) {
-			m_devCon->PSSetShaderResources(i, 1, object->m_textures[i].GetAddressOf());
+		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShader).Get(), nullptr, 0);
+
+		for (int i = 0; i < graphics->m_textures.size(); i++) {
+		m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
 		}
 
 		// initialize input layout
 		D3D11_INPUT_ELEMENT_DESC ied[] = {
-			// 5th param specifies on which byte the new piece of info starts
-			// so position starts on byte 0, next on byte 12 etc
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		// 5th param specifies on which byte the new piece of info starts
+		// so position starts on byte 0, next on byte 12 etc
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 		// buffer work
-		m_dev->CreateBuffer(&(object->m_vbDesc), &(object->m_vertexData), &m_vertexBuffer);
-		m_dev->CreateBuffer(&(object->m_ibDesc), &(object->m_indexData), &m_indexBuffer);
+		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
+		m_dev->CreateBuffer(&(graphics->m_ibDesc), &(graphics->m_indexData), &m_indexBuffer);
 		m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-		
-		m_devCon->IASetPrimitiveTopology(object->m_topology);
+
+		m_devCon->IASetPrimitiveTopology(graphics->m_topology);
 
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
-		XMMATRIX matFinal = object->m_physics->GetQuaternion() * object->m_scale * object->m_physics->GetTranslation() * matView * matProjection;
+		auto physics = entity->m_physics;
+		XMMATRIX matFinal = physics->GetQuaternion() * physics->GetScale() * physics->GetTranslation() * matView * matProjection;
 
 		// set constant buffer
 		m_constBufferValues->matFinal = matFinal;
-		m_constBufferValues->rotation = object->m_physics->GetQuaternion();
+		m_constBufferValues->rotation = entity->m_physics->GetQuaternion();
 		m_constBufferValues->ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
 		m_constBufferValues->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
 		m_constBufferValues->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, m_constBufferValues, 0, 0);
 
-		m_devCon->DrawIndexed(object->m_indices.size(), 0, 0);
+		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 
 	// switch the back buffer and the front buffer
@@ -413,14 +418,6 @@ void CGame::PointerPressed()
 void CGame::KeyDown(VirtualKey key)
 {
 	m_inputHandler->KeyDown(key);
-
-	// todo remove once component work is done
-	/*if (key == VirtualKey::Up) {
-		m_camera->Accelerate(0.2f);
-	}
-	if (key == VirtualKey::Down) {
-		m_camera->Decelerate(0.2f);
-	}*/
 }
 
 void CGame::KeyUp(VirtualKey key)
@@ -439,14 +436,11 @@ void CGame::Finalize()
 	delete m_camera;
 	delete m_inputHandler;
 	delete m_shaderManager;
-	for (auto object : m_objects) {
-		delete object;
-	}
+
 	for (auto entity : m_entities) {
 		delete entity;
 	}
 
-	m_objects.clear();
 	m_entities.clear();
 }
 

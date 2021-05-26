@@ -71,6 +71,11 @@ XMMATRIX PhysicsComponent::GetTranslation()
 	return m_translation;
 }
 
+XMMATRIX PhysicsComponent::GetScale()
+{
+	return m_scale;
+}
+
 PhysicsComponent::~PhysicsComponent()
 {
 }
