@@ -76,6 +76,16 @@ XMMATRIX PhysicsComponent::GetScale()
 	return m_scale;
 }
 
+Vector3 PhysicsComponent::GetForwardDir()
+{
+	return m_forward;
+}
+
+void PhysicsComponent::SetForwardDir(Vector3 newDir)
+{
+	m_forward = newDir;
+}
+
 PhysicsComponent::~PhysicsComponent()
 {
 }

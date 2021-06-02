@@ -60,6 +60,10 @@ public:
 	//scale
 	XMMATRIX GetScale();
 
+	//forward
+	Vector3 GetForwardDir();
+	void SetForwardDir(Vector3 newDir);
+
 	~PhysicsComponent();
 };
 
