@@ -15,6 +15,8 @@ public:
 	bool downFlag{ false };
 	bool leftFlag{ false };
 	bool rightFlag{ false };
+	bool qKeyFlag{ false };
+	bool eKeyFlag{ false };
 
 	~InputHandler();
 };

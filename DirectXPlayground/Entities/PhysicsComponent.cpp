@@ -20,6 +20,12 @@ void PhysicsComponent::UpdateTranslation()
 	m_translation = XMMatrixTranslationFromVector(XMLoadFloat3(&(m_position)));
 }
 
+
+void PhysicsComponent::AccelerateInDir(Vector3 dir)
+{
+	m_acceleration = dir * m_accRate;
+}
+
 Vector3 PhysicsComponent::GetRotation()
 {
 	return m_rotation;

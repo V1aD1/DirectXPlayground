@@ -16,6 +16,7 @@ public:
 	void Accelerate() override;
 	void Decelerate() override;
 	void Update(Entity& self, float dt) override;
+	void AccelerateInDir(Vector3 dir) override;
 
 	~CameraPhysicsComponent();
 };

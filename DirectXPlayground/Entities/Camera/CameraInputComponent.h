@@ -1,6 +1,8 @@
 #pragma once
 #include "../InputComponent.h"
 
+#include <SimpleMath.h>
+
 class CameraInputComponent : public InputComponent
 {
 public:

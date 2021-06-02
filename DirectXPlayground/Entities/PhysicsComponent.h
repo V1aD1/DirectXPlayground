@@ -39,13 +39,18 @@ public:
 	PhysicsComponent(Vector3 pos, Vector3 rot, XMMATRIX scale = XMMatrixScaling(1, 1, 1)) : 
 		m_position(pos), m_rotation(rot), m_scale(scale) {};
 
-	void SetVelocity(Vector3 vel);
-	void SetAcceleration(Vector3 acc);
 	virtual void Accelerate();
 	virtual void Decelerate();
 	virtual void Update(Entity& self, float dt);
+	
+	// Accelerates object in a direction without permanently changing its forward direction
+	virtual void AccelerateInDir(Vector3 dir);
 
-	// rotation
+	// acceleration
+	void SetVelocity(Vector3 vel);
+	void SetAcceleration(Vector3 acc);
+
+	//rotation
 	Vector3 GetRotation();
 	void SetRotation(Vector3 newRot);
 	XMMATRIX GetQuaternion();

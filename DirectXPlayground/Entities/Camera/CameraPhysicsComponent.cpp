@@ -34,6 +34,12 @@ void CameraPhysicsComponent::Decelerate() {
 	PhysicsComponent::Decelerate();
 }
 
+void CameraPhysicsComponent::AccelerateInDir(Vector3 dir)
+{
+	m_isAccelerating = true;
+	PhysicsComponent::AccelerateInDir(dir);
+}
+
 void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
 	m_velocity += m_acceleration * dt;
