@@ -32,11 +32,12 @@ public:
 		CoreApplication::Resuming += ref new EventHandler<Object^>(this, &App::Resuming);
 
 		m_windowClosed = false;
-		Logger::Log("Initialize()\n");
+		Logger::Log("Initialize()");
 	}
 
 	virtual void SetWindow(CoreWindow^ window){
 		window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerPressed);
+		window->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerMoved);
 		window->PointerWheelChanged += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerWheelChanged);
 		window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyDown);
 		window->KeyUp += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyUp);
@@ -78,6 +79,10 @@ public:
 		m_game.PointerPressed();
 	}	
 	
+	void PointerMoved(CoreWindow^ window, PointerEventArgs^ args) {
+		m_game.PointerMoved(args);
+	}
+
 	void PointerWheelChanged(CoreWindow^ window, PointerEventArgs^ args){
 		
 		// multiples of 120, positive number means scroll up, negative means scroll down

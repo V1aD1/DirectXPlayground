@@ -410,6 +410,12 @@ void CGame::PointerPressed()
 	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);*/
 }
 
+void CGame::PointerMoved(PointerEventArgs^ args)
+{
+	auto currPoint = args->CurrentPoint;
+	Logger::Log("Pointer position: " + std::to_string(currPoint->Position.X) + ", " + std::to_string(currPoint->Position.Y));
+}
+
 // todo create EventHandler, which will replace this method and contain flags for all keys and mouse stuff being pressed
 //		in Update(), InputComponent should update and set states in GameObject(which will contain position, rotation and scale by default).
 //		GameObject will also be made up of physics and graphics components, so InputComponent can set flags in PhysicsComponent by calling public functions

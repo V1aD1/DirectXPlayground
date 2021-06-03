@@ -62,6 +62,7 @@ public:
 
 	bool m_wireFrame;
 
+public:
 	void Initialize();
 	void InitGraphics();
 	void InitPipeline(); // initializes GPU settings and prepares it for rendering
@@ -72,6 +73,7 @@ public:
 	void Render();
 
 	void PointerPressed();
+	void PointerMoved(PointerEventArgs^ args);
 	void KeyDown(VirtualKey key);
 	void KeyUp(VirtualKey key);
 
