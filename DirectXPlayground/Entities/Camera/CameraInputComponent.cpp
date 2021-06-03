@@ -36,6 +36,9 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 		auto dir = Vector3::Down;
 		physics->AccelerateInDir(dir);
 	}
+
+	// todo handle mouse delta moving, by changing the direction mouse is looking in,
+	// then using XMMatrixLookToLH() in game.cpp
 }
 
 CameraInputComponent::~CameraInputComponent()

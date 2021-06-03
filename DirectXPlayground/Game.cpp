@@ -313,6 +313,8 @@ void CGame::Render() {
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
 	auto camPos = XMLoadFloat3(&(m_camera->m_physics->GetPosition()));
+	
+	// todo replace with using XMMatrixLookToLH() once I have a direction to look in
 	XMMATRIX matView = XMMatrixLookAtLH(camPos, vecCamLookAt, vecCamUp);
 
 	// PROJECTION transformation
