@@ -415,7 +415,7 @@ void CGame::PointerPressed()
 void CGame::PointerMoved(PointerEventArgs^ args)
 {
 	auto currPoint = args->CurrentPoint;
-	Logger::Log("Pointer position: " + std::to_string(currPoint->Position.X) + ", " + std::to_string(currPoint->Position.Y));
+	m_inputHandler->OnMouseMoved(args->CurrentPoint);
 }
 
 // todo create EventHandler, which will replace this method and contain flags for all keys and mouse stuff being pressed

@@ -3,8 +3,14 @@
 
 #include <SimpleMath.h>
 
+using namespace Windows::UI::Input;
+
 class CameraInputComponent : public InputComponent
 {
+private:
+	Windows::Foundation::Point m_currPos{};
+	float m_rotSpeed = 0.05f;
+
 public:
 	CameraInputComponent();
 

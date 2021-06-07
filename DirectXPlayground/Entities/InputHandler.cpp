@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InputHandler.h"
+#include "Logger.h"
 
 
 InputHandler::InputHandler()
@@ -76,6 +77,11 @@ void InputHandler::KeyUp(VirtualKey key)
 			eKeyFlag = false;
 			break;
 	}
+}
+
+void InputHandler::OnMouseMoved(PointerPoint^ latestPointerInfo)
+{
+	currentPointerPos = latestPointerInfo->Position;
 }
 
 
