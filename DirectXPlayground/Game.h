@@ -72,7 +72,8 @@ public:
 	void Update();
 	void Render();
 
-	void PointerPressed();
+	void PointerPressed(PointerEventArgs^ args);
+	void PointerReleased(PointerEventArgs^ args);
 	void PointerMoved(PointerEventArgs^ args);
 	void KeyDown(VirtualKey key);
 	void KeyUp(VirtualKey key);

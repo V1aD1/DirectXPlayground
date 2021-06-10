@@ -12,6 +12,7 @@ public:
 	void KeyDown(VirtualKey key);
 	void KeyUp(VirtualKey key);
 	void OnMouseMoved(PointerPoint^ latestPointerInfo);
+	void OnMouseKeyChanged(PointerPoint^ latestPointerInfo);
 
 	bool upFlag{ false };
 	bool downFlag{ false };
@@ -19,6 +20,10 @@ public:
 	bool rightFlag{ false };
 	bool qKeyFlag{ false };
 	bool eKeyFlag{ false };
+
+	bool lmbFlag{ false };
+	bool rmbFlag{ false };
+
 	Windows::Foundation::Point currentPointerPos{};
 
 	~InputHandler();

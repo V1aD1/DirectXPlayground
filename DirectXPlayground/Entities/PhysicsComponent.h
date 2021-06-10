@@ -21,6 +21,8 @@ private:
 	// todo m_forward should be determined according to rotation? Should have Rotate() then
 	Vector3 m_forward{ Vector3::Forward };
 
+	void UpdateForwardDir();
+
 protected:
 	Vector3 m_velocity{};
 	Vector3 m_acceleration{};
@@ -67,7 +69,6 @@ public:
 
 	//forward
 	Vector3 GetForwardDir();
-	void SetForwardDir(Vector3 newDir);
 
 	~PhysicsComponent();
 };

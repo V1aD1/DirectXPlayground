@@ -5,6 +5,8 @@
 #include "../PhysicsComponent.h"
 #include "Logger.h"
 
+#include <SimpleMath.h>
+
 CameraInputComponent::CameraInputComponent()
 {
 }
@@ -38,8 +40,18 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 		physics->AccelerateInDir(dir);
 	}
 
-	// todo handle mouse delta moving, by changing the direction mouse is looking in,
-	// then using XMMatrixLookToLH() in game.cpp
+	// mouse look-around logic
+	if (!inputHandler.rmbFlag) { 
+		m_isMouseLooking = false;
+		return; 
+	}
+
+	// want first click to not automatically make camera look in random direction
+	// so first click is more of a setup step, next frame we actually start looking
+	if (!m_isMouseLooking) {
+		m_isMouseLooking = true;
+		m_currPos = inputHandler.currentPointerPos;
+	}
 	if (inputHandler.currentPointerPos != m_currPos) {
 		auto newPos = inputHandler.currentPointerPos;
 		auto deltaX = newPos.X - m_currPos.X;
@@ -48,8 +60,9 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 		Vector3 newRot = rot + Vector3{ deltaX * m_rotSpeed, deltaY * m_rotSpeed, 0 };
 
 		physics->SetRotation(newRot);
-
+		auto lookDir = physics->GetForwardDir();
 		Logger::Log("New camera rotation: " + std::to_string(newRot.x) + ", " + std::to_string(newRot.y));
+		Logger::Log("New camera look dir: " + std::to_string(lookDir.x) + ", " + std::to_string(lookDir.y));
 
 		m_currPos = newPos;
 	}

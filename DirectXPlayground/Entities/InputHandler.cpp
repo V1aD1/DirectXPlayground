@@ -84,6 +84,11 @@ void InputHandler::OnMouseMoved(PointerPoint^ latestPointerInfo)
 	currentPointerPos = latestPointerInfo->Position;
 }
 
+void InputHandler::OnMouseKeyChanged(PointerPoint^ latestPointerInfo)
+{
+	lmbFlag = latestPointerInfo->Properties->IsLeftButtonPressed;
+	rmbFlag = latestPointerInfo->Properties->IsRightButtonPressed;
+}
 
 InputHandler::~InputHandler()
 {

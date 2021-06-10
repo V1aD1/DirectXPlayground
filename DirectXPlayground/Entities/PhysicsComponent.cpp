@@ -15,6 +15,15 @@ void PhysicsComponent::Update(Entity& self, float dt)
 	m_rotQuaternion = XMMatrixRotationQuaternion(quaternion);
 }
 
+void PhysicsComponent::UpdateForwardDir()
+{
+	float y = -1 * sinf(m_rotation.y);
+	float r = cosf(m_rotation.y);
+	float z = r * cosf(m_rotation.x);
+	float x = r * sinf(m_rotation.x);
+	m_forward = Vector3(x, y, z);
+}
+
 void PhysicsComponent::UpdateTranslation()
 {
 	m_translation = XMMatrixTranslationFromVector(XMLoadFloat3(&(m_position)));
@@ -33,8 +42,8 @@ Vector3 PhysicsComponent::GetRotation()
 
 void PhysicsComponent::SetRotation(Vector3 newRot)
 {
-	// todo update m_forward as well
 	m_rotation = newRot;
+	UpdateForwardDir();
 }
 
 XMMATRIX PhysicsComponent::GetQuaternion()
@@ -85,11 +94,6 @@ XMMATRIX PhysicsComponent::GetScale()
 Vector3 PhysicsComponent::GetForwardDir()
 {
 	return m_forward;
-}
-
-void PhysicsComponent::SetForwardDir(Vector3 newDir)
-{
-	m_forward = newDir;
 }
 
 PhysicsComponent::~PhysicsComponent()

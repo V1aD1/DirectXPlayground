@@ -311,11 +311,13 @@ void CGame::Render() {
 
 	// VIEW transformation
 	XMVECTOR vecCamLookAt = XMVectorSet(0, 0, 0, 0);
+	XMVECTOR vecCamLookTo = XMLoadFloat3(&(m_camera->m_physics->GetForwardDir()));
 	XMVECTOR vecCamUp = XMVectorSet(0, 1, 0, 0); // y axis is usually up for our camera
 	auto camPos = XMLoadFloat3(&(m_camera->m_physics->GetPosition()));
 	
 	// todo replace with using XMMatrixLookToLH() once I have a direction to look in
-	XMMATRIX matView = XMMatrixLookAtLH(camPos, vecCamLookAt, vecCamUp);
+	//XMMATRIX matView = XMMatrixLookAtLH(camPos, vecCamLookAt, vecCamUp);
+	XMMATRIX matView = XMMatrixLookToLH(camPos, vecCamLookTo, vecCamUp);
 
 	// PROJECTION transformation
 	CoreWindow^ window = CoreWindow::GetForCurrentThread();
@@ -400,16 +402,14 @@ void CGame::Render() {
 	m_swapChain->Present(1, 0);
 }
 
-void CGame::PointerPressed()
+void CGame::PointerPressed(PointerEventArgs^ args)
 {
-	/*m_constBufferValues.X = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.Y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.Z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	m_inputHandler->OnMouseKeyChanged(args->CurrentPoint);
+}
 
-	m_constBufferValues.R = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.G = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.B = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	m_constBufferValues.A = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);*/
+void CGame::PointerReleased(PointerEventArgs^ args)
+{
+	m_inputHandler->OnMouseKeyChanged(args->CurrentPoint);
 }
 
 void CGame::PointerMoved(PointerEventArgs^ args)

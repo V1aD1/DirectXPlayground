@@ -37,6 +37,7 @@ public:
 
 	virtual void SetWindow(CoreWindow^ window){
 		window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerPressed);
+		window->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerReleased);
 		window->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerMoved);
 		window->PointerWheelChanged += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &App::PointerWheelChanged);
 		window->KeyDown += ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::KeyDown);
@@ -76,7 +77,11 @@ public:
 	}
 
 	void PointerPressed(CoreWindow^ window, PointerEventArgs^ args){
-		m_game.PointerPressed();
+		m_game.PointerPressed(args);
+	}
+	
+	void PointerReleased(CoreWindow^ window, PointerEventArgs^ args){
+		m_game.PointerReleased(args);
 	}	
 	
 	void PointerMoved(CoreWindow^ window, PointerEventArgs^ args) {
