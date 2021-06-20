@@ -6,6 +6,7 @@ CameraPhysicsComponent::CameraPhysicsComponent()
 	m_maxSpeed = 10.0f;
 	m_accRate = 6.0f;
 	m_dragRate = m_accRate * 3.0;
+	this->SetRotation({ 3, 0, 0 });
 }
 
 void CameraPhysicsComponent::ApplyDrag(float dt)

@@ -55,7 +55,7 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 	if (inputHandler.currentPointerPos != m_currPos) {
 		auto newPos = inputHandler.currentPointerPos;
 		auto deltaX = newPos.X - m_currPos.X;
-		auto deltaY = newPos.Y - m_currPos.Y;
+		auto deltaY = -1* (newPos.Y - m_currPos.Y);
 		Vector3 rot = physics->GetRotation();
 		Vector3 newRot = rot + Vector3{ deltaX * m_rotSpeed, deltaY * m_rotSpeed, 0 };
 
