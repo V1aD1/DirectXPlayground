@@ -1,4 +1,4 @@
 #pragma once
 
-enum class VertexShaders { VertexShader1 };
-enum class PixelShaders { PixelShader1 };
+enum class VertexShaders { Texture, DirectionalLight };
+enum class PixelShaders { Texture, DirectionalLight };

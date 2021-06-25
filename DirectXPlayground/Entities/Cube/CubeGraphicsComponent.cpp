@@ -54,8 +54,8 @@ CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
 	// todo maybe factory should call this method...
 	SetupBuffers();
 
-	m_vertexShader = VertexShaders::VertexShader1;
-	m_pixelShader = PixelShaders::PixelShader1;
+	m_vertexShader = VertexShaders::Texture;
+	m_pixelShader = PixelShaders::Texture;
 }
 
 

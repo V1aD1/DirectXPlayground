@@ -63,9 +63,12 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl" />
-    <FxCompile Include="PixelShader.hlsl" />
     <FxCompile Include="Shaders\PixelShader2.hlsl" />
+    <FxCompile Include="Shaders\TextureVS.hlsl" />
+    <FxCompile Include="Shaders\TexturePS.hlsl" />
+    <FxCompile Include="Shaders\Test.hlsl" />
+    <FxCompile Include="Shaders\FirstPS.hlsl" />
+    <FxCompile Include="Shaders\FirstVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

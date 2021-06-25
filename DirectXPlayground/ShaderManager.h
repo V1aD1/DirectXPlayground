@@ -52,8 +52,8 @@ public:
 	ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 		// load shader files (.hlsl files become .cso files after compilation)
-		AddVertexShader(VertexShaders::VertexShader1, "VertexShader.cso", dev);
-		AddPixelShader(PixelShaders::PixelShader1, "PixelShader.cso", dev);
+		AddVertexShader(VertexShaders::Texture, "TextureVS.cso", dev);
+		AddPixelShader(PixelShaders::Texture, "TexturePS.cso", dev);
 	}
 
 	VertexShader* GetVertexShader(VertexShaders key) { return m_vertexShaders[key]; };

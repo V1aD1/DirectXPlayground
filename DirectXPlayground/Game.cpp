@@ -162,8 +162,8 @@ void CGame::Initialize() {
 
 void CGame::InitGraphics()
 {
-	AddTexture(L"bricks.png", m_texture2);
 	AddTexture(L"wood.png", m_texture1);
+	AddTexture(L"bricks.png", m_texture2);
 }
 
 void CGame::InitPipeline()
@@ -360,16 +360,16 @@ void CGame::Render() {
 		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShader).Get(), nullptr, 0);
 
 		for (int i = 0; i < graphics->m_textures.size(); i++) {
-		m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
+			m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
 		}
 
 		// initialize input layout
 		D3D11_INPUT_ELEMENT_DESC ied[] = {
-		// 5th param specifies on which byte the new piece of info starts
-		// so position starts on byte 0, next on byte 12 etc
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			// 5th param specifies on which byte the new piece of info starts
+			// so position starts on byte 0, next on byte 12 etc
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
