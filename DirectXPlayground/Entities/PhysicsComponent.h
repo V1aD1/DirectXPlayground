@@ -19,20 +19,18 @@ private:
 	XMMATRIX m_rotQuaternion{};
 	Vector3 m_forward{ Vector3::Forward };
 	Vector3 m_velocity{};
-
-private:
-	void UpdateForwardDir();
-
-protected:
-	// todo make private
 	Vector3 m_acceleration{};
 	Vector3 m_position{};
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
-	float m_accRate{ 0 };
-	bool m_isAccelerating{ false };
+
+private:
+	void UpdateForwardDir();
+	void UpdateTranslation();
 
 protected:
-	void UpdateTranslation();
+	// todo make private
+	float m_accRate{ 0 };
+	bool m_isAccelerating{ false };
 
 public:
 	PhysicsComponent();
@@ -46,11 +44,12 @@ public:
 	virtual void AccelerateInDir(Vector3 dir);
 
 	// velocity
-	void SetVelocity(Vector3 vel);
 	Vector3 GetVelocity() const;
 	Vector3 GetVeloctyDir() const;
+	void SetVelocity(Vector3 vel);
 
 	// acceleration
+	Vector3 GetAcceleration() const;
 	void SetAcceleration(Vector3 acc);
 
 	//rotation

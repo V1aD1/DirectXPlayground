@@ -86,6 +86,11 @@ Vector3 PhysicsComponent::GetVeloctyDir() const
 	return velDir;
 }
 
+Vector3 PhysicsComponent::GetAcceleration() const
+{
+	return m_acceleration;
+}
+
 void PhysicsComponent::SetAcceleration(Vector3 acc)
 {
 	m_acceleration = acc;

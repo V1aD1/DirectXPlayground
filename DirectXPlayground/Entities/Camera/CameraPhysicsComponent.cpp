@@ -42,7 +42,7 @@ void CameraPhysicsComponent::AccelerateInDir(Vector3 dir)
 void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
 	if (m_isAccelerating) {
-		SetVelocity(GetVelocity() + m_acceleration * dt);
+		SetVelocity(GetVelocity() + GetAcceleration() * dt);
 		if (GetVelocity().Length() > m_maxSpeed) {
 			SetVelocity(GetVeloctyDir() * m_maxSpeed);
 		}
