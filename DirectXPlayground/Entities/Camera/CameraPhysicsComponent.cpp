@@ -10,15 +10,12 @@ CameraPhysicsComponent::CameraPhysicsComponent(Vector3 pos, Vector3 rotRad) : Ph
 
 void CameraPhysicsComponent::ApplyDrag(float dt)
 {
-	// find direction we're moving in
-	auto vel = GetVelocity();	
-	auto velDir = Vector3(vel);
-	velDir.Normalize();
-	auto dragVel = velDir * -1.0f * m_dragRate * dt;
+	// find direction we're movin in
+	auto dragVel = GetVeloctyDir() * -1.0f * m_dragRate * dt;
 
 	// slow down
-	if (vel.Length() > dragVel.Length()) {
-		SetVelocity(vel + dragVel);
+	if (GetVelocity().Length() > dragVel.Length()) {
+		SetVelocity(GetVelocity() + dragVel);
 	}
 
 	// if velocity is less than drag, then we will start to reverse
@@ -44,22 +41,15 @@ void CameraPhysicsComponent::AccelerateInDir(Vector3 dir)
 
 void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
-	// todo if accelerating
-	//	setup velocityy while accounting for max speed, set acc to 0, then call base update
 	if (m_isAccelerating) {
-		auto vel = GetVelocity();
-		SetVelocity(vel + m_acceleration * dt);
-		if (vel.Length() > m_maxSpeed) {
-
-			// todo create helper method for velocity direction
-			auto velDir = Vector3(vel);
-			velDir.Normalize();
-			SetVelocity(velDir * m_maxSpeed);
+		SetVelocity(GetVelocity() + m_acceleration * dt);
+		if (GetVelocity().Length() > m_maxSpeed) {
+			SetVelocity(GetVeloctyDir() * m_maxSpeed);
 		}
 	}
 
+	// only apply drag if user isn't directly accelerating camera right now
 	else { 
-		// only apply drag if user isn't directly accelerating camera right now
 		ApplyDrag(dt); 
 	}
 	

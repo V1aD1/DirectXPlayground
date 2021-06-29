@@ -43,7 +43,7 @@ void PhysicsComponent::AccelerateInDir(Vector3 dir)
 	m_acceleration = dir * m_accRate;
 }
 
-Vector3 PhysicsComponent::GetRotation()
+Vector3 PhysicsComponent::GetRotation() const
 {
 	return m_rotationRad;
 }
@@ -54,12 +54,12 @@ void PhysicsComponent::SetRotation(Vector3 newRot)
 	UpdateForwardDir();
 }
 
-XMMATRIX PhysicsComponent::GetQuaternion()
+XMMATRIX PhysicsComponent::GetQuaternion() const
 {
 	return m_rotQuaternion;
 }
 
-Vector3 PhysicsComponent::GetPosition()
+Vector3 PhysicsComponent::GetPosition() const
 {
 	return m_position;
 }
@@ -74,9 +74,16 @@ void PhysicsComponent::SetVelocity(Vector3 vel)
 	m_velocity = vel;
 }
 
-const Vector3& PhysicsComponent::GetVelocity()
+Vector3 PhysicsComponent::GetVelocity() const
 {
 	return m_velocity;
+}
+
+Vector3 PhysicsComponent::GetVeloctyDir() const
+{
+	auto velDir = Vector3(m_velocity);
+	velDir.Normalize();
+	return velDir;
 }
 
 void PhysicsComponent::SetAcceleration(Vector3 acc)
@@ -94,17 +101,17 @@ void PhysicsComponent::Decelerate()
 	m_acceleration = -1* m_forward * m_accRate;
 }
 
-XMMATRIX PhysicsComponent::GetTranslation()
+XMMATRIX PhysicsComponent::GetTranslation() const
 {
 	return m_translation;
 }
 
-XMMATRIX PhysicsComponent::GetScale()
+XMMATRIX PhysicsComponent::GetScale() const
 {
 	return m_scale;
 }
 
-Vector3 PhysicsComponent::GetForwardDir()
+Vector3 PhysicsComponent::GetForwardDir() const
 {
 	return m_forward;
 }

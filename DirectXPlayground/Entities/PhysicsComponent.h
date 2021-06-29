@@ -47,28 +47,29 @@ public:
 
 	// velocity
 	void SetVelocity(Vector3 vel);
-	const Vector3& GetVelocity();
+	Vector3 GetVelocity() const;
+	Vector3 GetVeloctyDir() const;
 
 	// acceleration
 	void SetAcceleration(Vector3 acc);
 
 	//rotation
-	Vector3 GetRotation();
+	Vector3 GetRotation() const ;
 	void SetRotation(Vector3 newRot);
-	XMMATRIX GetQuaternion();
+	XMMATRIX GetQuaternion() const;
 
 	//position
-	Vector3 GetPosition();
+	Vector3 GetPosition() const;
 	void SetPosition(Vector3 newPos);
 
 	//translation
-	XMMATRIX GetTranslation();
+	XMMATRIX GetTranslation() const;
 
 	//scale
-	XMMATRIX GetScale();
+	XMMATRIX GetScale() const;
 
 	//forward
-	Vector3 GetForwardDir();
+	Vector3 GetForwardDir() const;
 
 	~PhysicsComponent();
 };
