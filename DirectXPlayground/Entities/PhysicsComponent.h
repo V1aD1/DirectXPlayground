@@ -17,20 +17,18 @@ private:
 	XMMATRIX m_translation{};
 	Vector3 m_rotationRad{};
 	XMMATRIX m_rotQuaternion{};
-	
-	// todo m_forward should be determined according to rotation? Should have Rotate() then
 	Vector3 m_forward{ Vector3::Forward };
+	Vector3 m_velocity{};
 
+private:
 	void UpdateForwardDir();
 
 protected:
-	Vector3 m_velocity{};
+	// todo make private
 	Vector3 m_acceleration{};
 	Vector3 m_position{};
 	XMMATRIX m_scale = XMMatrixScaling(1, 1, 1);
-
 	float m_accRate{ 0 };
-
 	bool m_isAccelerating{ false };
 
 protected:
@@ -38,8 +36,7 @@ protected:
 
 public:
 	PhysicsComponent();
-	PhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale = XMMatrixScaling(1, 1, 1)) : 
-		m_position(pos), m_rotationRad(rotInRad), m_scale(scale) {};
+	PhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale = XMMatrixScaling(1, 1, 1));
 
 	virtual void Accelerate();
 	virtual void Decelerate();
@@ -48,8 +45,11 @@ public:
 	// Accelerates object in a direction without permanently changing its forward direction
 	virtual void AccelerateInDir(Vector3 dir);
 
-	// acceleration
+	// velocity
 	void SetVelocity(Vector3 vel);
+	const Vector3& GetVelocity();
+
+	// acceleration
 	void SetAcceleration(Vector3 acc);
 
 	//rotation

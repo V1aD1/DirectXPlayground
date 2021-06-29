@@ -11,17 +11,19 @@ CameraPhysicsComponent::CameraPhysicsComponent(Vector3 pos, Vector3 rotRad) : Ph
 void CameraPhysicsComponent::ApplyDrag(float dt)
 {
 	// find direction we're moving in
-	auto velDir = Vector3(m_velocity);
+	auto vel = GetVelocity();	
+	auto velDir = Vector3(vel);
 	velDir.Normalize();
 	auto dragVel = velDir * -1.0f * m_dragRate * dt;
 
 	// slow down
-	if (m_velocity.Length() > dragVel.Length()) {
-		m_velocity += dragVel;
+	if (vel.Length() > dragVel.Length()) {
+		SetVelocity(vel + dragVel);
 	}
 
-	// we don't want our drag to reverse us, so set to 0
-	else { m_velocity *= 0; }
+	// if velocity is less than drag, then we will start to reverse
+	// so in this case do NOT apply drag and just set our velocity to 0
+	else { SetVelocity(Vector3{ 0, 0, 0 }); }
 }
 
 void CameraPhysicsComponent::Accelerate() {
@@ -42,18 +44,31 @@ void CameraPhysicsComponent::AccelerateInDir(Vector3 dir)
 
 void CameraPhysicsComponent::Update(Entity& self, float dt)
 {
-	m_velocity += m_acceleration * dt;
-	
-	if (m_velocity.Length() > m_maxSpeed) {
-		m_velocity.Normalize();
-		m_velocity = m_velocity * m_maxSpeed;
+	// todo if accelerating
+	//	setup velocityy while accounting for max speed, set acc to 0, then call base update
+	if (m_isAccelerating) {
+		auto vel = GetVelocity();
+		SetVelocity(vel + m_acceleration * dt);
+		if (vel.Length() > m_maxSpeed) {
+
+			// todo create helper method for velocity direction
+			auto velDir = Vector3(vel);
+			velDir.Normalize();
+			SetVelocity(velDir * m_maxSpeed);
+		}
 	}
 
-	// only apply drag if user isn't directly moving camera right now
-	if (!m_isAccelerating) { ApplyDrag(dt); }
+	else { 
+		// only apply drag if user isn't directly accelerating camera right now
+		ApplyDrag(dt); 
+	}
 	
-	m_position += m_velocity * dt;
-	UpdateTranslation();
+	// need to do this otherwise velocity will inscrease again when calling PhysicsComponent::Update()
+	SetAcceleration(Vector3{});
+	PhysicsComponent::Update(self, dt);
+
+	// todo fixup these physics components!!
+	//	m_velocity etc should all be private! Only accessible through getter methods!!
 	
 	// todo move to ResetFlags()?
 	m_isAccelerating = false;

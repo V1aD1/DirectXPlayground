@@ -5,6 +5,14 @@ PhysicsComponent::PhysicsComponent()
 {
 }
 
+PhysicsComponent::PhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale) :
+	m_position(pos), m_scale(scale)
+{
+	// this operation also sets thhe forward direction,
+	// which is why rotation isn't setup using initializer list
+	SetRotation(rotInRad);
+}
+
 void PhysicsComponent::Update(Entity& self, float dt)
 {
 	m_velocity += m_acceleration * dt;
@@ -64,6 +72,11 @@ void PhysicsComponent::SetPosition(Vector3 newPos)
 void PhysicsComponent::SetVelocity(Vector3 vel)
 {
 	m_velocity = vel;
+}
+
+const Vector3& PhysicsComponent::GetVelocity()
+{
+	return m_velocity;
 }
 
 void PhysicsComponent::SetAcceleration(Vector3 acc)
