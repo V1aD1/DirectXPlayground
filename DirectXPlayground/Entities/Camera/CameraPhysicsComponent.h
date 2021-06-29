@@ -11,7 +11,7 @@ private:
 	void ApplyDrag(float dt);
 
 public:
-	CameraPhysicsComponent();
+	CameraPhysicsComponent(Vector3 pos, Vector3 rotRad);
 
 	void Accelerate() override;
 	void Decelerate() override;

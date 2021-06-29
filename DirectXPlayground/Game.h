@@ -56,8 +56,9 @@ public:
 	// which can be set by you, but not directly accessed or written to
 	ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	ComPtr<ID3D11BlendState> m_blendState; // blend state interface used for handling transparency
-	ComPtr<ID3D11ShaderResourceView> m_texture1;
-	ComPtr<ID3D11ShaderResourceView> m_texture2;
+	ComPtr<ID3D11ShaderResourceView> m_woodTex;
+	ComPtr<ID3D11ShaderResourceView> m_bricksTex;
+	ComPtr<ID3D11ShaderResourceView> m_grassTex;
 	ComPtr<ID3D11SamplerState> m_samplerStates[1]; // sample state interfaces
 
 	bool m_wireFrame;

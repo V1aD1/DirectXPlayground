@@ -11,16 +11,16 @@ void PhysicsComponent::Update(Entity& self, float dt)
 	m_position += m_velocity * dt;
 	UpdateTranslation();
 	
-	auto quaternion = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&(m_rotation)));
+	auto quaternion = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&(m_rotationRad)));
 	m_rotQuaternion = XMMatrixRotationQuaternion(quaternion);
 }
 
 void PhysicsComponent::UpdateForwardDir()
 {
-	float y = -1 * sinf(m_rotation.y);
-	float r = cosf(m_rotation.y);
-	float z = r * cosf(m_rotation.x);
-	float x = r * sinf(m_rotation.x);
+	float y = -1 * sinf(m_rotationRad.y);
+	float r = cosf(m_rotationRad.y);
+	float z = r * cosf(m_rotationRad.x);
+	float x = r * sinf(m_rotationRad.x);
 	m_forward = Vector3(x, y, z);
 }
 
@@ -37,12 +37,12 @@ void PhysicsComponent::AccelerateInDir(Vector3 dir)
 
 Vector3 PhysicsComponent::GetRotation()
 {
-	return m_rotation;
+	return m_rotationRad;
 }
 
 void PhysicsComponent::SetRotation(Vector3 newRot)
 {
-	m_rotation = newRot;
+	m_rotationRad = newRot;
 	UpdateForwardDir();
 }
 

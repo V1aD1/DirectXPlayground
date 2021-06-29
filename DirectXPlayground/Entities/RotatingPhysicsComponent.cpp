@@ -2,7 +2,8 @@
 #include "RotatingPhysicsComponent.h"
 
 
-RotatingPhysicsComponent::RotatingPhysicsComponent()
+RotatingPhysicsComponent::RotatingPhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale) : 
+	PhysicsComponent(pos, rotInRad, scale)
 {
 }
 

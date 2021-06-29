@@ -61,6 +61,9 @@
     <Image Include="ball.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="grass.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PixelShader2.hlsl" />

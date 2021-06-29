@@ -266,6 +266,7 @@
     <Image Include="Assets\SplashScreen.png" />
     <Image Include="ball.png" />
     <Image Include="bricks.png" />
+    <Image Include="grass.png" />
     <Image Include="Wood.png" />
   </ItemGroup>
   <ItemGroup>

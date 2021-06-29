@@ -15,7 +15,7 @@ class PhysicsComponent
 {
 private:
 	XMMATRIX m_translation{};
-	Vector3 m_rotation{};
+	Vector3 m_rotationRad{};
 	XMMATRIX m_rotQuaternion{};
 	
 	// todo m_forward should be determined according to rotation? Should have Rotate() then
@@ -38,8 +38,8 @@ protected:
 
 public:
 	PhysicsComponent();
-	PhysicsComponent(Vector3 pos, Vector3 rot, XMMATRIX scale = XMMatrixScaling(1, 1, 1)) : 
-		m_position(pos), m_rotation(rot), m_scale(scale) {};
+	PhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale = XMMatrixScaling(1, 1, 1)) : 
+		m_position(pos), m_rotationRad(rotInRad), m_scale(scale) {};
 
 	virtual void Accelerate();
 	virtual void Decelerate();
