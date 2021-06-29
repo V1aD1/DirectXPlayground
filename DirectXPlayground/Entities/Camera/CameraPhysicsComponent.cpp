@@ -56,9 +56,6 @@ void CameraPhysicsComponent::Update(Entity& self, float dt)
 	// need to do this otherwise velocity will inscrease again when calling PhysicsComponent::Update()
 	SetAcceleration(Vector3{});
 	PhysicsComponent::Update(self, dt);
-
-	// todo fixup these physics components!!
-	//	m_velocity etc should all be private! Only accessible through getter methods!!
 	
 	// todo move to ResetFlags()?
 	m_isAccelerating = false;

@@ -269,20 +269,17 @@ void CGame::AddEntitiesToWorld()
 {
 	auto cube1Graphics = new CubeGraphicsComponent();
 	cube1Graphics->AddTexture(m_woodTex);
-	cube1Graphics->AddTexture(m_bricksTex);
 	auto cube1 = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{5, 3, 0}), cube1Graphics);
 	m_entities.push_back(cube1);
 
 	auto cube2Physics = new PhysicsComponent(Vector3{ -4, 4, 0 }, Vector3{}, XMMatrixScaling(4, 2, 4));
 	auto cube2Graphics = new CubeGraphicsComponent();
-	cube2Graphics->AddTexture(m_woodTex);
 	cube2Graphics->AddTexture(m_bricksTex);
 	auto cube2 = new Entity(nullptr, cube2Physics, cube2Graphics);
 	m_entities.push_back(cube2);
 
-	auto groundGraphics = new CubeGraphicsComponent();
+	auto groundGraphics = new CubeGraphicsComponent(10);
 	groundGraphics->AddTexture(m_grassTex);
-	//groundGraphics->AddTexture(m_bricksTex);
 	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.1f)), groundGraphics);
 	m_entities.push_back(ground);
 

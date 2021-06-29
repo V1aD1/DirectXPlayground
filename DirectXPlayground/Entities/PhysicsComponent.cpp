@@ -8,7 +8,7 @@ PhysicsComponent::PhysicsComponent()
 PhysicsComponent::PhysicsComponent(Vector3 pos, Vector3 rotInRad, XMMATRIX scale) :
 	m_position(pos), m_scale(scale)
 {
-	// this operation also sets thhe forward direction,
+	// this operation also sets the forward direction,
 	// which is why rotation isn't setup using initializer list
 	SetRotation(rotInRad);
 }
