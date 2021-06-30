@@ -4,7 +4,7 @@
 class CubeGraphicsComponent : public GraphicsComponent
 {
 public:
-	CubeGraphicsComponent(float textLim = 1.0f);
+	CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim = 1.0f);
 	~CubeGraphicsComponent();
 };
 

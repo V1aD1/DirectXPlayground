@@ -54,6 +54,9 @@ public:
 		// load shader files (.hlsl files become .cso files after compilation)
 		AddVertexShader(VertexShaders::Texture, "TextureVS.cso", dev);
 		AddPixelShader(PixelShaders::Texture, "TexturePS.cso", dev);
+
+		AddVertexShader(VertexShaders::ShinyMat, "ShinyMatVS.cso", dev);
+		AddPixelShader(PixelShaders::ShinyMat, "ShinyMatPS.cso", dev);
 	}
 
 	VertexShader* GetVertexShader(VertexShaders key) { return m_vertexShaders[key]; };

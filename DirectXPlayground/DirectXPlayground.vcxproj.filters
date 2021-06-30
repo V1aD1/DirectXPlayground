@@ -30,7 +30,6 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="ShaderManager.h" />
@@ -44,6 +43,7 @@
     <ClInclude Include="Entities\GraphicsComponent.h" />
     <ClInclude Include="Entities\RotatingPhysicsComponent.h" />
     <ClInclude Include="Entities\Cube\CubeGraphicsComponent.h" />
+    <ClInclude Include="ConstantBuffers.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -72,6 +72,8 @@
     <FxCompile Include="Shaders\Test.hlsl" />
     <FxCompile Include="Shaders\FirstPS.hlsl" />
     <FxCompile Include="Shaders\FirstVS.hlsl" />
+    <FxCompile Include="Shaders\ShinyMatVS.hlsl" />
+    <FxCompile Include="Shaders\ShinyMatPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

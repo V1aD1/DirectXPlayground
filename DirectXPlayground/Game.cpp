@@ -9,7 +9,7 @@
 #include <d3dcompiler.h>
 
 #include "ShaderManager.h"
-#include "ConstantBuffer.h"
+#include "ConstantBuffers.h"
 #include "Logger.h"
 
 #include "Entities/Camera/CameraInputComponent.h"
@@ -267,18 +267,18 @@ void CGame::InitStates()
 
 void CGame::AddEntitiesToWorld()
 {
-	auto cube1Graphics = new CubeGraphicsComponent();
+	auto cube1Graphics = new CubeGraphicsComponent(VertexShaders::Texture, PixelShaders::Texture);
 	cube1Graphics->AddTexture(m_woodTex);
 	auto cube1 = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{5, 3, 0}), cube1Graphics);
 	m_entities.push_back(cube1);
 
 	auto cube2Physics = new PhysicsComponent(Vector3{ -4, 4, 0 }, Vector3{}, XMMatrixScaling(4, 2, 4));
-	auto cube2Graphics = new CubeGraphicsComponent();
+	auto cube2Graphics = new CubeGraphicsComponent(VertexShaders::Texture, PixelShaders::Texture);
 	cube2Graphics->AddTexture(m_bricksTex);
 	auto cube2 = new Entity(nullptr, cube2Physics, cube2Graphics);
 	m_entities.push_back(cube2);
 
-	auto groundGraphics = new CubeGraphicsComponent(10);
+	auto groundGraphics = new CubeGraphicsComponent(VertexShaders::Texture, PixelShaders::Texture, 10);
 	groundGraphics->AddTexture(m_grassTex);
 	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.1f)), groundGraphics);
 	m_entities.push_back(ground);
@@ -339,23 +339,25 @@ void CGame::Render() {
 	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
 	m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
 
-	// create the constant buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.Usage = D3D11_USAGE_DEFAULT;
-
-	// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-	bd.ByteWidth = sizeof(CONSTANTBUFFER);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-
-	m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-	m_devCon->RSSetState(m_rasterizerState.Get());
-
 	// todo iterate over our shaders and render those entities
 	// iterate over our entities and render them
 	for (auto&& entity : m_entities) {
 		if (!entity->m_graphics) { continue; }
+
+		// todo constant buffers change depending on the shader we're using 
+		
+		// create the constant buffer
+		D3D11_BUFFER_DESC bd = { 0 };
+		bd.Usage = D3D11_USAGE_DEFAULT;
+
+		// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
+		bd.ByteWidth = sizeof(CONSTANTBUFFER);
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
+
+		m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+		//m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
+		m_devCon->RSSetState(m_rasterizerState.Get());
 
 		auto graphics = entity->m_graphics;
 		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShader);
@@ -393,7 +395,7 @@ void CGame::Render() {
 		// set constant buffer
 		m_constBufferValues->matFinal = matFinal;
 		m_constBufferValues->rotation = entity->m_physics->GetQuaternion();
-		m_constBufferValues->ambientColor = XMVectorSet(0.2f, 0.2f, 0.2f, 1.0f); // the higher the RGB values, the brighter the light
+		m_constBufferValues->ambientColor = XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f); // the higher the RGB values, the brighter the light
 		m_constBufferValues->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
 		m_constBufferValues->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, m_constBufferValues, 0, 0);

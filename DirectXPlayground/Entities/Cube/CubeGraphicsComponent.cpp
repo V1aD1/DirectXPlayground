@@ -2,7 +2,7 @@
 #include "CubeGraphicsComponent.h"
 
 // todo account for Cube size, texture, shaders (use fluent builder for this?)
-CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
+CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim)
 {
 	m_vertices = {
 		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
@@ -54,8 +54,8 @@ CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
 	// todo maybe factory should call this method...
 	SetupBuffers();
 
-	m_vertexShader = VertexShaders::Texture;
-	m_pixelShader = PixelShaders::Texture;
+	m_vertexShader = vs;
+	m_pixelShader = ps;
 }
 
 
