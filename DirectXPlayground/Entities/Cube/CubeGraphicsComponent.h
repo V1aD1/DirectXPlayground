@@ -5,6 +5,9 @@ class CubeGraphicsComponent : public GraphicsComponent
 {
 public:
 	CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim = 1.0f);
+
+	const void* GetConstBufferValues() override;
+
 	~CubeGraphicsComponent();
 };
 

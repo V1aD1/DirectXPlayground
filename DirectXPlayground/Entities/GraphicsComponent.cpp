@@ -14,6 +14,11 @@ void GraphicsComponent::Update(Entity& self, float dt) {
 
 }
 
+const void * GraphicsComponent::GetConstBufferValues()
+{
+	return nullptr;
+}
+
 void GraphicsComponent::SetupBuffers() {
 	// struct specifying properties of the buffer
 	m_vbDesc = { 0 };

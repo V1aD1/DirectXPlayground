@@ -344,14 +344,17 @@ void CGame::Render() {
 	for (auto&& entity : m_entities) {
 		if (!entity->m_graphics) { continue; }
 
-		// todo constant buffers change depending on the shader we're using 
-		
+		auto graphics = entity->m_graphics;
+		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShader);
+		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
+		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShader).Get(), nullptr, 0);
+
 		// create the constant buffer
 		D3D11_BUFFER_DESC bd = { 0 };
 		bd.Usage = D3D11_USAGE_DEFAULT;
 
 		// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-		bd.ByteWidth = sizeof(CONSTANTBUFFER);
+		bd.ByteWidth = vs->m_constBufferSize;
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
 
@@ -359,11 +362,7 @@ void CGame::Render() {
 		//m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 		m_devCon->RSSetState(m_rasterizerState.Get());
 
-		auto graphics = entity->m_graphics;
-		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShader);
-		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShader).Get(), nullptr, 0);
-
+		// todo should be done depending on the PS used
 		for (int i = 0; i < graphics->m_textures.size(); i++) {
 			m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
 		}
@@ -392,6 +391,8 @@ void CGame::Render() {
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
+		// todo this needs to be done on a per graphics component basis. Something like:
+		// graphics->GetConstBuffer(matFinal, rotation, ) ??
 		// set constant buffer
 		m_constBufferValues->matFinal = matFinal;
 		m_constBufferValues->rotation = entity->m_physics->GetQuaternion();

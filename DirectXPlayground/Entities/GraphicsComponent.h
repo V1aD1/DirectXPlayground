@@ -35,5 +35,6 @@ public:
 
 	void AddTexture(ComPtr<ID3D11ShaderResourceView> texture);
 	virtual void Update(Entity& self, float dt);
+	virtual const void* GetConstBufferValues();
 };
 

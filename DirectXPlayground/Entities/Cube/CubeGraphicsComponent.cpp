@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CubeGraphicsComponent.h"
+#include "ConstantBuffers.h"
 
 // todo account for Cube size, texture, shaders (use fluent builder for this?)
 CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim)
@@ -56,6 +57,12 @@ CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, 
 
 	m_vertexShader = vs;
 	m_pixelShader = ps;
+}
+
+const void * CubeGraphicsComponent::GetConstBufferValues()
+{
+	CONSTANTBUFFER* constBufferValues = new CONSTANTBUFFER();
+	return nullptr;
 }
 
 

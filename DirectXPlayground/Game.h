@@ -12,7 +12,7 @@ class InputHandler;
 class Entity;
 class ShaderManager;
 class Camera;
-class CONSTANTBUFFER;
+struct CONSTANTBUFFER;
 
 class CGame {
 public:
