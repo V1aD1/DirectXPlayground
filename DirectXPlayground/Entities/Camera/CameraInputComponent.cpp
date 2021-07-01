@@ -32,11 +32,11 @@ void CameraInputComponent::Update(Entity& self, float dt, const InputHandler& in
 		physics->AccelerateInDir(dir);
 	}
 	if (inputHandler.qKeyFlag) {
-		auto dir = Vector3::Up;
+		auto dir = Vector3::Down;
 		physics->AccelerateInDir(dir);
 	}
 	if (inputHandler.eKeyFlag) {
-		auto dir = Vector3::Down;
+		auto dir = Vector3::Up;
 		physics->AccelerateInDir(dir);
 	}
 

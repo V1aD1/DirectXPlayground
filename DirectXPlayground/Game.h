@@ -43,7 +43,8 @@ public:
 	
 	ComPtr<ID3D11Buffer> m_indexBuffer;
 
-	ComPtr<ID3D11Buffer> m_constantBuffer;
+	ComPtr<ID3D11Buffer> m_VSConstantBuffer;
+	ComPtr<ID3D11Buffer> m_PSConstantBuffer;
 
 	ComPtr<ID3D11DepthStencilView> m_zBuffer;
 

@@ -55,8 +55,8 @@ CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, 
 	// todo maybe factory should call this method...
 	SetupBuffers();
 
-	m_vertexShader = vs;
-	m_pixelShader = ps;
+	m_vertexShaderId = vs;
+	m_pixelShaderId = ps;
 }
 
 const void * CubeGraphicsComponent::GetConstBufferValues()

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <streambuf>
 #include <d3dcompiler.h>
+#include <vector>
 
 #include "ShaderManager.h"
 #include "ConstantBuffers.h"
@@ -338,6 +339,7 @@ void CGame::Render() {
 	m_devCon->OMSetBlendState(m_blendState.Get(), 0, 0xffffffff);
 	m_devCon->OMSetDepthStencilState(s_depthEnabledStencilState.Get(), 0);
 	m_devCon->PSSetSamplers(0, 1, m_samplerStates[0].GetAddressOf());
+	m_devCon->RSSetState(m_rasterizerState.Get()); // todo figure out how to use this? It's not used anywhere...
 
 	// todo iterate over our shaders and render those entities
 	// iterate over our entities and render them
@@ -345,62 +347,43 @@ void CGame::Render() {
 		if (!entity->m_graphics) { continue; }
 
 		auto graphics = entity->m_graphics;
-		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShader);
-		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShader).Get(), nullptr, 0);
-
-		// create the constant buffer
-		D3D11_BUFFER_DESC bd = { 0 };
-		bd.Usage = D3D11_USAGE_DEFAULT;
-
-		// constant buffers MUST be multiples of 16 bytes. If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
-		bd.ByteWidth = vs->m_constBufferSize;
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		m_dev->CreateBuffer(&bd, nullptr, &m_constantBuffer);
-
-		m_devCon->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-		//m_devCon->PSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
-		m_devCon->RSSetState(m_rasterizerState.Get());
-
-		// todo should be done depending on the PS used
-		for (int i = 0; i < graphics->m_textures.size(); i++) {
-			m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
-		}
-
-		// initialize input layout
-		D3D11_INPUT_ELEMENT_DESC ied[] = {
-			// 5th param specifies on which byte the new piece of info starts
-			// so position starts on byte 0, next on byte 12 etc
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		m_dev->CreateInputLayout(ied, ARRAYSIZE(ied), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
-		m_devCon->IASetInputLayout(m_inputLayout.Get());
+		VertexShader* vs = m_shaderManager->GetVertexShader(graphics->m_vertexShaderId);
 
 		// buffer work
 		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
 		m_dev->CreateBuffer(&(graphics->m_ibDesc), &(graphics->m_indexData), &m_indexBuffer);
 		m_devCon->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-
 		m_devCon->IASetPrimitiveTopology(graphics->m_topology);
+
+		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
+		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(graphics->m_pixelShaderId).Get(), nullptr, 0);
+
+		m_dev->CreateBuffer(&(vs->GetConstBufferDesc()), nullptr, &m_VSConstantBuffer);
+		m_devCon->VSSetConstantBuffers(0, 1, m_VSConstantBuffer.GetAddressOf());
+
+		// todo setup ps constant buffer in a similar way to vs constant buffer
+		//m_devCon->PSSetConstantBuffers(0, 1, m_PSConstantBuffer.GetAddressOf());
+		
+		// todo should be done depending on the PS used
+		// maybe in PixelShader.SetupResources(IGraphicsComponent) or something
+		// and IGraphicsComponent has a member GetResources() or something
+		// actually we kinda already do that now...
+		for (int i = 0; i < graphics->m_textures.size(); i++) {
+			m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
+		}
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> ied = vs->GetInputLayout();
+
+		m_dev->CreateInputLayout(&ied[0], ied.size(), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
+		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
-		// todo this needs to be done on a per graphics component basis. Something like:
-		// graphics->GetConstBuffer(matFinal, rotation, ) ??
 		// set constant buffer
-		m_constBufferValues->matFinal = matFinal;
-		m_constBufferValues->rotation = entity->m_physics->GetQuaternion();
-		m_constBufferValues->ambientColor = XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f); // the higher the RGB values, the brighter the light
-		m_constBufferValues->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-		m_constBufferValues->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
-		m_devCon->UpdateSubresource(m_constantBuffer.Get(), 0, 0, m_constBufferValues, 0, 0);
-
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, vs->GetConstBufferVals(matFinal, entity->m_physics->GetQuaternion()), 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 
