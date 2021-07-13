@@ -4,7 +4,7 @@
 class CubeGraphicsComponent : public GraphicsComponent
 {
 public:
-	CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim = 1.0f);
+	CubeGraphicsComponent(float textLim = 1.0f);
 
 	const void* GetConstBufferValues() override;
 

@@ -1,4 +1,2 @@
 #pragma once
-
-enum class VertexShaders { Texture, ShinyMat };
-enum class PixelShaders { Texture, ShinyMat };
+enum class Shaders{Texture, ShinyMat};

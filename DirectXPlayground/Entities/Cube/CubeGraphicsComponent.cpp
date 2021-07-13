@@ -3,7 +3,7 @@
 #include "ConstantBuffers.h"
 
 // todo account for Cube size, texture, shaders (use fluent builder for this?)
-CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, float textLim)
+CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
 {
 	m_vertices = {
 		{ -1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f },    // side 1
@@ -54,9 +54,6 @@ CubeGraphicsComponent::CubeGraphicsComponent(VertexShaders vs, PixelShaders ps, 
 
 	// todo maybe factory should call this method...
 	SetupBuffers();
-
-	m_vertexShaderId = vs;
-	m_pixelShaderId = ps;
 }
 
 const void * CubeGraphicsComponent::GetConstBufferValues()

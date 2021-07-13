@@ -24,12 +24,12 @@ struct IShader {
 	ComPtr<ID3D11VertexShader> m_directXShaderObj;
 	int m_constBufferSize;
 
-	virtual const void* GetConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) = 0;
+	virtual const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) = 0;
 	virtual D3D11_BUFFER_DESC GetConstBufferDesc() = 0;
 };
 
 struct VertexShader : IShader {
-	VertexShaders key;
+	Shaders m_key;
 	Array<byte>^ m_vsFile;
 
 	D3D11_BUFFER_DESC GetConstBufferDesc() override {
@@ -56,7 +56,10 @@ struct VertexShader : IShader {
 		return ied;
 	}
 
-	const void* GetConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) override {
+	// todo move out... but to where?
+	// probably to Entity, since there I'll have access to all the info needed
+	// to create matFinal, rotation, etc
+	const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) override {
 		CONSTANTBUFFER* constBufVals = new CONSTANTBUFFER();
 
 		constBufVals->matFinal = matFinal;
@@ -71,11 +74,11 @@ struct VertexShader : IShader {
 
 class ShaderManager {
 private:
-	std::map<VertexShaders, VertexShader*> m_vertexShaders{};
-	std::map<PixelShaders, ComPtr<ID3D11PixelShader>> m_pixelShaders{};
+	std::map<Shaders, VertexShader*> m_vertexShaders{};
+	std::map<Shaders, ComPtr<ID3D11PixelShader>> m_pixelShaders{};
 
 private:
-	void AddVertexShader(VertexShaders key, std::string path, ComPtr<ID3D11Device1> dev, int constBufSize) {
+	void AddVertexShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev, int constBufSize) {
 		Array<byte>^ vsFile = LoadShaderFile(path);
 		ComPtr<ID3D11VertexShader> vertexShader = {};
 		dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, vertexShader.GetAddressOf());
@@ -84,11 +87,11 @@ private:
 		vs->m_directXShaderObj = vertexShader;
 		vs->m_vsFile = vsFile;
 		vs->m_constBufferSize = constBufSize; // todo determine this based on Vertex Shader key
-		vs->key = key;
+		vs->m_key = key;
 		m_vertexShaders[key] = vs;
 	}
 
-	void AddPixelShader(PixelShaders key, std::string path, ComPtr<ID3D11Device1> dev) {
+	void AddPixelShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev) {
 		Array<byte>^ psFile = LoadShaderFile(path);
 		ComPtr<ID3D11PixelShader> pixelShader = {};
 		dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, pixelShader.GetAddressOf());
@@ -96,16 +99,23 @@ private:
 	}
 
 public:
+	std::map<Shaders, std::vector<Entity*>> m_shadersMap{};
+
+public:
 	ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 		// load shader files (.hlsl files become .cso files after compilation)
-		AddVertexShader(VertexShaders::Texture, "TextureVS.cso", dev, sizeof(CONSTANTBUFFER));
-		AddPixelShader(PixelShaders::Texture, "TexturePS.cso", dev);
+		AddVertexShader(Shaders::Texture, "TextureVS.cso", dev, sizeof(CONSTANTBUFFER));
+		AddPixelShader(Shaders::Texture, "TexturePS.cso", dev);
 
-		AddVertexShader(VertexShaders::ShinyMat, "ShinyMatVS.cso", dev, sizeof(SHINYMATCONSTBUFF));
-		AddPixelShader(PixelShaders::ShinyMat, "ShinyMatPS.cso", dev);
+		AddVertexShader(Shaders::ShinyMat, "ShinyMatVS.cso", dev, sizeof(SHINYMATCONSTBUFF));
+		AddPixelShader(Shaders::ShinyMat, "ShinyMatPS.cso", dev);
 	}
 
-	VertexShader* GetVertexShader(VertexShaders key) { return m_vertexShaders[key]; };
-	ComPtr<ID3D11PixelShader> GetPixelShader(PixelShaders key) { return m_pixelShaders[key]; };
+	void AddEntityToShaders(Shaders shader, Entity* entity) {
+		m_shadersMap[shader].push_back(entity);
+	}
+
+	VertexShader* GetVertexShader(Shaders key) { return m_vertexShaders[key]; };
+	ComPtr<ID3D11PixelShader> GetPixelShader(Shaders key) { return m_pixelShaders[key]; };
 };

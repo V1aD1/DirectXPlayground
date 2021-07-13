@@ -21,8 +21,6 @@ public:
 	D3D11_SUBRESOURCE_DATA m_indexData{};
 	std::vector<VERTEX> m_vertices{};
 	std::vector<short> m_indices{};
-	VertexShaders m_vertexShaderId{};
-	PixelShaders m_pixelShaderId{};
 	std::vector<ComPtr<ID3D11ShaderResourceView>> m_textures{};
 	D3D_PRIMITIVE_TOPOLOGY m_topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
