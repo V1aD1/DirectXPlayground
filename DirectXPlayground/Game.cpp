@@ -385,8 +385,15 @@ void CGame::Render() {
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
-		// set constant buffer
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, vs->GetTextureVSConstBufferVals(matFinal, entity->m_physics->GetQuaternion()), 0, 0);
+		// create constant buffer
+		std::unique_ptr<CONSTANTBUFFER> constBufVals(new CONSTANTBUFFER());
+		constBufVals->matFinal = matFinal;
+		constBufVals->rotation = entity->m_physics->GetQuaternion();
+		constBufVals->ambientColor = XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f); // the higher the RGB values, the brighter the light
+		constBufVals->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		constBufVals->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBufVals.get(), 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 
@@ -419,8 +426,13 @@ void CGame::Render() {
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
-		// set constant buffer
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, vs->GetTextureVSConstBufferVals(matFinal, entity->m_physics->GetQuaternion()), 0, 0);
+		// create constant buffer
+		std::unique_ptr<SHINYMATCONSTBUFF> constBufVals(new SHINYMATCONSTBUFF());
+		constBufVals->matFinal = matFinal;
+		constBufVals->rotation = entity->m_physics->GetQuaternion();
+		constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
+
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBufVals.get(), 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 
