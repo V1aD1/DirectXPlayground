@@ -22,6 +22,8 @@ struct CONSTANTBUFFER {
 struct SHINYMATCONSTBUFF {
 	XMMATRIX matFinal{}; // 16 byte alligned
 	XMMATRIX rotation{}; // 16 byte alligned
-
 	XMVECTOR color{}; // 16 byte alligned
+	XMFLOAT3 position{}; // NOT 16 byte alligned!
+	float padding1; // now we're good
+
 };

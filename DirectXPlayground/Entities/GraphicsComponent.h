@@ -15,8 +15,8 @@ using namespace Windows::System;
 class GraphicsComponent
 {
 public:
-	D3D11_BUFFER_DESC m_vbDesc{};
-	D3D11_BUFFER_DESC m_ibDesc{};
+	D3D11_BUFFER_DESC m_vbDesc{}; // should be moved out to VertexShader
+	D3D11_BUFFER_DESC m_ibDesc{}; // should be moved out to VertexShader
 	D3D11_SUBRESOURCE_DATA m_vertexData{};
 	D3D11_SUBRESOURCE_DATA m_indexData{};
 	std::vector<VERTEX> m_vertices{};

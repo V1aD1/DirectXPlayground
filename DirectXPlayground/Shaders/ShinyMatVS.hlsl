@@ -2,6 +2,9 @@ cbuffer ConstantBuffer {
 	float4x4 final;
 	float4x4 rotation;
 	float4 materialCol;
+
+	float3 cameraPos;
+	float padding;
 }
 
 struct VOut {
@@ -9,7 +12,7 @@ struct VOut {
 	float4 color: COLOR;
 };
 
-VOut main(float4 pos : POSITION, float4 normal : NORMAL)
+VOut main(float4 pos : POSITION, float4 normal : NORMAL, float2 texCoord : TEXCOORD)
 {
 	//ViewingDirection = CameraPosition - VertexPosition
 	//ReflectionVector = 2 * LightIntensity * VertexNormal - LightDirection

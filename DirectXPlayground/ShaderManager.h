@@ -20,19 +20,12 @@ using namespace Windows::System;
 // this function loads a file into an Array^
 Array<byte>^ LoadShaderFile(std::string file);
 
+// todo move to proper file
 struct IShader {
 	ComPtr<ID3D11VertexShader> m_directXShaderObj;
 	int m_constBufferSize;
 
-	virtual const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) = 0;
-	virtual D3D11_BUFFER_DESC GetConstBufferDesc() = 0;
-};
-
-struct VertexShader : IShader {
-	Shaders m_key;
-	Array<byte>^ m_vsFile;
-
-	D3D11_BUFFER_DESC GetConstBufferDesc() override {
+	D3D11_BUFFER_DESC GetConstBufferDesc() {
 		D3D11_BUFFER_DESC vsbd = { 0 };
 		vsbd.Usage = D3D11_USAGE_DEFAULT;
 
@@ -43,8 +36,17 @@ struct VertexShader : IShader {
 		return vsbd;
 	}
 
-	// todo build this according to VertexShaders key
-	std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
+	virtual const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) = 0;
+	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
+};
+
+// todo move to proper file
+struct VertexShader : IShader {
+	Shaders m_key;
+	Array<byte>^ m_vsFile;
+
+	// todo remove from here and only implement in TextureVertexShader, SHinyMatVertexShader etc
+	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
 			// 5th param specifies on which byte the new piece of info starts
 			// so position starts on byte 0, next on byte 12 etc
@@ -59,6 +61,33 @@ struct VertexShader : IShader {
 	// todo move out... but to where?
 	// probably to Entity, since there I'll have access to all the info needed
 	// to create matFinal, rotation, etc
+	virtual const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) override {
+		CONSTANTBUFFER* constBufVals = new CONSTANTBUFFER();
+
+		constBufVals->matFinal = matFinal;
+		constBufVals->rotation = rot;
+		constBufVals->ambientColor = XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f); // the higher the RGB values, the brighter the light
+		constBufVals->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		constBufVals->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+
+		return constBufVals;
+	}
+};
+
+struct TextureVertexShader : public VertexShader {
+	std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() override {
+		std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
+			// 5th param specifies on which byte the new piece of info starts
+			// so position starts on byte 0, next on byte 12 etc
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT , 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		return ied;
+	}
+
+	// todo should return unique_ptr
 	const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) override {
 		CONSTANTBUFFER* constBufVals = new CONSTANTBUFFER();
 
@@ -91,6 +120,20 @@ private:
 		m_vertexShaders[key] = vs;
 	}
 
+	// todo should use and split up into SetupVS and AddVS or something...
+	void SetupAndAddVertexShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev, VertexShader* vs, int constBufSize) {
+		Array<byte>^ vsFile = LoadShaderFile(path);
+		ComPtr<ID3D11VertexShader> vertexShader = {};
+		dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, vertexShader.GetAddressOf());
+
+		vs->m_directXShaderObj = vertexShader;
+		vs->m_vsFile = vsFile;
+		vs->m_constBufferSize = constBufSize; // todo determine this based on Vertex Shader key
+		vs->m_key = key;
+
+		m_vertexShaders[key] = vs;
+	}
+
 	void AddPixelShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev) {
 		Array<byte>^ psFile = LoadShaderFile(path);
 		ComPtr<ID3D11PixelShader> pixelShader = {};
@@ -105,7 +148,7 @@ public:
 	ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 		// load shader files (.hlsl files become .cso files after compilation)
-		AddVertexShader(Shaders::Texture, "TextureVS.cso", dev, sizeof(CONSTANTBUFFER));
+		SetupAndAddVertexShader(Shaders::Texture, "TextureVS.cso", dev, new TextureVertexShader(), sizeof(CONSTANTBUFFER));
 		AddPixelShader(Shaders::Texture, "TexturePS.cso", dev);
 
 		AddVertexShader(Shaders::ShinyMat, "ShinyMatVS.cso", dev, sizeof(SHINYMATCONSTBUFF));
