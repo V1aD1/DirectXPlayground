@@ -26,6 +26,9 @@
     <ClCompile Include="Entities\GraphicsComponent.cpp" />
     <ClCompile Include="Entities\RotatingPhysicsComponent.cpp" />
     <ClCompile Include="Entities\Cube\CubeGraphicsComponent.cpp" />
+    <ClCompile Include="Shaders\TextureShader.cpp" />
+    <ClCompile Include="Shaders\IShader.cpp" />
+    <ClCompile Include="Shaders\ShinyMatShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -44,6 +47,10 @@
     <ClInclude Include="Entities\RotatingPhysicsComponent.h" />
     <ClInclude Include="Entities\Cube\CubeGraphicsComponent.h" />
     <ClInclude Include="ConstantBuffers.h" />
+    <ClInclude Include="Shaders\TextureShader.h" />
+    <ClInclude Include="Shaders\IShader.h" />
+    <ClInclude Include="Shaders\IVertexShader.h" />
+    <ClInclude Include="Shaders\ShinyMatShader.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

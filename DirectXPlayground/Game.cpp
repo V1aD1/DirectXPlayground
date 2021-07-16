@@ -354,7 +354,7 @@ void CGame::Render() {
 		if (!entity->m_graphics) { continue; }
 
 		auto graphics = entity->m_graphics;
-		VertexShader* vs = m_shaderManager->GetVertexShader(Shaders::Texture);
+		IVertexShader* vs = m_shaderManager->GetVertexShader(Shaders::Texture);
 
 		// buffer work
 		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
@@ -394,7 +394,7 @@ void CGame::Render() {
 		if (!entity->m_graphics) { continue; }
 
 		auto graphics = entity->m_graphics;
-		VertexShader* vs = m_shaderManager->GetVertexShader(Shaders::ShinyMat);
+		IVertexShader* vs = m_shaderManager->GetVertexShader(Shaders::ShinyMat);
 
 		// buffer work
 		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
