@@ -28,7 +28,6 @@ public:
 private:
 	// todo should use and split up into SetupVS and AddVS or something...
 	void SetupAndAddVertexShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev, IVertexShader* vs, int constBufSize);
-	void AddVertexShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev, int constBufSize);
 	void AddPixelShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev);
 
 public:
