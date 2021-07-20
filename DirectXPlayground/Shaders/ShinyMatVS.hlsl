@@ -12,7 +12,7 @@ struct VOut {
 	float4 color: COLOR;
 };
 
-VOut main(float4 pos : POSITION, float4 normal : NORMAL, float2 texCoord : TEXCOORD)
+VOut main(float4 pos : POSITION, float4 normal : NORMAL)
 {
 	//ViewingDirection = CameraPosition - VertexPosition
 	//ReflectionVector = 2 * LightIntensity * VertexNormal - LightDirection

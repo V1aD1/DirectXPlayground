@@ -59,7 +59,7 @@ const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMAT
 	constBufVals->matFinal = matFinal;
 	constBufVals->rotation = rot;
 	constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
-	constBufVals->position = camPos;
+	constBufVals->camPos = camPos;
 
 	return constBufVals;
 }
