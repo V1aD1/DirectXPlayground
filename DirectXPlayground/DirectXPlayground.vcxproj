@@ -260,6 +260,7 @@
     </ClCompile>
     <ClCompile Include="Entities\PhysicsComponent.cpp" />
     <ClCompile Include="Entities\RotatingPhysicsComponent.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Shaders\TextureShader.cpp" />
     <ClCompile Include="Shaders\IShader.cpp" />
     <ClCompile Include="Shaders\ShinyMatShader.cpp" />

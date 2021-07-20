@@ -29,6 +29,7 @@
     <ClCompile Include="Shaders\TextureShader.cpp" />
     <ClCompile Include="Shaders\IShader.cpp" />
     <ClCompile Include="Shaders\ShinyMatShader.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

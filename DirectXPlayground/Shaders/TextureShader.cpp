@@ -28,15 +28,3 @@ std::vector<D3D11_INPUT_ELEMENT_DESC> TextureVS::GetInputLayout() {
 
 	return ied;
 }
-
-const void* TextureVS::GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) {
-	CONSTANTBUFFER* constBufVals = new CONSTANTBUFFER();
-
-	constBufVals->matFinal = matFinal;
-	constBufVals->rotation = rot;
-	constBufVals->ambientColor = XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f); // the higher the RGB values, the brighter the light
-	constBufVals->diffuseColor = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-	constBufVals->diffuseVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
-
-	return constBufVals;
-}

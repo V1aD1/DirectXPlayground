@@ -13,7 +13,5 @@ struct IShader {
 	int m_constBufferSize;
 
 	D3D11_BUFFER_DESC GetConstBufferDesc();
-
-	virtual const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) = 0;
 };
 

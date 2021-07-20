@@ -20,6 +20,8 @@
 #include "Entities/Entity.h"
 #include "Entities/Cube/CubeGraphicsComponent.h"
 
+#include "Shaders/IVertexShader.h"
+
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
 ComPtr<ID3D11RasterizerState> CGame::s_wireframeRasterState;
@@ -385,7 +387,7 @@ void CGame::Render() {
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, vs->GetTextureVSConstBufferVals(matFinal, physics->GetQuaternion()), 0, 0);
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, ShaderManager::GetTextureVSConstBufferVals(matFinal, physics->GetQuaternion()), 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 
@@ -418,15 +420,7 @@ void CGame::Render() {
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 
-		// todo remove and use vs->GetTextureVSConstBufferVals() instead
-		// create constant buffer
-		std::unique_ptr<SHINYMATCONSTBUFF> constBufVals(new SHINYMATCONSTBUFF());
-		constBufVals->matFinal = matFinal;
-		constBufVals->rotation = physics->GetQuaternion();
-		constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
-		constBufVals->position = physics->GetPosition();
-
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBufVals.get(), 0, 0);
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition()), 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 

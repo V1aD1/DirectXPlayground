@@ -19,16 +19,3 @@ std::vector<D3D11_INPUT_ELEMENT_DESC> ShinyMatVS::GetInputLayout() {
 
 	return ied;
 }
-
-// this function will have a different signature based on each shader anyway so it probably shouldn't be here...
-const void* ShinyMatVS::GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) {
-	SHINYMATCONSTBUFF* constBufVals = new SHINYMATCONSTBUFF();
-	constBufVals->matFinal = matFinal;
-	constBufVals->rotation = rot;
-	constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
-	
-	// todo later
-	//constBufVals->position = physics->GetPosition();
-
-	return constBufVals;
-}
