@@ -37,6 +37,6 @@ public:
 	ComPtr<ID3D11PixelShader> GetPixelShader(Shaders key);
 	
 	// const buffer constructor functions for different vertex shaders
-	static const void* GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos);
+	static const void* GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix);
 	static const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot);
 };

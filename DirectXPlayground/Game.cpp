@@ -419,8 +419,10 @@ void CGame::Render() {
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
+		auto constBuf = ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition(),
+			physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation(), matView, matProjection);
 
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition()), 0, 0);
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBuf, 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 

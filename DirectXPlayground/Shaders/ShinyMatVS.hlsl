@@ -1,29 +1,35 @@
 cbuffer ConstantBuffer {
-	float4x4 final;
-	float4x4 rotation;
+	float4x4 final; // todo get rid of this
+	float4x4 rotation; // todo get rid of this
 	float4 materialCol;
 
 	float3 cameraPos;
 	float padding;
+
+	// testing
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
 }
 
 struct VOut {
-	float4 position: SV_POSITION;
+	float4 pos: SV_POSITION;
 	float4 color: COLOR;
+	float4 worldNormal: NORMAL;
+	float3 viewDir: TEXCOORD1;
 };
 
-VOut main(float4 pos : POSITION, float4 normal : NORMAL)
+VOut main(float4 vPos : POSITION, float4 vNormal : NORMAL)
 {
-	//ViewingDirection = CameraPosition - VertexPosition
-	//ReflectionVector = 2 * LightIntensity * VertexNormal - LightDirection
-	//SpecularLighting = SpecularLightColor * (ViewingDirection dot ReflectionVector) power SpecularReflectionPower
+	// order of multiplication matters!!
+	float4 worldPos = mul(worldMatrix, vPos); // mul is an intrinsic that also handles matrix multiplication
 
 	VOut output;
-	output.position = mul(final, pos); // mul is an intrinsic that also handles matrix multiplication
+	output.pos = mul(viewMatrix, worldPos);
+	output.pos = mul(projectionMatrix, output.pos);
 	output.color = materialCol; // final color
-
-	// finding out the normal in world space of the vertex
-	float4 norm = normalize(mul(rotation, normal));
+	output.worldNormal = normalize(mul(worldMatrix, vNormal)); // finding out the normal in world space of the vertex
+	output.viewDir = normalize(cameraPos.xyz - worldPos.xyz); //ViewingDirection = CameraPosition - VertexPosition
 
 	// order of return values MUST MATCH order of input variables to pixel shader!
 	return output;

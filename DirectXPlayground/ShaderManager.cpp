@@ -54,12 +54,17 @@ ComPtr<ID3D11PixelShader> ShaderManager::GetPixelShader(Shaders key) {
 	return m_pixelShaders[key]; 
 };
 
-const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos) {
+const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, 
+														XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix) {
 	SHINYMATCONSTBUFF* constBufVals = new SHINYMATCONSTBUFF();
 	constBufVals->matFinal = matFinal;
 	constBufVals->rotation = rot;
 	constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
 	constBufVals->camPos = camPos;
+
+	constBufVals->worldMatrix = worldMatrix;
+	constBufVals->viewMatrix = viewMatrix;
+	constBufVals->projectionMatrix = projMatrix;
 
 	return constBufVals;
 }

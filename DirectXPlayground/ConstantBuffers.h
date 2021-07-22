@@ -25,5 +25,8 @@ struct SHINYMATCONSTBUFF {
 	XMVECTOR color{}; // 16 byte alligned
 	XMFLOAT3 camPos{}; // NOT 16 byte alligned!
 	float padding1; // now we're good
+	XMMATRIX worldMatrix;
+	XMMATRIX viewMatrix;
+	XMMATRIX projectionMatrix;
 
 };
