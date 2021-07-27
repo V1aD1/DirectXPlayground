@@ -12,7 +12,7 @@ class InputHandler;
 class Entity;
 class ShaderManager;
 class Camera;
-struct CONSTANTBUFFER;
+struct CONSTANTBUFFER_VS;
 
 class CGame {
 public:
@@ -83,7 +83,7 @@ public:
 	void Finalize();
 
 private:
-	CONSTANTBUFFER* m_constBufferValues;
+	CONSTANTBUFFER_VS* m_constBufferValues;
 	float m_time{0};
 	Entity* m_camera;
 	std::vector<Entity*> m_entities{};

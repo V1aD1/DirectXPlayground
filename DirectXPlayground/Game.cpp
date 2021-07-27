@@ -21,6 +21,7 @@
 #include "Entities/Cube/CubeGraphicsComponent.h"
 
 #include "Shaders/IVertexShader.h"
+#include "Shaders/IPixelShader.h"
 
 // definitions for static variables
 ComPtr<ID3D11RasterizerState> CGame::s_defaultRasterState;
@@ -152,7 +153,7 @@ void CGame::Initialize() {
 	scissor.bottom = window->Bounds.Height / 2; // half the height of the window
 	m_devCon->RSSetScissorRects(1, &scissor); // doesn't work unless scissoring is enabled through rasterizer state
 
-	m_constBufferValues = new CONSTANTBUFFER();
+	m_constBufferValues = new CONSTANTBUFFER_VS();
 	InitGraphics();
 	InitPipeline();
 	InitStates();
@@ -273,26 +274,26 @@ void CGame::AddEntitiesToWorld()
 	auto testGraphics = new CubeGraphicsComponent();
 	auto test = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -11, 3, 0 }), testGraphics);
 	m_entities.push_back(test);
-	m_shaderManager->AddEntityToShaders(Shaders::ShinyMat, test);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, test);
 
 	auto cube1Graphics = new CubeGraphicsComponent();
 	cube1Graphics->AddTexture(m_woodTex);
 	auto cube1 = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{5, 3, 0}), cube1Graphics);
 	m_entities.push_back(cube1);
-	m_shaderManager->AddEntityToShaders(Shaders::Texture, cube1);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, cube1);
 
 	auto cube2Graphics = new CubeGraphicsComponent();
 	cube2Graphics->AddTexture(m_bricksTex);
 	auto cube2Physics = new PhysicsComponent(Vector3{ -4, 4, 0 }, Vector3{}, XMMatrixScaling(4, 2, 4));
 	auto cube2 = new Entity(nullptr, cube2Physics, cube2Graphics);
 	m_entities.push_back(cube2);
-	m_shaderManager->AddEntityToShaders(Shaders::Texture, cube2);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, cube2);
 
 	auto groundGraphics = new CubeGraphicsComponent(10);
 	groundGraphics->AddTexture(m_grassTex);
 	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.1f)), groundGraphics);
 	m_entities.push_back(ground);
-	m_shaderManager->AddEntityToShaders(Shaders::Texture, ground);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, ground);
 
 	m_camera = new Entity(new CameraInputComponent(), new CameraPhysicsComponent(Vector3{ 0, 6, -40 }, Vector3{0, 0, 0}), nullptr);
 	m_entities.push_back(m_camera);
@@ -352,11 +353,12 @@ void CGame::Render() {
 	m_devCon->RSSetState(m_rasterizerState.Get()); // todo figure out how to use this? It's not used anywhere...
 
 	// textured entities
-	for (auto&& entity : m_shaderManager->m_shadersMap[Shaders::Texture]) {
+	for (auto&& entity : m_shaderManager->m_shadersMap[ShaderKeys::Texture]) {
 		if (!entity->m_graphics) { continue; }
 
 		auto graphics = entity->m_graphics;
-		IVertexShader* vs = m_shaderManager->GetVertexShader(Shaders::Texture);
+		std::shared_ptr<IVertexShader> vs = m_shaderManager->GetVertexShader(ShaderKeys::Texture);
+		std::shared_ptr<IPixelShader> ps = m_shaderManager->GetPixelShader(ShaderKeys::Texture);
 
 		// buffer work
 		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
@@ -365,14 +367,12 @@ void CGame::Render() {
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 		m_devCon->IASetPrimitiveTopology(graphics->m_topology);
 
-		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(Shaders::Texture).Get(), nullptr, 0);
+		m_devCon->VSSetShader(vs->m_directXObjVS.Get(), nullptr, 0);
+		m_devCon->PSSetShader(ps->m_directXObjPS.Get(), nullptr, 0);
 
 		m_dev->CreateBuffer(&(vs->GetConstBufferDesc()), nullptr, &m_VSConstantBuffer);
-		m_devCon->VSSetConstantBuffers(0, 1, m_VSConstantBuffer.GetAddressOf());
 
-		// todo setup ps constant buffer in a similar way to vs constant buffer
-		//m_devCon->PSSetConstantBuffers(0, 1, m_PSConstantBuffer.GetAddressOf());
+		m_devCon->VSSetConstantBuffers(0, 1, m_VSConstantBuffer.GetAddressOf());
 
 		for (int i = 0; i < graphics->m_textures.size(); i++) {
 			m_devCon->PSSetShaderResources(i, 1, graphics->m_textures[i].GetAddressOf());
@@ -380,7 +380,7 @@ void CGame::Render() {
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ied = vs->GetInputLayout();
 
-		m_dev->CreateInputLayout(&ied[0], ied.size(), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
+		m_dev->CreateInputLayout(&ied[0], ied.size(), vs->m_shaderFile->Data, vs->m_shaderFile->Length, &m_inputLayout);
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
@@ -392,11 +392,12 @@ void CGame::Render() {
 	}
 
 	// shiny material entities
-	for (auto&& entity : m_shaderManager->m_shadersMap[Shaders::ShinyMat]) {
+	for (auto&& entity : m_shaderManager->m_shadersMap[ShaderKeys::ShinyMat]) {
 		if (!entity->m_graphics) { continue; }
 
 		auto graphics = entity->m_graphics;
-		IVertexShader* vs = m_shaderManager->GetVertexShader(Shaders::ShinyMat);
+		std::shared_ptr<IVertexShader> vs = m_shaderManager->GetVertexShader(ShaderKeys::ShinyMat);
+		std::shared_ptr<IPixelShader> ps = m_shaderManager->GetPixelShader(ShaderKeys::ShinyMat);
 
 		// buffer work
 		m_dev->CreateBuffer(&(graphics->m_vbDesc), &(graphics->m_vertexData), &m_vertexBuffer);
@@ -405,20 +406,24 @@ void CGame::Render() {
 		m_devCon->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 		m_devCon->IASetPrimitiveTopology(graphics->m_topology);
 
-		m_devCon->VSSetShader(vs->m_directXShaderObj.Get(), nullptr, 0);
-		m_devCon->PSSetShader(m_shaderManager->GetPixelShader(Shaders::ShinyMat).Get(), nullptr, 0);
+		m_devCon->VSSetShader(vs->m_directXObjVS.Get(), nullptr, 0);
+		m_devCon->PSSetShader(ps->m_directXObjPS.Get(), nullptr, 0);
 
 		m_dev->CreateBuffer(&(vs->GetConstBufferDesc()), nullptr, &m_VSConstantBuffer);
+		m_dev->CreateBuffer(&(ps->GetConstBufferDesc()), nullptr, &m_PSConstantBuffer);
 		m_devCon->VSSetConstantBuffers(0, 1, m_VSConstantBuffer.GetAddressOf());
+		m_devCon->PSSetConstantBuffers(0, 1, m_PSConstantBuffer.GetAddressOf());
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ied = vs->GetInputLayout();
 
-		m_dev->CreateInputLayout(&ied[0], ied.size(), vs->m_vsFile->Data, vs->m_vsFile->Length, &m_inputLayout);
+		m_dev->CreateInputLayout(&ied[0], ied.size(), vs->m_shaderFile->Data, vs->m_shaderFile->Length, &m_inputLayout);
 		m_devCon->IASetInputLayout(m_inputLayout.Get());
 
 		// order here matters! Most of the time you'll want translation AFTER rot and scale
 		auto physics = entity->m_physics;
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
+		
+		// todo the same for pixel shader
 		auto constBuf = ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition(),
 			physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation(), matView, matProjection);
 

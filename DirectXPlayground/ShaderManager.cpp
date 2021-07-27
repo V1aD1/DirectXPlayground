@@ -15,48 +15,60 @@
 ShaderManager::ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 	// load shader files (.hlsl files become .cso files after compilation)
-	SetupAndAddVertexShader(Shaders::Texture, "TextureVS.cso", dev, new TextureVS(), sizeof(CONSTANTBUFFER));
-	AddPixelShader(Shaders::Texture, "TexturePS.cso", dev);
+	SetupAndAddVertexShader(ShaderKeys::Texture, "TextureVS.cso", std::shared_ptr<IVertexShader> (new TextureVS()), dev, sizeof(CONSTANTBUFFER_VS));
+	AddPixelShader(ShaderKeys::Texture, "TexturePS.cso", std::shared_ptr<IPixelShader> (new TexturePS), dev, 0);
 
-	SetupAndAddVertexShader(Shaders::ShinyMat, "ShinyMatVS.cso", dev, new ShinyMatVS(), sizeof(SHINYMATCONSTBUFF));
-	AddPixelShader(Shaders::ShinyMat, "ShinyMatPS.cso", dev);
+	SetupAndAddVertexShader(ShaderKeys::ShinyMat, "ShinyMatVS.cso", std::shared_ptr<IVertexShader>(new ShinyMatVS()), dev, sizeof(SHINYMATCONSTBUFF_VS));
+	AddPixelShader(ShaderKeys::ShinyMat, "ShinyMatPS.cso", std::shared_ptr<IPixelShader>(new ShinyMatPS), dev, sizeof(SHINYMATCONSTBUFF_PS));
 }
 
-void ShaderManager::SetupAndAddVertexShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev, IVertexShader* vs, int constBufSize) {
+ShaderManager::~ShaderManager()
+{
+}
+
+void ShaderManager::SetupAndAddVertexShader(ShaderKeys key, std::string path, std::shared_ptr<IVertexShader> vs, 
+											ComPtr<ID3D11Device1> dev, int constBufSize) {
 	Array<byte>^ vsFile = LoadShaderFile(path);
 	ComPtr<ID3D11VertexShader> vertexShader = {};
 	dev->CreateVertexShader(vsFile->Data, vsFile->Length, nullptr, vertexShader.GetAddressOf());
 
-	vs->m_directXShaderObj = vertexShader;
-	vs->m_vsFile = vsFile;
+	vs->m_directXObjVS = vertexShader;
+	vs->m_shaderFile = vsFile;
 	vs->m_constBufferSize = constBufSize; // todo determine this based on Vertex Shader key
 	vs->m_key = key;
 
 	m_vertexShaders[key] = vs;
 }
 
-void ShaderManager::AddPixelShader(Shaders key, std::string path, ComPtr<ID3D11Device1> dev) {
+void ShaderManager::AddPixelShader(ShaderKeys key, std::string path, std::shared_ptr<IPixelShader> ps, 
+									ComPtr<ID3D11Device1> dev, int constBufSize) {
 	Array<byte>^ psFile = LoadShaderFile(path);
 	ComPtr<ID3D11PixelShader> pixelShader = {};
 	dev->CreatePixelShader(psFile->Data, psFile->Length, nullptr, pixelShader.GetAddressOf());
-	m_pixelShaders[key] = pixelShader;
+	
+	ps->m_directXObjPS = pixelShader;
+	ps->m_shaderFile = psFile;
+	ps->m_constBufferSize = constBufSize;
+	ps->m_key = key;
+	
+	m_pixelShaders[key] = ps;
 }
 
-void ShaderManager::AddEntityToShaders(Shaders shader, Entity* entity) {
+void ShaderManager::AddEntityToShaders(ShaderKeys shader, Entity* entity) {
 	m_shadersMap[shader].push_back(entity);
 }
 
-IVertexShader* ShaderManager::GetVertexShader(Shaders key) { 
+std::shared_ptr<IVertexShader> ShaderManager::GetVertexShader(ShaderKeys key) {
 	return m_vertexShaders[key]; 
 };
 
-ComPtr<ID3D11PixelShader> ShaderManager::GetPixelShader(Shaders key) { 
+std::shared_ptr<IPixelShader> ShaderManager::GetPixelShader(ShaderKeys key) {
 	return m_pixelShaders[key]; 
 };
 
 const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, 
 														XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix) {
-	SHINYMATCONSTBUFF* constBufVals = new SHINYMATCONSTBUFF();
+	SHINYMATCONSTBUFF_VS* constBufVals = new SHINYMATCONSTBUFF_VS();
 	constBufVals->matFinal = matFinal;
 	constBufVals->rotation = rot;
 	constBufVals->color = XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f);
@@ -69,8 +81,14 @@ const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMAT
 	return constBufVals;
 }
 
+// todo
+const void * ShaderManager::GetShinyMatPSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix)
+{
+	return nullptr;
+}
+
 const void* ShaderManager::GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) {
-	CONSTANTBUFFER* constBufVals = new CONSTANTBUFFER();
+	CONSTANTBUFFER_VS* constBufVals = new CONSTANTBUFFER_VS();
 
 	constBufVals->matFinal = matFinal;
 	constBufVals->rotation = rot;

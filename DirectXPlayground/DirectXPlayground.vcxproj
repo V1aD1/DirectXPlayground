@@ -232,6 +232,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Entities\RotatingPhysicsComponent.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="Shaders\IPixelShader.h" />
     <ClInclude Include="Shaders\IVertexShader.h" />
     <ClInclude Include="Shaders\TextureShader.h" />
     <ClInclude Include="Shaders\IShader.h" />

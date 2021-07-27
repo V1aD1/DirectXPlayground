@@ -52,6 +52,7 @@
     <ClInclude Include="Shaders\IShader.h" />
     <ClInclude Include="Shaders\IVertexShader.h" />
     <ClInclude Include="Shaders\ShinyMatShader.h" />
+    <ClInclude Include="Shaders\IPixelShader.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

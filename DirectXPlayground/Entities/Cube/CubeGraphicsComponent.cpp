@@ -58,7 +58,7 @@ CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
 
 const void * CubeGraphicsComponent::GetConstBufferValues()
 {
-	CONSTANTBUFFER* constBufferValues = new CONSTANTBUFFER();
+	CONSTANTBUFFER_VS* constBufferValues = new CONSTANTBUFFER_VS();
 	return nullptr;
 }
 

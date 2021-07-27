@@ -3,8 +3,8 @@
 // REMEMBER constant buffers MUST be multiples of 16 bytes!! 
 // If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
 
-// used to mirror our constant buffer
-struct CONSTANTBUFFER {
+// used to mirror our vs constant buffer
+struct CONSTANTBUFFER_VS {
 
 	// var names don't have to match with constant buffer BUT
 	// variable size and order must match;
@@ -19,7 +19,7 @@ struct CONSTANTBUFFER {
 	XMVECTOR ambientColor{};
 };
 
-struct SHINYMATCONSTBUFF {
+struct SHINYMATCONSTBUFF_VS {
 	XMMATRIX matFinal{}; // 16 byte alligned
 	XMMATRIX rotation{}; // 16 byte alligned
 	XMVECTOR color{}; // 16 byte alligned
@@ -28,5 +28,13 @@ struct SHINYMATCONSTBUFF {
 	XMMATRIX worldMatrix;
 	XMMATRIX viewMatrix;
 	XMMATRIX projectionMatrix;
+};
 
+struct SHINYMATCONSTBUFF_PS {
+	XMVECTOR ambientColor{};
+	XMVECTOR diffuseColor{};
+	XMVECTOR lightDir{};
+	float specularPower;
+	XMFLOAT3 padding1;
+	XMVECTOR specularColor;
 };

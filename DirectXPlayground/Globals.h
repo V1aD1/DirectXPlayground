@@ -1,2 +1,2 @@
 #pragma once
-enum class Shaders{Texture, ShinyMat};
+enum class ShaderKeys{Texture, ShinyMat};
