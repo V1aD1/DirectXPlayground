@@ -153,7 +153,6 @@ void CGame::Initialize() {
 	scissor.bottom = window->Bounds.Height / 2; // half the height of the window
 	m_devCon->RSSetScissorRects(1, &scissor); // doesn't work unless scissoring is enabled through rasterizer state
 
-	m_constBufferValues = new CONSTANTBUFFER_VS();
 	InitGraphics();
 	InitPipeline();
 	InitStates();
@@ -272,7 +271,7 @@ void CGame::InitStates()
 void CGame::AddEntitiesToWorld()
 {
 	auto testGraphics = new CubeGraphicsComponent();
-	auto test = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -11, 3, 0 }), testGraphics);
+	auto test = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -15, 3, 0 }), testGraphics);
 	m_entities.push_back(test);
 	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, test);
 
@@ -411,6 +410,7 @@ void CGame::Render() {
 
 		m_dev->CreateBuffer(&(vs->GetConstBufferDesc()), nullptr, &m_VSConstantBuffer);
 		m_dev->CreateBuffer(&(ps->GetConstBufferDesc()), nullptr, &m_PSConstantBuffer);
+		
 		m_devCon->VSSetConstantBuffers(0, 1, m_VSConstantBuffer.GetAddressOf());
 		m_devCon->PSSetConstantBuffers(0, 1, m_PSConstantBuffer.GetAddressOf());
 
@@ -424,10 +424,18 @@ void CGame::Render() {
 		XMMATRIX matFinal = physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation() * matView * matProjection;
 		
 		// todo the same for pixel shader
-		auto constBuf = ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition(),
+		auto constBufVS = ShaderManager::GetShinyMatVSConstBufferVals(matFinal, physics->GetQuaternion(), physics->GetPosition(),
 			physics->GetScale() * physics->GetQuaternion() * physics->GetTranslation(), matView, matProjection);
 
-		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBuf, 0, 0);
+		auto constBufPS = ShaderManager::GetShinyMatPSConstBufferVals(
+			XMVectorSet(0.4f, 0.4f, 0.4f, 1.0f),
+			XMVectorSet(1.0f, 0.4f, 0.4f, 1.0f), // todo diffuse color and material color are the same, we don't need it in both const buffers?
+			XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f),
+			XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f),
+			3.0f);
+
+		m_devCon->UpdateSubresource(m_VSConstantBuffer.Get(), 0, 0, constBufVS, 0, 0);
+		m_devCon->UpdateSubresource(m_PSConstantBuffer.Get(), 0, 0, constBufPS, 0, 0);
 		m_devCon->DrawIndexed(graphics->m_indices.size(), 0, 0);
 	}
 

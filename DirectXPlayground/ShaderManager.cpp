@@ -15,17 +15,18 @@
 ShaderManager::ShaderManager(ComPtr<ID3D11Device1> dev) {
 
 	// load shader files (.hlsl files become .cso files after compilation)
-	SetupAndAddVertexShader(ShaderKeys::Texture, "TextureVS.cso", std::shared_ptr<IVertexShader> (new TextureVS()), dev, sizeof(CONSTANTBUFFER_VS));
-	AddPixelShader(ShaderKeys::Texture, "TexturePS.cso", std::shared_ptr<IPixelShader> (new TexturePS), dev, 0);
+	SetupAndAddVertexShader(ShaderKeys::Texture, "TextureVS.cso", std::shared_ptr<IVertexShader> (new TextureVS()), dev, sizeof(TEXTURECONSTBUFF_VS));
+	SetupAndAddPixelShader(ShaderKeys::Texture, "TexturePS.cso", std::shared_ptr<IPixelShader> (new TexturePS), dev, 0);
 
 	SetupAndAddVertexShader(ShaderKeys::ShinyMat, "ShinyMatVS.cso", std::shared_ptr<IVertexShader>(new ShinyMatVS()), dev, sizeof(SHINYMATCONSTBUFF_VS));
-	AddPixelShader(ShaderKeys::ShinyMat, "ShinyMatPS.cso", std::shared_ptr<IPixelShader>(new ShinyMatPS), dev, sizeof(SHINYMATCONSTBUFF_PS));
+	SetupAndAddPixelShader(ShaderKeys::ShinyMat, "ShinyMatPS.cso", std::shared_ptr<IPixelShader>(new ShinyMatPS), dev, sizeof(SHINYMATCONSTBUFF_PS));
 }
 
 ShaderManager::~ShaderManager()
 {
 }
 
+// todo reduce code duplication between SetupAndAddXShader() methods
 void ShaderManager::SetupAndAddVertexShader(ShaderKeys key, std::string path, std::shared_ptr<IVertexShader> vs, 
 											ComPtr<ID3D11Device1> dev, int constBufSize) {
 	Array<byte>^ vsFile = LoadShaderFile(path);
@@ -40,7 +41,7 @@ void ShaderManager::SetupAndAddVertexShader(ShaderKeys key, std::string path, st
 	m_vertexShaders[key] = vs;
 }
 
-void ShaderManager::AddPixelShader(ShaderKeys key, std::string path, std::shared_ptr<IPixelShader> ps, 
+void ShaderManager::SetupAndAddPixelShader(ShaderKeys key, std::string path, std::shared_ptr<IPixelShader> ps, 
 									ComPtr<ID3D11Device1> dev, int constBufSize) {
 	Array<byte>^ psFile = LoadShaderFile(path);
 	ComPtr<ID3D11PixelShader> pixelShader = {};
@@ -81,14 +82,20 @@ const void* ShaderManager::GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMAT
 	return constBufVals;
 }
 
-// todo
-const void * ShaderManager::GetShinyMatPSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix)
+const void* ShaderManager::GetShinyMatPSConstBufferVals(XMVECTOR ambientCol, XMVECTOR diffuseCol, XMVECTOR specularColor, XMVECTOR lightDir, float specularPower)
 {
-	return nullptr;
+	SHINYMATCONSTBUFF_PS* constBufVals = new SHINYMATCONSTBUFF_PS();
+	constBufVals->ambientColor = ambientCol;
+	constBufVals->diffuseColor = diffuseCol;
+	constBufVals->specularColor = specularColor;
+	constBufVals->lightDir = lightDir;
+	constBufVals->specularPower = specularPower;
+
+	return constBufVals;
 }
 
 const void* ShaderManager::GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot) {
-	CONSTANTBUFFER_VS* constBufVals = new CONSTANTBUFFER_VS();
+	TEXTURECONSTBUFF_VS* constBufVals = new TEXTURECONSTBUFF_VS();
 
 	constBufVals->matFinal = matFinal;
 	constBufVals->rotation = rot;

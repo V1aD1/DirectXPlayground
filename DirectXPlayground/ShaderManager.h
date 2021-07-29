@@ -29,7 +29,7 @@ public:
 private:
 	// todo should use and split up into SetupVS and AddVS or something...
 	void SetupAndAddVertexShader(ShaderKeys key, std::string path, std::shared_ptr<IVertexShader> vs, ComPtr<ID3D11Device1> dev, int constBufSize);
-	void AddPixelShader(ShaderKeys key, std::string path, std::shared_ptr<IPixelShader> ps, ComPtr<ID3D11Device1> dev, int constBufSize);
+	void SetupAndAddPixelShader(ShaderKeys key, std::string path, std::shared_ptr<IPixelShader> ps, ComPtr<ID3D11Device1> dev, int constBufSize);
 
 public:
 	ShaderManager(ComPtr<ID3D11Device1> dev);
@@ -39,8 +39,9 @@ public:
 	std::shared_ptr<IPixelShader> GetPixelShader(ShaderKeys key);
 	
 	// const buffer constructor functions for different vertex shaders
+	// todo these probably shouldn't be here, just create a constructor for the CONSTBUFF_XS struct itself...
 	static const void* GetShinyMatVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix);
-	static const void* GetShinyMatPSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot, XMFLOAT3 camPos, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projMatrix);
+	static const void* GetShinyMatPSConstBufferVals(XMVECTOR ambientCol, XMVECTOR diffuseCol, XMVECTOR specularColor, XMVECTOR lightDir, float specularPower);
 	
 	static const void* GetTextureVSConstBufferVals(XMMATRIX matFinal, XMMATRIX rot);
 };

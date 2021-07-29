@@ -4,7 +4,7 @@
 // If our constant buffer isn't a multiple of 16, the leftover bytes will be ignored
 
 // used to mirror our vs constant buffer
-struct CONSTANTBUFFER_VS {
+struct TEXTURECONSTBUFF_VS {
 
 	// var names don't have to match with constant buffer BUT
 	// variable size and order must match;
@@ -33,8 +33,8 @@ struct SHINYMATCONSTBUFF_VS {
 struct SHINYMATCONSTBUFF_PS {
 	XMVECTOR ambientColor{};
 	XMVECTOR diffuseColor{};
+	XMVECTOR specularColor;
 	XMVECTOR lightDir{};
 	float specularPower;
 	XMFLOAT3 padding1;
-	XMVECTOR specularColor;
 };
