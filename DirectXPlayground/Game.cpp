@@ -18,7 +18,9 @@
 #include "Entities/RotatingPhysicsComponent.h"
 #include "Entities/InputHandler.h"
 #include "Entities/Entity.h"
+
 #include "Entities/Cube/CubeGraphicsComponent.h"
+#include "Entities/FlatMesh/FlatMeshGraphicsComponent.h"
 
 #include "Shaders/IVertexShader.h"
 #include "Shaders/IPixelShader.h"
@@ -270,10 +272,9 @@ void CGame::InitStates()
 
 void CGame::AddEntitiesToWorld()
 {
-	auto testGraphics = new CubeGraphicsComponent();
-	auto test = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -15, 3, 0 }), testGraphics);
-	m_entities.push_back(test);
-	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, test);
+	auto shinyCube = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -15, 3, 0 }), new CubeGraphicsComponent());
+	m_entities.push_back(shinyCube);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, shinyCube);
 
 	auto cube1Graphics = new CubeGraphicsComponent();
 	cube1Graphics->AddTexture(m_woodTex);
@@ -288,7 +289,7 @@ void CGame::AddEntitiesToWorld()
 	m_entities.push_back(cube2);
 	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, cube2);
 
-	auto groundGraphics = new CubeGraphicsComponent(10);
+	auto groundGraphics = new FlatMeshGraphicsComponent();
 	groundGraphics->AddTexture(m_grassTex);
 	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.1f)), groundGraphics);
 	m_entities.push_back(ground);

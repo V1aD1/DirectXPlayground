@@ -222,6 +222,7 @@
     <ClInclude Include="Entities\Camera\CameraPhysicsComponent.h" />
     <ClInclude Include="Entities\Camera\CameraInputComponent.h" />
     <ClInclude Include="Entities\Entity.h" />
+    <ClInclude Include="Entities\FlatMesh\FlatMeshGraphicsComponent.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ConstantBuffers.h" />
     <ClInclude Include="Entities\GraphicsComponent.h" />
@@ -246,6 +247,7 @@
     <ClCompile Include="Entities\Camera\CameraPhysicsComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraInputComponent.cpp" />
     <ClCompile Include="Entities\Entity.cpp" />
+    <ClCompile Include="Entities\FlatMesh\FlatMeshGraphicsComponent.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Entities\InputComponent.cpp" />
     <ClCompile Include="Entities\InputHandler.cpp" />

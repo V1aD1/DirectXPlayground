@@ -56,13 +56,6 @@ CubeGraphicsComponent::CubeGraphicsComponent(float textLim)
 	SetupBuffers();
 }
 
-const void * CubeGraphicsComponent::GetConstBufferValues()
-{
-	TEXTURECONSTBUFF_VS* constBufferValues = new TEXTURECONSTBUFF_VS();
-	return nullptr;
-}
-
-
 CubeGraphicsComponent::~CubeGraphicsComponent()
 {
 }
