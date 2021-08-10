@@ -291,7 +291,7 @@ void CGame::AddEntitiesToWorld()
 
 	auto groundGraphics = new FlatMeshGraphicsComponent();
 	groundGraphics->AddTexture(m_grassTex);
-	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.1f)), groundGraphics);
+	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.0f)), groundGraphics);
 	m_entities.push_back(ground);
 	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, ground);
 
