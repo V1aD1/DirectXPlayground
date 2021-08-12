@@ -31,6 +31,7 @@
     <ClCompile Include="Shaders\ShinyMatShader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Entities\FlatMesh\FlatMeshGraphicsComponent.cpp" />
+    <ClCompile Include="Entities\Cylinder\CylinderGraphicsComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="Shaders\ShinyMatShader.h" />
     <ClInclude Include="Shaders\IPixelShader.h" />
     <ClInclude Include="Entities\FlatMesh\FlatMeshGraphicsComponent.h" />
+    <ClInclude Include="Entities\Cylinder\CylinderGraphicsComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

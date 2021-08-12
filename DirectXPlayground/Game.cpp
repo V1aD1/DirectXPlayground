@@ -21,6 +21,7 @@
 
 #include "Entities/Cube/CubeGraphicsComponent.h"
 #include "Entities/FlatMesh/FlatMeshGraphicsComponent.h"
+#include "Entities/Cylinder/CylinderGraphicsComponent.h"
 
 #include "Shaders/IVertexShader.h"
 #include "Shaders/IPixelShader.h"
@@ -272,6 +273,11 @@ void CGame::InitStates()
 
 void CGame::AddEntitiesToWorld()
 {
+	auto cylinderGraphics = new CylinderGraphicsComponent();
+	auto cylinder = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 5, -25 }, Vector3{}, XMMatrixScaling(1, 1, 1)), cylinderGraphics);
+	m_entities.push_back(cylinder);
+	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, cylinder);
+
 	auto shinyCube = new Entity(nullptr, new RotatingPhysicsComponent(Vector3{ -15, 3, 0 }), new CubeGraphicsComponent());
 	m_entities.push_back(shinyCube);
 	m_shaderManager->AddEntityToShaders(ShaderKeys::ShinyMat, shinyCube);
@@ -291,7 +297,7 @@ void CGame::AddEntitiesToWorld()
 
 	auto groundGraphics = new FlatMeshGraphicsComponent(10, 10);
 	groundGraphics->AddTexture(m_grassTex);
-	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0.0f)), groundGraphics);
+	auto ground = new Entity(nullptr, new PhysicsComponent(Vector3{ 0, 0, -10 }, Vector3{1.57f, 0, 0}, XMMatrixScaling(30, 30, 0)), groundGraphics);
 	m_entities.push_back(ground);
 	m_shaderManager->AddEntityToShaders(ShaderKeys::Texture, ground);
 

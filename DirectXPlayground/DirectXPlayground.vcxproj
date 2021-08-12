@@ -218,6 +218,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Entities\Cylinder\CylinderGraphicsComponent.h" />
     <ClInclude Include="Entities\Cube\CubeGraphicsComponent.h" />
     <ClInclude Include="Entities\Camera\CameraPhysicsComponent.h" />
     <ClInclude Include="Entities\Camera\CameraInputComponent.h" />
@@ -243,6 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Entities\Cylinder\CylinderGraphicsComponent.cpp" />
     <ClCompile Include="Entities\Cube\CubeGraphicsComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraPhysicsComponent.cpp" />
     <ClCompile Include="Entities\Camera\CameraInputComponent.cpp" />

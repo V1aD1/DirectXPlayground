@@ -17,6 +17,7 @@ FlatMeshGraphicsComponent::FlatMeshGraphicsComponent(int squaresPerRow, int squa
 			auto down = j * deltaY + minY;
 			auto up = (j + 1)*deltaY + minY;
 			
+			// clock wise order
 			m_vertices.push_back({ left, j * deltaY + minY, 0.0f,        0.0f, 0.0f, 1.0f,    0.0f, 0.0f });
 			m_vertices.push_back({ left, (j+1)*deltaY + minY, 0.0f,      0.0f, 0.0f, 1.0f,    0.0f, 1.0f });
 			m_vertices.push_back({ right, (j + 1)*deltaY + minY, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 1.0f });
@@ -24,6 +25,7 @@ FlatMeshGraphicsComponent::FlatMeshGraphicsComponent(int squaresPerRow, int squa
 		}
 	}
 
+	// clockwise order
 	for (int i = 0; i < m_vertices.size(); i+=4) {
 		m_indices.push_back(i);
 		m_indices.push_back(i + 1);
